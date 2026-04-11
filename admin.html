@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>PickAgain - 관리자 대시보드</title>
+    <link rel="stylesheet" href="layout.css">
+    <style>
+        /* =================================
+           관리자 페이지 전용 추가 스타일
+           ================================= */
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .admin-table th, .admin-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+        .admin-table th { background-color: #f8faff; color: #4b6cb7; font-weight: bold; border-top: 2px solid #4b6cb7; }
+        .admin-table tr:hover { background-color: #fcfcfc; }
+        
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; text-align: center; min-width: 50px; }
+        .badge.pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .badge.approved { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .badge.rejected { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .btn-sm { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 5px; color: white; transition: 0.2s; font-weight: bold; }
+        .btn-approve { background-color: #27ae60; }
+        .btn-approve:hover { background-color: #219653; }
+        .btn-reject { background-color: #e74c3c; }
+        .btn-reject:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+    <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
+    
+    <div class="search-container">
+        <div class="search-bar-row">
+            <div class="title-container">
+                <h2 class="Title"><a href="index.html">PickAgain</a></h2>
+            </div>
+            <div style="flex:1; text-align:center; font-weight:bold; color:#4b6cb7; font-size: 18px;">관리자 전용 대시보드</div>
+            <button class="alert-btn" onclick="location.href='index.html'">메인으로</button>
+        </div>
+    </div>
+
+    <div class="page-wrapper" style="max-width: 1000px; margin: 0 auto;">
+        <main class="main-content" style="max-width: 100%;">
+            <div class="content">
+                <h2 style="color: #2c3e50; margin-top:0;">📋 가입 승인 대기 목록</h2>
+                <p>PickAgain 플랫폼에 입점을 신청한 매장 목록입니다. 신규 가입자는 <strong>승인</strong>을 받아야 로그인할 수 있습니다.</p>
+                
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>아이디</th>
+                            <th>신청 매장명</th>
+                            <th>전화번호</th>
+                            <th>매장 위치</th>
+                            <th>현재 상태</th>
+                            <th>승인 관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-users-list">
+                        <tr><td colspan="6" style="text-align: center; padding: 30px;">로딩 중...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const backendURL = 'http://localhost:3000';
+
+        // --- ★ 1. 최고 관리자(admin) 권한 철저 확인 ★ ---
+        const currentUser = localStorage.getItem("username");
+        const userRole = localStorage.getItem("userRole");
+
+        if (!currentUser || userRole !== 'admin') {
+            alert("최고 관리자만 접근할 수 있는 페이지입니다.");
+            location.href = "index.html";
+        }
+
+        // --- ★ 2. 상단바 관리자용으로 변경 ★ ---
+        document.querySelector(".navbar").innerHTML = `
+            <span style="color: white; margin-right: 15px;">👑 관리자 <strong>${currentUser}</strong>님 접속 중</span>
+            <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
+        `;
+        document.getElementById("logoutBtn").addEventListener("click", function(e) {
+            e.preventDefault();
+            localStorage.clear();
+            location.href = "index.html"; 
+        });
+
+        // --- ★ 3. 회원 목록 불러오기 ★ ---
+        function fetchAdminUsers() {
+            fetch(`${backendURL}/admin/users`)
+                .then(res => res.json())
+                .then(users => {
+                    const tbody = document.getElementById("admin-users-list");
+                    tbody.innerHTML = "";
+
+                    if (users.length === 0) {
+                        tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 30px; color: #777;'>가입을 신청한 매장이 없습니다.</td></tr>";
+                        return;
+                    }
+
+                    users.forEach(u => {
+                        let statusBadge = "";
+                        let actionButtons = "";
+
+                        // 상태에 따라 뱃지와 버튼을 다르게 보여줍니다.
+                        if (u.status === 'pending') {
+                            statusBadge = `<span class="badge pending">대기중</span>`;
+                            actionButtons = `
+                                <button class="btn-sm btn-approve" onclick="updateUserStatus('${u.user_id}', 'approved')">승인</button>
+                                <button class="btn-sm btn-reject" onclick="updateUserStatus('${u.user_id}', 'rejected')">거절</button>
+                            `;
+                        } else if (u.status === 'approved') {
+                            statusBadge = `<span class="badge approved">승인됨</span>`;
+                            actionButtons = `<button class="btn-sm btn-reject" onclick="updateUserStatus('${u.user_id}', 'rejected')">승인 취소</button>`;
+                        } else {
+                            statusBadge = `<span class="badge rejected">거절됨</span>`;
+                            actionButtons = `<button class="btn-sm btn-approve" onclick="updateUserStatus('${u.user_id}', 'approved')">다시 승인</button>`;
+                        }
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${u.user_id}</strong></td>
+                                <td style="color: #4b6cb7; font-weight: bold;">${u.store_name}</td>
+                                <td>${u.store_phone || '-'}</td>
+                                <td>${u.store_location || '-'}</td>
+                                <td>${statusBadge}</td>
+                                <td>${actionButtons}</td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(err => console.error("불러오기 에러:", err));
+        }
+
+        // --- ★ 4. 승인/거절 상태 업데이트 ★ ---
+        function updateUserStatus(userId, newStatus) {
+            const actionText = newStatus === 'approved' ? '승인' : '거절';
+            if (!confirm(`해당 매장을 [${actionText}] 처리하시겠습니까?`)) return;
+
+            fetch(`${backendURL}/admin/users/${userId}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                fetchAdminUsers(); // 리스트 새로고침 (화면 즉시 반영)
+            })
+            .catch(err => alert("처리 중 오류가 발생했습니다."));
+        }
+
+        // 페이지 켜지자마자 리스트 불러오기
+        window.onload = fetchAdminUsers;
+    </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PickAgain - 로그인</title>
+    <link rel="stylesheet" href="layout.css">
+</head>
+<body>
+
+    <div class="navbar">
+      <a href="login.html">Login/Sign Up</a>
+    </div>
+
+    <div class="search-container">
+        <div class="title-container">
+            <h2 class="Title">
+                <a href="index.html">PickAgain</a>
+            </h2>
+        </div>
+    </div>
+
+    <div class="form-page-container">
+
+        <!-- 로그인 폼 -->
+        <div class="login-container active">
+            <h2>Login</h2>
+            <form id="login-form">
+                <input type="text" id="login-username" name="username" placeholder="User ID" required>
+                <input type="password" id="login-password" name="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <span class="switch-link" onclick="toggleForms()">Create an Account</span>
+        </div>
+    
+        <!-- 회원가입 폼 -->
+        <div class="signup-container">
+            <h2>Sign Up</h2>
+            <form id="signup-form">
+                <input type="text" id="signup-userid" name="userid" placeholder="사용할 ID" required>
+                <input type="password" id="signup-password" name="password" placeholder="비밀번호" required>
+                <input type="password" id="signup-confirm-password" name="confirm_password" placeholder="비밀번호 확인" required>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+                <input type="text" id="signup-store-name" placeholder="매장명 (예: PickAgain 여수점)" required>
+                <input type="text" id="signup-store-location" placeholder="매장 상세 주소" required>
+                <input type="text" id="signup-store-phone" placeholder="매장 전화번호" required>
+                <button type="submit">가입 신청</button>
+            </form>
+            <span class="switch-link" onclick="toggleForms()">Back to Login</span>
+        </div>
+    </div>
+    
+    <script>
+        const backendURL = 'http://localhost:3000';
+
+        /**
+         * 1. 로그인/회원가입 폼 전환
+         */
+        function toggleForms() {
+            document.querySelector('.login-container').classList.toggle('active');
+            document.querySelector('.signup-container').classList.toggle('active');
+        }
+
+        /**
+         * [ ★ 2. 신규 추가 ★ ] 로그인 폼 제출 이벤트
+         */
+        document.getElementById("login-form").addEventListener("submit", function(e) {
+            e.preventDefault(); // 새로고침 방지
+
+            const usernameInput = document.getElementById("login-username").value;
+            const passwordInput = document.getElementById("login-password").value;
+
+            // 서버에 로그인 요청
+            fetch(`${backendURL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    username: usernameInput, 
+                    password: passwordInput 
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message); 
+                
+                localStorage.setItem("username", data.username);
+                localStorage.setItem("userRole", data.role);
+                
+                // 매장 정보 저장
+                localStorage.setItem("store_name", data.store_name || "");
+                localStorage.setItem("store_location", data.store_location || "");
+                localStorage.setItem("store_phone", data.store_phone || "");
+                
+                window.location.href = "index.html"; 
+            })
+            .catch(error => {
+                alert(error.message); // "비밀번호가 일치하지 않습니다." 등
+            });
+        });
+
+        /**
+         * 3. 회원가입 폼 제출 이벤트
+         */
+        document.getElementById("signup-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            
+            const userid = document.getElementById("signup-userid").value;
+            const password = document.getElementById("signup-password").value;
+            const confirmPassword = document.getElementById("signup-confirm-password").value;
+            const storeName = document.getElementById("signup-store-name").value;
+            const storeLocation = document.getElementById("signup-store-location").value;
+            const storePhone = document.getElementById("signup-store-phone").value;
+
+            if (password !== confirmPassword) {
+                alert("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.");
+                return;
+            }
+
+            fetch(`${backendURL}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    userid: userid, 
+                    password: password,
+                    store_name: storeName,
+                    store_location: storeLocation,
+                    store_phone: storePhone
+                })
+            })
+            .then(response => {
+                if (!response.ok) { 
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                
+                document.getElementById("signup-form").reset();
+                
+                toggleForms(); 
+            })
+            .catch(error => {
+                console.error("회원가입 실패:", error);
+                alert(error.message);
+            });
+        });
+
+        // 검색창 이벤트
+        document.getElementById("searchBtn").addEventListener("click", function() {
+            const keyword = document.getElementById("keyword").value;
+            window.location.href = `index.html?search=${keyword}`;
+        });
+    </script>
+</body>
+</html>

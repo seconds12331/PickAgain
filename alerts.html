@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>PickAgain - 예약 알림</title>
+    <link rel="stylesheet" href="layout.css">
+</head>
+<body>
+    <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
+    
+    <div class="search-container">
+        <div class="search-bar-row">
+            <div class="title-container">
+                <h2 class="Title"><a href="index.html">PickAgain</a></h2>
+            </div>
+            <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
+            <button id="searchBtn">검색</button>
+            <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        <div class="ad-column-left">
+            <aside class="ad-slot ad-slot-left"><p style="text-align: center; color: #999;">(왼쪽 광고)</p></aside>
+        </div>
+
+        <main class="main-content">
+            <div class="content">
+                <h2 style="color: #4b6cb7; margin-top:0;"> 구매 예약 알림</h2>
+                <p>고객이 예약을 희망하는 상품과 연락처 목록입니다.</p>
+                
+                <div id="alerts-container" class="alerts-list">
+                    <p style="text-align:center; padding: 30px; color:#999;">로딩 중...</p>
+                </div>
+            </div>
+        </main>
+
+        <div class="ad-column-right">
+            <aside class="ad-slot ad-slot-right"><p style="text-align: center; color: #999;">(오른쪽 광고)</p></aside>
+        </div>
+    </div>
+
+    <script>
+        const backendURL = 'http://localhost:3000';
+
+        // --- ★ 로그인 상태 확인 (판매자/관리자만 접근 가능) ★ ---
+        const currentUser = localStorage.getItem("username");
+        const navbar = document.querySelector(".navbar");
+
+        if (currentUser) {
+            navbar.innerHTML = `
+                <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
+                <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
+            `;
+            document.getElementById("logoutBtn").addEventListener("click", function(e) {
+                e.preventDefault();
+                localStorage.clear();
+                alert("로그아웃 되었습니다.");
+                location.href = "index.html"; 
+            });
+        } else {
+            alert("로그인이 필요한 페이지입니다.");
+            location.href = "login.html";
+        }
+
+        // --- ★ 알림 데이터 가져오기 및 렌더링 ★ ---
+        function fetchAlerts() {
+            fetch(`${backendURL}/reservations`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById("alerts-container");
+                    container.innerHTML = ""; // 로딩 글자 지우기
+
+                    if (data.length === 0) {
+                        container.innerHTML = "<div style='text-align:center; padding: 40px; color:#777; background:#f9f9f9; border-radius:8px;'>새로운 예약 알림이 없습니다.</div>";
+                        return;
+                    }
+
+                    data.forEach(alert => {
+                        // 날짜 포맷팅 (예: 2026-03-12 14:30)
+                        const dateObj = new Date(alert.created_at);
+                        const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')} ${String(dateObj.getHours()).padStart(2,'0')}:${String(dateObj.getMinutes()).padStart(2,'0')}`;
+
+                        const alertItem = document.createElement("div");
+                        alertItem.classList.add("alert-item");
+                        alertItem.innerHTML = `
+                            <div class="alert-product-info">
+                                <span class="store-badge">${alert.store_name || '전체 매장'}</span>
+                                <span class="date-text">${dateStr}</span>
+                                <h4><a href="product-detail.html?id=${alert.product_id}" target="_blank">${alert.name}</a></h4>
+                                <p>상품 상태: <strong>${alert.status_category}</strong> | <span class="price">${alert.price.toLocaleString()}원</span></p>
+                            </div>
+                            <div class="alert-contact">
+                                <span>구매 희망자 연락처</span>
+                                <strong>📞 ${alert.buyer_phone}</strong>
+                                
+                                <div style="margin-top: 15px; text-align: left; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #eaeaea;">
+                                    <span style="font-size: 11px; color: #777; margin-bottom: 5px; display: block; font-weight: bold;">진행 상태 관리</span>
+                                    <select onchange="updateReservationStatus(${alert.reservation_id}, this.value)" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer;">
+                                        <option value="대기중" ${alert.status === '대기중' ? 'selected' : ''}>⏳ 대기중 (연락 전)</option>
+                                        <option value="판매 가능 (연락 완료)" ${alert.status === '판매 가능 (연락 완료)' ? 'selected' : ''}>✅ 판매 가능 (연락 완료)</option>
+                                        <option value="판매 불가 (연락 필요)" ${alert.status === '판매 불가 (연락 필요)' ? 'selected' : ''}>⚠️ 판매 불가 (연락 필요)</option>
+                                        <option value="판매 불가 (연락 완료)" ${alert.status === '판매 불가 (연락 완료)' ? 'selected' : ''}>❌ 판매 불가 (연락 완료)</option>
+                                        <option value="판매 완료" ${alert.status === '판매 완료' ? 'selected' : ''}>🎉 판매 완료 (거래 종료)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(alertItem);
+                    });
+                })
+                .catch(err => {
+                    console.error("알림 로딩 에러:", err);
+                    document.getElementById("alerts-container").innerHTML = "<p>알림을 불러오는 데 실패했습니다.</p>";
+                });
+        }
+
+        window.onload = fetchAlerts;
+
+        // 검색창 엔터키 이벤트
+        document.getElementById("searchBtn").addEventListener("click", function() {
+            const keyword = document.getElementById("keyword").value;
+            window.location.href = `index.html?search=${keyword}`;
+        });
+
+        // ==========================================
+        // ★ 예약 상태 변경 요청 함수 ★
+        // ==========================================
+        function updateReservationStatus(reservationId, newStatus) {
+            fetch(`${backendURL}/reservations/${reservationId}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('상태 변경 실패');
+                return response.json();
+            })
+            .then(data => {
+                // 부드러운 사용자 경험을 위해 경고창(alert) 대신 콘솔 로그만 남기거나 무시합니다.
+                // 이미 화면의 드롭다운은 바뀌어 있으므로 사용자는 변경된 것을 인지합니다.
+                console.log(data.message); 
+            })
+            .catch(error => {
+                console.error("상태 변경 에러:", error);
+                alert("상태 변경에 실패했습니다. 다시 시도해 주세요.");
+                // 실패 시 페이지 새로고침하여 원래 상태로 되돌림
+                location.reload(); 
+            });
+        }
+    </script>
+</body>
+</html>

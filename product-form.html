@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PickAgain - 상품 관리</title>
+    <link rel="stylesheet" href="layout.css">
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="login.html">Login/Sign Up</a>
+    </div>
+    <div class="search-container">
+        <div class="search-bar-row">
+            <div class="title-container">
+                <h2 class="Title">
+                    <a href="index.html">PickAgain</a>
+                </h2>
+            </div>
+            <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
+            <button id="searchBtn">검색</button>
+            <button class="alert-btn" onclick="location.href='alerts.html'">
+                알림
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>새 상품 등록</h2>
+        <p>등록할 상품의 정보를 입력해 주세요.</p>
+
+        <form id="new-product-form" action="" enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label for="product-name">상품명</label>
+                <input type="text" id="product-name" name="product-name" placeholder="예: 삼성전자 비스포크 냉장고" required>
+            </div>
+
+            <div class="form-group">
+                <label for="product-status-category">상품 상태 분류</label>
+                <select id="product-status-category" name="product-status-category" required>
+                    <option value="">-- 상태를 선택하세요 --</option>
+                    <option value="단순변심 반품">단순변심 반품 (S급)</option>
+                    <option value="포장 훼손">포장 훼손 (내용물 양호)</option>
+                    <option value="스크래치/흠집">스크래치/흠집 (기능 정상)</option>
+                    <option value="유통기한 임박">유통기한 임박</option>
+                    <option value="기능 고장">기능 고장 (수리 필요)</option>
+                    <option value="전시 상품">매장 전시 상품</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="product-status-detail">상세 상태 설명</label>
+                <textarea id="product-status-detail" name="product-status-detail" rows="3"
+                    placeholder="예: 박스 왼쪽 모서리가 조금 찢어졌으나 제품에는 이상 없습니다." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="product-price">가격</label>
+                <input type="number" id="product-price" name="product-price" placeholder="숫자만 입력 (예: 1200)" required>
+            </div>
+
+            <div class="form-group">
+                <label for="product-image-files">상품 이미지</label>
+                <input type="file" id="product-image-files" name="product-image-files"
+                    accept="image/png, image/jpeg, image/gif" required multiple>
+            </div>
+
+            <div class="form-group">
+                <label for="expiry-date">소비기한 (선택사항)</label>
+                <input type="date" id="expiry-date" name="expiry-date">
+            </div>
+
+            <div class="form-group">
+                <label for="product-type">상품 대분류</label>
+                <select id="product-type" name="product-type" required onchange="updateSubCategory()">
+                    <option value="">-- 대분류 선택 --</option>
+                    <option value="식품">식품</option>
+                    <option value="가전">가전/디지털</option>
+                    <option value="가구">가구/인테리어</option>
+                    <option value="의류">의류/잡화</option>
+                    <option value="생활">생활용품</option>
+                    <option value="기타">기타</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="product-type-detail">상세 카테고리</label>
+                <select id="product-type-detail" name="product-type-detail" required>
+                    <option value="">-- 대분류를 먼저 선택하세요 --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="store-name">매장명</label>
+                <input type="text" id="store-name" name="store-name" placeholder="예: PickAgain 여수점" required>
+            </div>
+            <div class="form-group">
+                <label for="store-location">매장 위치</label>
+                <input type="text" id="store-location" name="store-location" placeholder="예: 전남 여수시 시청동 1" required>
+            </div>
+            <div class="form-group">
+                <label for="store-phone">매장 전화번호</label>
+                <input type="tel" id="store-phone" name="store-phone" placeholder="예: 061-123-4567">
+            </div>
+
+            <div class="button-container">
+                <button type="submit" class="creat_btn">등록하기</button>
+            </div>
+        </form>
+    </div>
+    <div class="content" style="margin-top: 30px; border: 2px dashed #4b6cb7; background-color: #f8faff;">
+        <h3 style="color: #4b6cb7; margin-top: 0;">엑셀로 한 번에 등록하기</h3>
+        <p style="font-size: 14px; margin-bottom: 15px;">상단의 빈칸을 채울 필요 없이, 양식에 맞춘 엑셀 파일만 업로드해 주세요.</p>
+
+        <form id="bulk-upload-form">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <input type="file" id="excel-file" name="excel-file" accept=".xlsx, .xls, .csv"
+                    style="background: white;">
+            </div>
+
+            <button type="submit" class="creat_btn" formnovalidate>엑셀 업로드 실행</button>
+        </form>
+    </div>
+
+    <script>
+        const backendURL = 'http://localhost:3000';
+        const form = document.getElementById("new-product-form");
+
+        // --- ★ 로그인 상태 확인 및 상단바 변경 ★ ---
+        const currentUser = localStorage.getItem("username");
+        const navbar = document.querySelector(".navbar");
+
+        if (currentUser) {
+            navbar.innerHTML = `
+                <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
+                <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
+            `;
+            document.getElementById("logoutBtn").addEventListener("click", function(e) {
+                e.preventDefault();
+                localStorage.clear(); // 로그인 정보 모두 삭제
+                alert("로그아웃 되었습니다.");
+                location.reload(); 
+            });
+        }
+
+        // --- ★ 비로그인 시 글쓰기/수정 페이지 접근 자체를 차단 ★ ---
+        if (!currentUser) {
+            alert("로그인이 필요한 페이지입니다.");
+            location.href = "login.html";
+        }
+
+        const categoryData = {
+            "식품": ["가공식품", "신선식품 (과일/채소)", "축산/수산물", "음료/생수", "건강기능식품", "과자/간식"],
+            "가전": ["주방가전 (냉장고/밥솥)", "생활가전 (세탁기/청소기)", "계절가전 (에어컨/선풍기)", "영상가전 (TV/모니터)", "음향가전 (스피커/이어폰)", "모바일/태블릿", "컴퓨터/노트북"],
+            "가구": ["침실가구 (침대/매트리스)", "거실가구 (소파/테이블)", "주방가구 (식탁/수납장)", "수납/정리", "사무용가구", "인테리어 소품"],
+            "의류": ["여성의류", "남성의류", "아동의류", "신발/잡화", "가방/지갑", "쥬얼리/시계"],
+            "생활": ["세탁/청소용품", "욕실용품", "주방용품", "문구/사무용품", "반려동물용품", "자동차용품"],
+            "기타": ["도서/음반", "완구/취미", "스포츠/레저", "기타"]
+        };
+
+        function updateSubCategory(selectedSub = null) {
+            const mainType = document.getElementById("product-type").value;
+            const subSelect = document.getElementById("product-type-detail");
+
+            subSelect.innerHTML = '<option value="">-- 상세 카테고리 선택 --</option>';
+
+            if (mainType && categoryData[mainType]) {
+                categoryData[mainType].forEach(sub => {
+                    const option = document.createElement("option");
+                    option.value = sub;
+                    option.text = sub;
+                    if (selectedSub && selectedSub === sub) {
+                        option.selected = true;
+                    }
+                    subSelect.appendChild(option);
+                });
+            }
+        }
+
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            // ==========================================
+            // ★ 로그인된 매장 정보 자동 입력 (읽기 전용) ★
+            // ==========================================
+            const sName = localStorage.getItem("store_name");
+            const sLoc = localStorage.getItem("store_location");
+            const sPhone = localStorage.getItem("store_phone");
+
+            if (sName) {
+                const nameInput = document.getElementById('store-name');
+                nameInput.value = sName;
+                nameInput.readOnly = true;
+                nameInput.style.backgroundColor = '#f1f2f6'; // 회색 배경으로 변경
+            }
+            if (sLoc) {
+                const locInput = document.getElementById('store-location');
+                locInput.value = sLoc;
+                locInput.readOnly = true;
+                locInput.style.backgroundColor = '#f1f2f6';
+            }
+            if (sPhone) {
+                const phoneInput = document.getElementById('store-phone');
+                phoneInput.value = sPhone;
+                phoneInput.readOnly = true;
+                phoneInput.style.backgroundColor = '#f1f2f6';
+            }
+
+            if (productId) {
+                initializeEditMode(productId);
+            } else {
+                form.dataset.mode = 'create';
+            }
+        };
+
+        function initializeEditMode(productId) {
+            form.dataset.mode = 'edit';
+            form.dataset.id = productId;
+            document.querySelector('.content h2').innerText = "상품 수정";
+            document.querySelector('.creat_btn').innerText = "수정 완료";
+            document.getElementById('product-image-files').required = false;
+
+            fetch(`${backendURL}/products/${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    document.getElementById('product-name').value = product.name;
+                    document.getElementById('product-status-category').value = product.status_category;
+                    document.getElementById('product-status-detail').value = product.status_detail;
+                    document.getElementById('product-price').value = product.price;
+
+                    if (product.expiry_date) {
+                        document.getElementById('expiry-date').value = product.expiry_date.split('T')[0];
+                    }
+
+                    document.getElementById('product-type').value = product.type;
+                    updateSubCategory(product.type_detail);
+
+                    document.getElementById('store-name').value = product.store_name;
+                    document.getElementById('store-location').value = product.store_location;
+                    document.getElementById('store-phone').value = product.store_phone;
+                })
+                .catch(err => alert("기존 상품 정보를 불러오는 데 실패했습니다."));
+        }
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const mode = form.dataset.mode;
+
+            const expiryInput = document.getElementById("expiry-date");
+            if (!expiryInput.value) {
+                formData.delete("expiry-date");
+            }
+
+            let url = '';
+            let method = '';
+
+            if (mode === 'edit') {
+                url = `${backendURL}/products/${form.dataset.id}`;
+                method = 'PUT';
+            } else {
+                url = `${backendURL}/products`;
+                method = 'POST';
+            }
+
+            fetch(url, { method: method, body: formData })
+                .then(response => {
+                    if (!response.ok) { throw new Error('서버 응답 실패'); }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    window.location.href = "index.html";
+                })
+                .catch(error => {
+                    console.error("작업 실패:", error);
+                    alert("작업에 실패했습니다. (소비기한 형식을 확인해주세요)");
+                });
+        });
+
+        document.getElementById("searchBtn").addEventListener("click", function () {
+            const keyword = document.getElementById("keyword").value;
+            window.location.href = `index.html?search=${keyword}`;
+        });
+
+        // 엑셀 업로드 스크립트
+        document.getElementById("bulk-upload-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const formData = new FormData();
+            const fileInput = document.getElementById("excel-file");
+
+            if (fileInput.files.length === 0) {
+                alert("파일을 선택해 주세요.");
+                return;
+            }
+
+            formData.append("excel-file", fileInput.files[0]);
+
+            fetch(`${backendURL}/products/bulk`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message);
+                    window.location.href = "index.html";
+                })
+                .catch(err => alert("업로드 중 오류가 발생했습니다."));
+        });
+    </script>
+</body>
+
+</html>

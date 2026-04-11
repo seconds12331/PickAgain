@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>PickAgain - 메인</title>
+    <link rel="stylesheet" href="layout.css">
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="login.html">Login/Sign Up</a>
+    </div>
+
+    <div class="search-container">
+        <div class="search-bar-row">
+            <div class="title-container">
+                <h2 class="Title">
+                    <a href="index.html">PickAgain</a>
+                </h2>
+            </div>
+            <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
+            <button id="searchBtn">검색</button>
+            <button id="detailToggleBtn" class="detail-toggle-btn">상세 검색 ▼</button>
+            <button class="alert-btn" onclick="location.href='alerts.html'">
+                알림
+            </button>
+        </div>
+
+        <div class="detail-search-panel" id="detailSearchPanel" style="display: none;">
+            <div class="ds-row">
+                <div class="ds-group">
+                    <label>대분류</label>
+                    <select id="ds-type" onchange="updateDsSubCategory()">
+                        <option value="">전체</option>
+                        <option value="식품">식품</option>
+                        <option value="가전">가전/디지털</option>
+                        <option value="가구">가구/인테리어</option>
+                        <option value="의류">의류/잡화</option>
+                        <option value="생활">생활용품</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </div>
+                <div class="ds-group">
+                    <label>상세 카테고리</label>
+                    <select id="ds-type-detail">
+                        <option value="">대분류를 선택하세요</option>
+                    </select>
+                </div>
+                <div class="ds-group">
+                    <label>상품 상태</label>
+                    <select id="ds-status">
+                        <option value="">전체</option>
+                        <option value="단순변심 반품">단순변심 반품</option>
+                        <option value="포장 훼손">포장 훼손</option>
+                        <option value="스크래치/흠집">스크래치/흠집</option>
+                        <option value="유통기한 임박">유통기한 임박</option>
+                        <option value="기능 고장">기능 고장</option>
+                        <option value="전시 상품">전시 상품</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="ds-row">
+                <div class="ds-group">
+                    <label>소비기한 유무</label>
+                    <select id="ds-expiry-type">
+                        <option value="">상관없음</option>
+                        <option value="has">소비기한 있음</option>
+                        <option value="none">소비기한 없음</option>
+                    </select>
+                </div>
+                <div class="ds-group">
+                    <label>소비기한 (이 날짜 이전)</label>
+                    <input type="date" id="ds-expiry-date">
+                </div>
+                <div class="ds-group">
+                    <label>매장명</label>
+                    <input type="text" id="ds-store" placeholder="예: 여수점">
+                </div>
+                <div class="ds-group ds-btn-group">
+                    <button id="executeDetailBtn" class="creat_btn" style="width: 100%;">조건 적용하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+
+        <div class="ad-column-left">
+            <aside class="ad-slot ad-slot-left">
+                <p style="text-align: center; color: #999;">(왼쪽 광고)</p>
+            </aside>
+        </div>
+
+        <main class="main-content">
+            <div class="results" id="results"></div>
+            <div class="content" id="content"></div>
+            <div class="button-container">
+                <a class="creat_btn" href="product-form.html">새글</a>
+            </div>
+        </main>
+
+        <div class="ad-column-right">
+            <aside class="ad-slot ad-slot-right">
+                <p style="text-align: center; color: #999;">(오른쪽 광고)</p>
+            </aside>
+        </div>
+
+    </div>
+    <script>
+        // 1. 전역 변수 및 설정
+        const backendURL = 'http://localhost:3000';
+        let allProducts = []; // 서버에서 가져온 전체 데이터를 저장할 창고
+
+        // --- ★ 로그인 상태 확인 및 상단바 변경 ★ ---
+        const currentUser = localStorage.getItem("username");
+        const userRole = localStorage.getItem("userRole"); // (추가) 현재 로그인한 사람의 권한 가져오기
+        const navbar = document.querySelector(".navbar");
+
+        if (currentUser) {
+            // 대시보드 링크
+            const adminLink = userRole === 'admin' 
+                ? `<a href="admin.html" style="color: #55efc4; margin-right: 15px; font-weight: bold;">[관리자 대시보드]</a>` 
+                : "";
+
+            navbar.innerHTML = `
+                ${adminLink}
+                <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
+                <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
+            `;
+            
+            document.getElementById("logoutBtn").addEventListener("click", function(e) {
+                e.preventDefault();
+                localStorage.clear(); // 로그인 정보 모두 삭제
+                alert("로그아웃 되었습니다.");
+                location.reload(); 
+            });
+        }
+
+        // --- ★ 비로그인 시 '새글' 버튼 클릭 차단 ★ ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const newPostBtn = document.querySelector(".creat_btn[href='product-form.html']");
+            if (newPostBtn) {
+                newPostBtn.addEventListener("click", function(e) {
+                    if (!currentUser) {
+                        e.preventDefault(); // 페이지 이동 막기
+                        alert("로그인이 필요한 기능입니다.");
+                        location.href = "login.html";
+                    }
+                });
+            }
+        });
+
+        // 상세 검색을 위한 서브 카테고리 데이터
+        const categoryData = {
+            "식품": ["가공식품", "신선식품 (과일/채소)", "축산/수산물", "음료/생수", "건강기능식품", "과자/간식"],
+            "가전": ["주방가전 (냉장고/밥솥)", "생활가전 (세탁기/청소기)", "계절가전 (에어컨/선풍기)", "영상가전 (TV/모니터)", "음향가전 (스피커/이어폰)", "모바일/태블릿", "컴퓨터/노트북"],
+            "가구": ["침실가구 (침대/매트리스)", "거실가구 (소파/테이블)", "주방가구 (식탁/수납장)", "수납/정리", "사무용가구", "인테리어 소품"],
+            "의류": ["여성의류", "남성의류", "아동의류", "신발/잡화", "가방/지갑", "쥬얼리/시계"],
+            "생활": ["세탁/청소용품", "욕실용품", "주방용품", "문구/사무용품", "반려동물용품", "자동차용품"],
+            "기타": ["도서/음반", "완구/취미", "스포츠/레저", "기타"]
+        };
+
+        // HTML 요소 미리 가져오기
+        const contentContainer = document.getElementById("content");
+        const resultsContainer = document.getElementById("results");
+        const keywordInput = document.getElementById("keyword");
+
+        // ==========================================
+        // 2. 데이터 통신 (Server -> Client)
+        // ==========================================
+
+        // 서버에서 상품 목록 가져오기
+        function fetchProducts() {
+            fetch(`${backendURL}/products`)
+                .then(response => response.json())
+                .then(data => {
+                    allProducts = data;
+                    displayAllProducts(allProducts); // 처음에 전체 상품 출력
+                })
+                .catch(error => {
+                    console.error("상품 목록 로딩 실패:", error);
+                    contentContainer.innerHTML = "<p>상품을 불러오는 데 실패했습니다.</p>";
+                });
+        }
+
+        // ==========================================
+        // 3. 화면 렌더링 (Drawing UI)
+        // ==========================================
+
+        // 상품 카드 하나하나를 만드는 함수
+        function renderProductCard(p) {
+            const item = document.createElement("a");
+            item.classList.add("product-item-link", "product-item");
+            item.href = `product-detail.html?id=${p.product_id}`;
+
+            let imageSrc = "https://placehold.co/100x100?text=No+Image";
+            if (p.image_path) {
+                imageSrc = `${backendURL}${p.image_path.split(',')[0]}`;
+            }
+
+            let shortDetail = p.status_detail || "";
+            if (shortDetail.length > 15) {
+                shortDetail = shortDetail.substring(0, 15) + "...";
+            }
+
+            const categoryInfo = `${p.type || '기타'} | ${p.type_detail || ''}`;
+
+            item.innerHTML = `
+                    <img src="${imageSrc}" alt="${p.name}" class="product-image">
+                    <div class="product-details">
+                        <div class="product-header">
+                            <span class="category-text">${categoryInfo}</span>
+                            <h4>${p.name}</h4>
+                            <span class="status-badge">${p.status_category || '기타'}</span>
+                        </div>
+                        <p class="status-reason">⚠️ ${shortDetail}</p>
+                        <p class="product-price">${p.price.toLocaleString()}원</p>
+                        <p class="store-info">🏪 ${p.store_name || '매장 정보 없음'}</p>
+                    </div>
+                `;
+            return item;
+        }
+
+        // 화면에 리스트를 그리는 함수
+        function displayAllProducts(productsToDisplay) {
+            contentContainer.innerHTML = "";
+            productsToDisplay.forEach(p => {
+                const item = renderProductCard(p);
+                contentContainer.appendChild(item);
+            });
+        }
+
+        // ==========================================
+        // 4. 검색 및 필터링 로직 (The Core Logic)
+        // ==========================================
+
+        // 대분류 선택 시 상세 카테고리 자동 변경
+        function updateDsSubCategory() {
+            const mainType = document.getElementById("ds-type").value;
+            const subSelect = document.getElementById("ds-type-detail");
+            subSelect.innerHTML = '<option value="">전체</option>';
+
+            if (mainType && categoryData[mainType]) {
+                categoryData[mainType].forEach(sub => {
+                    const option = document.createElement("option");
+                    option.value = sub;
+                    option.text = sub;
+                    subSelect.appendChild(option);
+                });
+            }
+        }
+
+        // 상세 검색 패널 토글
+        document.getElementById("detailToggleBtn").addEventListener("click", function () {
+            const panel = document.getElementById("detailSearchPanel");
+            if (panel.style.display === "none") {
+                panel.style.display = "block";
+                this.innerText = "상세 검색 ▲";
+            } else {
+                panel.style.display = "none";
+                this.innerText = "상세 검색 ▼";
+            }
+        });
+
+        // [통합 검색 함수] - 기존의 searchProducts 역할을 이 함수가 대신합니다.
+        function executeDetailedSearch() {
+            const keyword = keywordInput.value.trim();
+            const type = document.getElementById("ds-type").value;
+            const typeDetail = document.getElementById("ds-type-detail").value;
+            const status = document.getElementById("ds-status").value;
+            const expiryType = document.getElementById("ds-expiry-type").value;
+            const expiryDate = document.getElementById("ds-expiry-date").value;
+            const store = document.getElementById("ds-store").value.trim();
+
+            let filtered = allProducts;
+
+            // 1. 이름 키워드 필터
+            if (keyword) filtered = filtered.filter(p => p.name.includes(keyword));
+
+            // 2. 대분류 & 상세 카테고리 필터
+            if (type) filtered = filtered.filter(p => p.type === type);
+            if (typeDetail) filtered = filtered.filter(p => p.type_detail === typeDetail);
+
+            // 3. 상품 상태 필터
+            if (status) filtered = filtered.filter(p => p.status_category === status);
+
+            // 4. 매장명 필터
+            if (store) filtered = filtered.filter(p => p.store_name && p.store_name.includes(store));
+
+            // 5. 소비기한 필터
+            if (expiryType === "has") {
+                filtered = filtered.filter(p => p.expiry_date != null);
+                if (expiryDate) {
+                    const targetDate = new Date(expiryDate);
+                    filtered = filtered.filter(p => p.expiry_date && new Date(p.expiry_date) <= targetDate);
+                }
+            } else if (expiryType === "none") {
+                filtered = filtered.filter(p => p.expiry_date == null);
+            }
+
+            // 결과 출력
+            resultsContainer.style.display = "none"; // 기존 results div는 사용 안 함
+            contentContainer.style.display = "block";
+
+            if (filtered.length === 0) {
+                contentContainer.innerHTML = "<div style='text-align:center; padding: 50px;'><h3 style='color:#777;'>조건에 맞는 상품이 없습니다. 😢</h3></div>";
+            } else {
+                displayAllProducts(filtered);
+            }
+        }
+
+        // ==========================================
+        // 5. 이벤트 리스너 (Connecting UI & Logic)
+        // ==========================================
+
+        // 검색 버튼 클릭 시
+        document.getElementById("searchBtn").addEventListener("click", executeDetailedSearch);
+
+        // 엔터키 입력 시
+        keywordInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") executeDetailedSearch();
+        });
+
+        // 상세 검색 조건 적용 버튼 클릭 시
+        document.getElementById("executeDetailBtn").addEventListener("click", executeDetailedSearch);
+
+        // 페이지 초기화
+        function initializePage() {
+            resultsContainer.style.display = "none";
+            contentContainer.style.display = "block";
+            fetchProducts();
+        }
+
+        initializePage();
+    </script>
+</body>
+
+</html>

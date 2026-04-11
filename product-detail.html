@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PickAgain - 상품 상세</title>
+    <link rel="stylesheet" href="layout.css">
+</head>
+
+<body>
+    <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
+    <div class="search-container">
+        <div class="search-bar-row">
+            <div class="title-container">
+                <h2 class="Title">
+                    <a href="index.html">PickAgain</a>
+                </h2>
+            </div>
+            <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
+            <button id="searchBtn">검색</button>
+            <button class="alert-btn" onclick="location.href='alerts.html'">
+                알림
+            </button>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        <div class="ad-column-left">
+            <aside class="ad-slot ad-slot-left">
+                <p style="text-align: center; color: #999;">(왼쪽 광고)</p>
+            </aside>
+        </div>
+
+        <main class="main-content">
+            <div class="content">
+                <div class="product-detail-container">
+                    <div class="product-image-slider">
+                        <div class="slider-wrapper" id="slider-wrapper">
+                            <img src="https://placehold.co/400x400?text=Loading..." alt="로딩 중" class="slide-image">
+                        </div>
+
+                        <button class="slider-btn prev-btn" id="prevBtn" onclick="moveSlide(-1)">&#10094;</button>
+                        <button class="slider-btn next-btn" id="nextBtn" onclick="moveSlide(1)">&#10095;</button>
+                    </div>
+
+                    <div class="product-detail-info">
+                        <h2 id="detail-name">상품명 로딩 중...</h2>
+                        <div class="detail-price-box"><span id="detail-price" class="detail-price">0</span> 원</div>
+
+                        <div class="detail-section">
+                            <h3>상품 상태</h3>
+                            <p><strong>분류: </strong> <span id="detail-status-category">-</span></p>
+                            <p><strong>상세: </strong> <span id="detail-status-detail">-</span></p>
+                        </div>
+
+                        <div class="detail-section">
+                            <h3>소비기한</h3>
+                            <p id="detail-expiry-date">-</p>
+                        </div>
+
+                        <div class="detail-section">
+                            <h3>상품 유형</h3>
+                            <p><span id="detail-type">-</span> &gt; <span id="detail-type-detail">-</span></p>
+                        </div>
+
+                        <div class="detail-section store-info-box">
+                            <h3>매장 정보</h3>
+                            <strong id="detail-store-name">-</strong>
+                            <p id="detail-store-location">-</p>
+                            <p id="detail-store-phone">-</p>
+                        </div>
+
+                        <div class="button-container">
+                            <button id="reserveBtn" class="creat_btn" style="background-color: #27ae60; border-color: #27ae60; width: 100%;">
+                                예약하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-button-container">
+                <a href="#" class="admin-btn btn-edit">수정</a>
+                <a href="#" class="admin-btn btn-delete">삭제</a>
+            </div>
+        </main>
+
+        <div class="ad-column-right">
+            <aside class="ad-slot ad-slot-right">
+                <p style="text-align: center; color: #999;">(오른쪽 광고)</p>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        const backendURL = 'http://localhost:3000';
+        let currentProductId = null;
+
+        // --- ★ 로그인 상태 확인 및 상단바 변경 ★ ---
+        const currentUser = localStorage.getItem("username");
+        const navbar = document.querySelector(".navbar");
+
+        if (currentUser) {
+            navbar.innerHTML = `
+                <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
+                <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
+            `;
+            document.getElementById("logoutBtn").addEventListener("click", function(e) {
+                e.preventDefault();
+                localStorage.clear(); // 로그인 정보 모두 삭제
+                alert("로그아웃 되었습니다.");
+                location.reload(); 
+            });
+        }
+
+        // --- ★ 비로그인 시 '수정', '삭제' 버튼 아예 숨기기 ★ ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const adminBtnContainer = document.querySelector(".admin-button-container");
+            if (!currentUser && adminBtnContainer) {
+                adminBtnContainer.style.display = "none"; // 비로그인이면 안 보이게 처리
+            }
+        });
+
+        let currentSlideIndex = 0;
+        let totalSlides = 0;
+
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentProductId = urlParams.get('id');
+
+            if (currentProductId) {
+                fetchProductDetails(currentProductId);
+            } else {
+                document.getElementById('detail-name').innerText = "상품 ID가 필요합니다.";
+            }
+
+            const deleteButton = document.querySelector('.btn-delete');
+            deleteButton.addEventListener('click', deleteProduct);
+
+            const editButton = document.querySelector('.btn-edit');
+            editButton.addEventListener('click', () => {
+                window.location.href = `product-form.html?id=${currentProductId}`;
+            });
+        };
+
+        function fetchProductDetails(productId) {
+            fetch(`${backendURL}/products/${productId}`)
+                .then(response => {
+                    if (!response.ok) { throw new Error('상품을 찾을 수 없습니다.'); }
+                    return response.json();
+                })
+                .then(product => {
+                    // ==========================================
+                    // ★ 통합 수정: 다중 이미지 슬라이더 렌더링 ★
+                    // ==========================================
+                    const sliderWrapper = document.getElementById('slider-wrapper');
+                    const prevBtn = document.getElementById('prevBtn');
+                    const nextBtn = document.getElementById('nextBtn');
+                    
+                    sliderWrapper.innerHTML = ''; // 로딩 중 이미지 비우기
+                    currentSlideIndex = 0; // 인덱스 초기화
+
+                    if (product.image_path) {
+                        // 쉼표로 분리해서 배열로 만듦
+                        const paths = product.image_path.split(','); 
+                        totalSlides = paths.length; // 총 사진 개수 저장
+
+                        paths.forEach(path => {
+                            const img = document.createElement('img');
+                            img.src = `${backendURL}${path}`;
+                            img.alt = '상품 이미지';
+                            img.classList.add('slide-image'); // CSS 클래스 적용
+                            sliderWrapper.appendChild(img);
+                        });
+
+                        // 사진이 한 장이면 버튼 숨김, 여러 장이면 보임
+                        if (totalSlides > 1) {
+                            prevBtn.classList.remove('hidden');
+                            nextBtn.classList.remove('hidden');
+                        } else {
+                            prevBtn.classList.add('hidden');
+                            nextBtn.classList.add('hidden');
+                        }
+                        
+                        // 처음 로딩 시 첫 번째 사진 보여주기
+                        showSlide(currentSlideIndex);
+
+                    } else {
+                        // 사진이 하나도 없을 때
+                        const noImg = document.createElement('img');
+                        noImg.src = "https://placehold.co/400x400?text=No+Image";
+                        noImg.classList.add('slide-image');
+                        sliderWrapper.appendChild(noImg);
+                        // 버튼 둘 다 숨김
+                        prevBtn.classList.add('hidden');
+                        nextBtn.classList.add('hidden');
+                    }
+
+                    document.getElementById('detail-name').innerText = product.name;
+                    document.getElementById('detail-price').innerText = product.price.toLocaleString();
+
+                    // [수정] 변경된 필드 반영
+                    document.getElementById('detail-status-category').innerText = product.status_category || "-";
+                    document.getElementById('detail-status-detail').innerText = product.status_detail || "-";
+
+                    if (product.expiry_date) {
+                        document.getElementById('detail-expiry-date').innerText = product.expiry_date.split('T')[0];
+                    } else {
+                        document.getElementById('detail-expiry-date').innerText = "-";
+                    }
+
+                    // [수정] 변경된 필드 반영
+                    document.getElementById('detail-type').innerText = product.type || "-";
+                    document.getElementById('detail-type-detail').innerText = product.type_detail || "기타";
+
+                    document.getElementById('detail-store-name').innerText = product.store_name || "-";
+                    document.getElementById('detail-store-location').innerText = product.store_location || "-";
+                    document.getElementById('detail-store-phone').innerText = product.store_phone || "-";
+                })
+                .catch(error => {
+                    console.error("상품 상세 정보 가져오기 실패:", error);
+                    document.getElementById('detail-name').innerText = error.message;
+                });
+        }
+
+        function deleteProduct() {
+            if (!confirm("정말로 이 상품을 삭제하시겠습니까?")) { return; }
+
+            fetch(`${backendURL}/products/${currentProductId}`, { method: 'DELETE' })
+                .then(response => {
+                    if (!response.ok) { throw new Error('서버 응답 실패'); }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    window.location.href = "index.html";
+                })
+                .catch(error => {
+                    console.error("상품 삭제 실패:", error);
+                    alert("상품 삭제에 실패했습니다.");
+                });
+        }
+
+        document.getElementById("searchBtn").addEventListener("click", function () {
+            const keyword = document.getElementById("keyword").value;
+            window.location.href = `index.html?search=${keyword}`;
+        });
+
+        // ==========================================
+        // ★ 추가: 슬라이드 이동 및 표시 함수 ★
+        // ==========================================
+        
+        // 1. n만큼 인덱스를 이동 (n은 1 또는 -1)
+        function moveSlide(n) {
+            showSlide(currentSlideIndex += n);
+        }
+
+        // 2. 특정 인덱스의 슬라이드를 화면에 표시
+        function showSlide(index) {
+            const sliderWrapper = document.getElementById('slider-wrapper');
+            
+            // 처음/끝 인덱스 처리 (무한 루프 방지: 처음에서 왼쪽 누르면 끝으로, 끝에서 오른쪽 누르면 처음으로)
+            if (index >= totalSlides) { currentSlideIndex = 0; }
+            else if (index < 0) { currentSlideIndex = totalSlides - 1; }
+            else { currentSlideIndex = index; }
+
+            // ★ 핵심: 가로로 n%만큼 통로를 밀어서 이미지를 변경
+            const percentage = -(currentSlideIndex * 100);
+            sliderWrapper.style.transform = `translateX(${percentage}%)`;
+        }
+        // ==========================================
+        // ★ 구매자 예약하기 로직 ★
+        // ==========================================
+        document.getElementById("reserveBtn").addEventListener("click", function(e) {
+            e.preventDefault();
+
+            // 1. 브라우저 기본 알림창(Prompt)을 띄워 전화번호를 입력받습니다.
+            const phone = prompt("상품을 예약하시겠습니까?\n연락받으실 전화번호를 입력해 주세요.\n(예: 010-1234-5678)");
+            
+            // 2. 입력값이 정상적으로 들어왔을 때만 서버로 전송합니다.
+            if (phone && phone.trim() !== "") {
+                fetch(`${backendURL}/reservations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_id: currentProductId,
+                        buyer_phone: phone.trim()
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('예약 실패');
+                    return response.json();
+                })
+                .then(data => {
+                    alert("예약이 완료되었습니다! 판매자가 확인 후 연락드릴 예정입니다.");
+                })
+                .catch(error => {
+                    console.error("예약 에러:", error);
+                    alert("예약 처리 중 오류가 발생했습니다.");
+                });
+            } else if (phone === "") {
+                // 아무것도 안 적고 확인을 눌렀을 때
+                alert("전화번호를 입력하셔야 예약이 가능합니다.");
+            }
+        });
+    </script>
+</body>
+
+</html>

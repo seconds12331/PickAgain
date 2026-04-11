@@ -1,0 +1,882 @@
+@charset "UTF-8";
+
+/* =================================
+   1. 전역 설정 (Global Reset)
+   ================================= */
+body {
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    margin: 0;
+    padding-top: 115px;
+    background-color: #f4f6f8;
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: 0.2s;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+button {
+    font-family: inherit;
+}
+
+/* =================================
+   2. 헤더 & 네비게이션 (Header)
+   ================================= */
+
+/* 최상단 로그인/회원가입 바 */
+.navbar {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg, #2b3248 0%, #4b6cb7 100%);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0 30px;
+    height: 30px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 1000;
+    font-size: 12px;
+}
+
+.navbar a:hover {
+    color: #fff;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.navbar a:last-child {
+    margin-left: auto;
+}
+
+/* 검색창 및 로고 영역 */
+.search-container {
+    background-color: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(5px);
+    padding: 15px 0;
+    /* 상하 여백을 조금 줄여 컴팩트하게 변경 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #eaeaea;
+    position: fixed;
+    top: 30px;
+    width: 100%;
+    left: 0;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+/* 검색바 행: 요소들을 일렬로 세우고 줄바꿈 방지 */
+.search-bar-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 95%;
+    max-width: 1000px;
+    flex-wrap: nowrap;
+    position: relative; 
+    
+    padding-right: 90px; 
+    box-sizing: border-box; 
+}
+
+/* 타이틀(로고) 디자인 */
+.title-container {
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+.title-container h2 {
+    margin: 0;
+    padding: 0;
+}
+
+.title-container a {
+    font-family: 'Arial Black', 'Impact', sans-serif;
+    font-size: 26px;
+    font-style: italic;
+    color: #4b6cb7;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    border: none;
+    background: none;
+    padding: 0;
+    text-shadow: 1px 1px 0px #dce6f2;
+    transition: color 0.3s, transform 0.2s;
+}
+
+.title-container a:hover {
+    color: #2c3e50;
+    transform: scale(1.02);
+}
+
+/* 검색창 입력 필드 */
+.search-container input[type="text"] {
+    flex: 1;
+    max-width: 400px;
+    min-width: 80px;
+    padding: 10px 15px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+}
+
+.search-container input[type="text"]:focus {
+    background-color: #fff;
+    border-color: #4b6cb7;
+    box-shadow: 0 0 0 2px rgba(75, 108, 183, 0.1);
+}
+
+/* 모든 검색 관련 버튼들 크기 고정 */
+.search-container button,
+.detail-toggle-btn {
+    flex-shrink: 0;
+    height: 40px;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 6px;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+/* 상세 검색 패널 내부 버튼 정렬 */
+.ds-btn-group {
+    display: flex;
+    align-items: flex-end;
+}
+
+#executeDetailBtn {
+    height: 38px;
+    margin-bottom: 2px;
+}
+
+/* 상세 검색 패널 */
+.detail-search-panel {
+    width: 95%;
+    max-width: 900px;
+    margin-top: 10px;
+}
+
+/* =================================
+   3. 레이아웃 (Page Wrapper)
+   ================================= */
+.page-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+    gap: 30px;
+}
+
+.main-content {
+    flex: 1;
+    max-width: 800px;
+}
+
+.ad-column-left,
+.ad-column-right {
+    width: 180px;
+    flex-shrink: 0;
+}
+
+.ad-slot {
+    width: 100%;
+    height: 400px;
+    background-color: #fff;
+    border-radius: 8px;
+    border: 1px dashed #d1d1d1;
+    position: sticky;
+    top: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+}
+
+/* =================================
+   4. 컨텐츠 박스 (Card Style)
+   ================================= */
+.content,
+.results {
+    background-color: #ffffff;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    margin-bottom: 30px;
+    border: 1px solid #f1f1f1;
+}
+
+h2 {
+    font-size: 24px;
+    color: #222;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+p {
+    color: #666;
+    font-size: 15px;
+}
+
+/* =================================
+   5. 상품 목록 디자인
+   ================================= */
+.product-item-link {
+    display: block;
+}
+
+.product-item {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #eee;
+    padding: 18px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.product-item-link:hover .product-item {
+    border-color: #4b6cb7;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.product-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    object-fit: cover;
+    margin-right: 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #eee;
+}
+
+/* [수정] 간격 조정 */
+.product-details h4 {
+    font-size: 17px;
+    margin: 0 0 4px 0;
+    /* 제목 아래 간격을 조금 줄임 */
+    color: #333;
+    font-weight: 600;
+}
+
+.product-details p {
+    font-size: 16px;
+    font-weight: bold;
+    color: #4b6cb7;
+}
+
+/* [신규 추가] 카테고리 텍스트 스타일 */
+.category-text {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 2px;
+    display: block;
+}
+
+/* [신규 추가] 상태 상세 요약 (⚠️ 박스 훼손...) */
+.status-reason {
+    font-size: 13px !important;
+    /* 기존 p 태그 스타일 덮어쓰기 */
+    color: #e67e22 !important;
+    /* 주의 느낌의 주황색 */
+    margin: 5px 0 8px 0;
+    white-space: nowrap;
+    /* 줄바꿈 방지 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* 말줄임표(...) 처리 */
+}
+
+/* 가격과 위 요소 간격 정리 */
+.product-price {
+    margin-bottom: 4px;
+}
+
+/* =================================
+   6. 버튼 디자인 (둥근 사각형)
+   ================================= */
+.main-content .button-container,
+.detail-section .button-container,
+.admin-button-container {
+    text-align: right;
+    margin-top: 25px;
+}
+
+.creat_btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #4b6cb7;
+    color: white;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.creat_btn:hover {
+    background-color: #3a5591;
+    transform: translateY(-1px);
+}
+
+.detail-section .button-container .creat_btn {
+    background-color: #ff6b6b;
+}
+
+.detail-section .button-container .creat_btn:hover {
+    background-color: #e05a5a;
+}
+
+.admin-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: white;
+    margin-left: 8px;
+}
+
+.btn-edit {
+    background-color: #7f8fa6;
+}
+
+.btn-delete {
+    background-color: #e84118;
+}
+
+
+/* =================================
+   7. 로그인 & 회원가입 폼
+   ================================= */
+.form-page-container {
+    display: flex;
+    justify-content: center;
+    padding-top: 40px;
+    width: 100%;
+}
+
+.login-container,
+.signup-container {
+    width: 100%;
+    max-width: 380px;
+    background: white;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+    text-align: center;
+    display: none;
+}
+
+.login-container.active,
+.signup-container.active {
+    display: block;
+}
+
+.login-container h2,
+.signup-container h2 {
+    margin-bottom: 25px;
+    font-size: 24px;
+    color: #333;
+}
+
+.login-container input,
+.signup-container input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+    background-color: #fff;
+}
+
+.login-container input:focus,
+.signup-container input:focus {
+    border-color: #4b6cb7;
+    outline: none;
+}
+
+.login-container button,
+.signup-container button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    background: #4b6cb7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.login-container button:hover {
+    background: #3a5591;
+}
+
+.switch-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: #888;
+    text-decoration: underline;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* =================================
+   8. 글쓰기 & 상세 페이지
+   ================================= */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    border-color: #4b6cb7;
+    outline: none;
+}
+
+.product-detail-container {
+    display: flex;
+    gap: 30px;
+}
+
+.product-detail-image {
+    flex: 1;
+}
+
+.product-detail-image img {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.product-detail-info {
+    flex: 1.2;
+}
+
+.detail-price-box {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    border: 1px solid #eee;
+}
+
+.detail-price {
+    font-size: 32px;
+    font-weight: 800;
+    color: #d63031;
+}
+
+.detail-section h3 {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+/* =================================
+   9. 반응형 (Mobile)
+   ================================= */
+@media (max-width: 1024px) {
+
+    .ad-column-left,
+    .ad-column-right {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+
+    /* 상단 여백 조정 */
+    body {
+        padding-top: 140px;
+    }
+
+    .search-bar-row {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-right:0;
+    }
+
+    .alert-btn {
+        position: static; 
+        margin-left: auto; 
+    }
+
+    .title-container {
+        margin-right: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .search-container input[type="text"] {
+        width: calc(100% - 100px);
+        /* 버튼 공간 제외하고 꽉 채움 */
+    }
+
+    /* 상세 검색 패널 내부 행 정렬 */
+    .ds-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* =================================
+   10. 상세 검색 패널 스타일
+   ================================= */
+.search-container {
+    flex-direction: column;
+    /* 가로 배열을 세로 배열로 변경 허용 */
+    align-items: center;
+}
+
+.search-bar-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.detail-toggle-btn {
+    padding: 10px 15px;
+    background-color: #7f8fa6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: 0.2s;
+}
+
+.detail-toggle-btn:hover {
+    background-color: #718093;
+}
+
+/* 열리는 패널 디자인 */
+.detail-search-panel {
+    width: 100%;
+    max-width: 900px;
+    background-color: #fcfcfc;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 15px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.03);
+    box-sizing: border-box;
+}
+
+.ds-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.ds-row:last-child {
+    margin-bottom: 0;
+}
+
+.ds-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.ds-group label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.ds-group select,
+.ds-group input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.ds-btn-group {
+    justify-content: flex-end;
+}
+
+/* =================================
+   버튼 클릭(Active) 및 호버(Hover) 효과 강화
+   ================================= */
+
+/* 1. 기본 검색 버튼 및 상세 검색 버튼 */
+.search-container button,
+.detail-toggle-btn,
+.creat_btn,
+.admin-btn {
+    transition: all 0.1s ease;
+    /* 색상 변화를 부드럽게 */
+}
+
+/* 마우스를 올렸을 때 (Hover) */
+.search-container button:hover,
+.detail-toggle-btn:hover {
+    filter: brightness(90%);
+    /* 기존 색상보다 10% 어둡게 */
+}
+
+/* ★ 핵심: 마우스로 클릭했을 때 (Active) ★ */
+.search-container button:active,
+.detail-toggle-btn:active,
+.creat_btn:active,
+.admin-btn:active {
+    filter: brightness(80%);
+    /* 더 어둡게 */
+    transform: scale(0.96);
+    /* 버튼이 4% 정도 작아지며 눌리는 효과 */
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2);
+    /* 안쪽으로 그림자 생성 */
+}
+
+/* 2. 상세 검색 패널 안의 '조건 적용하기' 버튼 전용 */
+#executeDetailBtn:active {
+    background-color: #3a5591;
+    /* 클릭 시 더 진한 파란색으로 변경 */
+    transform: scale(0.98);
+}
+
+/* =================================
+상품 이미지 슬라이더 (Carousel) 스타일
+================================= */
+.product-image-slider {
+    width: 100%;
+    max-width: 350px;
+    height: 350px;
+
+    /* 좌우 auto 정렬은 유지하되, 하단 여백을 조금 더 넓게(35px) 설정 */
+    margin: 0 auto 35px;
+
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    /* 둥근 모서리 유지 */
+    border: 1px solid #eaeaea;
+    background-color: #fff;
+
+    /* 슬라이더 전체를 감싸는 부드러운 안쪽 그림자 추가 (선택 사항, 더 고급스러워 보임) */
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02);
+}
+
+/* 이미지들이 나열되는 통로 */
+.slider-wrapper {
+    display: flex;
+    /* 이미지를 가로로 한 줄 나열 */
+    height: 100%;
+    transition: transform 0.4s ease-in-out;
+    /* 넘길 때 부드러운 애니메이션 */
+}
+
+/* 개별 이미지 스타일 */
+.slide-image {
+    width: 100%;
+    /* 슬라이더 너비에 맞춤 */
+    height: 100%;
+    object-fit: contain;
+    /* 이미지가 찌그러지지 않고 영역 안에 꽉 차게 */
+    flex-shrink: 0;
+    /* 슬라이더 안에서 크기가 줄어들지 않게 고정 */
+}
+
+/* 왼쪽/오른쪽 화살표 버튼 공통 스타일 */
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    /* 세로 중앙 */
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.3);
+    /* 반투명 배경 */
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10;
+    transition: background-color 0.2s;
+}
+
+.slider-btn:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.prev-btn {
+    left: 15px;
+}
+
+/* 왼쪽 버튼 위치 */
+.next-btn {
+    right: 15px;
+}
+
+/* 오른쪽 버튼 위치 */
+
+/* 사진이 한 장일 때는 버튼 숨기기용 */
+.slider-btn.hidden {
+    display: none;
+}
+
+/* =================================
+   알림 버튼 & 상단바 추가 스타일
+   ================================= */
+.search-bar-row {
+    position: relative; /* 알림 버튼이 왼쪽 끝에 붙을 수 있도록 기준점 설정 */
+}
+
+.alert-btn {
+    position: absolute;
+    right: 0;
+    background-color: #fff;
+    border: 2px solid #4b6cb7;
+    color: #4b6cb7;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.alert-btn:hover {
+    background-color: #4b6cb7;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+/* =================================
+   알림 페이지 (alerts.html) 스타일
+   ================================= */
+.alerts-list {
+    margin-top: 25px;
+}
+
+.alert-item {
+    background: #fff; 
+    border: 1px solid #eaeaea; 
+    border-left: 5px solid #4b6cb7; /* 왼쪽을 파란색으로 강조 */
+    padding: 20px; 
+    border-radius: 8px; 
+    margin-bottom: 15px;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    transition: transform 0.2s;
+}
+
+.alert-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.alert-product-info .store-badge {
+    display: inline-block;
+    background-color: #f1f2f6;
+    color: #57606f;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.alert-product-info .date-text {
+    font-size: 12px;
+    color: #999;
+    margin-left: 10px;
+}
+
+.alert-product-info h4 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #2f3542;
+}
+
+.alert-product-info h4 a:hover {
+    color: #4b6cb7;
+    text-decoration: underline;
+}
+
+.alert-product-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.alert-product-info .price {
+    color: #d63031;
+    font-weight: bold;
+}
+
+.alert-contact {
+    background: #f8faff; 
+    border: 1px solid #c8d9f9; 
+    padding: 15px 20px;
+    border-radius: 6px; 
+    text-align: right;
+    min-width: 180px;
+}
+
+.alert-contact span {
+    display: block; 
+    font-size: 12px; 
+    color: #4b6cb7; 
+    font-weight: bold; 
+    margin-bottom: 5px;
+}
+
+.alert-contact strong {
+    font-size: 18px; 
+    color: #222; 
+    letter-spacing: 0.5px;
+}
