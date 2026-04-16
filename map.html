@@ -33,9 +33,6 @@
                     <a href="index.html">PickAgain</a>
                 </h2>
             </div>
-            <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
-            <button id="searchBtn">검색</button>
-            <button id="detailToggleBtn" class="detail-toggle-btn">상세 검색 ▼</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">
                 알림
             </button>
@@ -47,7 +44,7 @@
     <div class="search-container">
         <div class="title-container">
             <h2 class="Title">
-                <a href="index.html">CostReturn</a>
+                <a href="index.html">PickAgain</a>
             </h2>
         </div>
     </div>
@@ -56,13 +53,11 @@
         <h2 id="map-title">전체 매장 지도</h2>
         
         <div id="map-container">
-            🗺️ 카카오맵 API 로딩 준비 중...
+            카카오맵 API 로딩 준비 중...
         </div>
     </div>
 
     <script>
-        // URL에서 매장 이름(또는 주소) 파라미터를 읽어오는 기능
-        // 예: map.html?store=CostReturn+여수점
         const urlParams = new URLSearchParams(window.location.search);
         const targetStore = urlParams.get('store');
 
