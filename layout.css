@@ -775,9 +775,7 @@ p {
     position: relative; /* 알림 버튼이 왼쪽 끝에 붙을 수 있도록 기준점 설정 */
 }
 
-.alert-btn {
-    position: absolute;
-    right: 0;
+.alert-btn, .map-btn {
     background-color: #fff;
     border: 2px solid #4b6cb7;
     color: #4b6cb7;
@@ -790,33 +788,11 @@ p {
     display: flex;
     align-items: center;
     gap: 5px;
+    margin-left: 10px;
+    white-space: nowrap;
 }
 
-.alert-btn:hover {
-    background-color: #4b6cb7;
-    color: #fff;
-    transform: scale(1.05);
-}
-
-.map-btn {
-    position: absolute;
-    right: 0;
-    background-color: #fff;
-    border: 2px solid #4b6cb7;
-    color: #4b6cb7;
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-left : 10px;
-}
-
-.map-btn:hover {
+.alert-btn:hover, .map-btn:hover {
     background-color: #4b6cb7;
     color: #fff;
     transform: scale(1.05);
