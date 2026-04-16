@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CostReturn - 매장 지도</title>
+    <title>PickAgain - 매장 지도</title>
     <link rel="stylesheet" href="layout.css">
     <style>
         /* 지도가 들어갈 영역 임시 스타일 */
         #map-container {
-            width: 100%;
-            height: 500px; /* 지도의 높이 */
+            width: 150%;
+            height: 500px;
             background-color: #e9ecef;
             display: flex;
             justify-content: center;
@@ -22,13 +22,27 @@
     </style>
 </head>
 <body>
-
     <div class="navbar">
-        <a href="index.html">Home</a>
-        <a href="map.html">지도(Map)</a>
-        <a href="alerts.html">알림</a>
         <a href="login.html">Login/Sign Up</a>
     </div>
+
+    <div class="search-container">
+        <div class="search-bar-row">
+            <div class="title-container">
+                <h2 class="Title">
+                    <a href="index.html">PickAgain</a>
+                </h2>
+            </div>
+            <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
+            <button id="searchBtn">검색</button>
+            <button id="detailToggleBtn" class="detail-toggle-btn">상세 검색 ▼</button>
+            <button class="alert-btn" onclick="location.href='alerts.html'">
+                알림
+            </button>
+            <button class="map-btn" onclick="location.href='map.html'">
+                지도
+            </button>
+        </div>
 
     <div class="search-container">
         <div class="title-container">
