@@ -41,8 +41,18 @@
 
     <div class="page-wrapper">
         <main class="main-content" style="max-width: 900px; width: 100%;">
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3120d52a4a94a6575cb08b7ec6363881"></script>
+            <script>
+		        var container = document.getElementById('map');
+		        var options = {
+			        center: new kakao.maps.LatLng(33.450701, 126.570667),
+			        level: 3
+		        };
+
+        		var map = new kakao.maps.Map(container, options);
+	        </script>
             <div class="content">
-                <h2 id="map-title" style="color: #4b6cb7; margin-top:0;">📍 전체 매장 안내</h2>
+                <h2 id="map-title" style="color: #4b6cb7; margin-top:0;">전체 매장 안내</h2>
                 <p>지도를 통해 가까운 매장의 위치와 재고 정보를 확인하실 수 있습니다.</p>
                 
                 <div id="map-container">
