@@ -69,6 +69,7 @@
                         <div class="detail-section store-info-box">
                             <h3>매장 정보</h3>
                             <strong id="detail-store-name">-</strong>
+                                <a href="#" id="detail-store-name" style="color: #4b6cb7; font-size: 18px; text-decoration: underline; font-weight: bold;">-</a>
                             <p id="detail-store-location">-</p>
                             <p id="detail-store-phone">-</p>
                         </div>
@@ -219,6 +220,13 @@
                     document.getElementById('detail-store-name').innerText = product.store_name || "-";
                     document.getElementById('detail-store-location').innerText = product.store_location || "-";
                     document.getElementById('detail-store-phone').innerText = product.store_phone || "-";
+
+                    const storeNameEl = document.getElementById('detail-store-name');
+                    storeNameEl.innerText = product.store_name || "-";
+
+                    if (product.store_name && product.store_location) {
+                        storeNameEl.href = `map.html?store=${encodeURIComponent(product.store_name)}&address=${encodeURIComponent(product.store_location)}`;
+                    }
                 })
                 .catch(error => {
                     console.error("상품 상세 정보 가져오기 실패:", error);
