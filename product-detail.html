@@ -68,8 +68,7 @@
 
                         <div class="detail-section store-info-box">
                             <h3>매장 정보</h3>
-                            <strong id="detail-store-name">-</strong>
-                                <a href="#" id="detail-store-name" style="color: #4b6cb7; font-size: 18px; text-decoration: underline; font-weight: bold;">-</a>
+                            <a href="#" id="detail-store-name" style="color: #4b6cb7; font-size: 18px; text-decoration: underline; font-weight: bold; display: inline-block; margin-bottom: 5px;">-</a>
                             <p id="detail-store-location">-</p>
                             <p id="detail-store-phone">-</p>
                         </div>
@@ -213,11 +212,8 @@
                         document.getElementById('detail-expiry-date').innerText = "-";
                     }
 
-                    // [수정] 변경된 필드 반영
-                    document.getElementById('detail-type').innerText = product.type || "-";
                     document.getElementById('detail-type-detail').innerText = product.type_detail || "기타";
 
-                    document.getElementById('detail-store-name').innerText = product.store_name || "-";
                     document.getElementById('detail-store-location').innerText = product.store_location || "-";
                     document.getElementById('detail-store-phone').innerText = product.store_phone || "-";
 
