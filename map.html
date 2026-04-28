@@ -21,19 +21,13 @@
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <a href="login.html">Login/Sign Up</a>
-    </div>
-
+    <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
     <div class="search-container">
         <div class="search-bar-row">
             <div class="title-container">
-                <h2 class="Title">
-                    <a href="index.html">PickAgain</a>
-                </h2>
+                <h2 class="Title"><a href="index.html">PickAgain</a></h2>
             </div>
             <div style="flex: 1;"></div> 
-            
             <button class="map-btn" onclick="location.href='map.html'">지도</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
         </div>
@@ -42,143 +36,135 @@
     <div class="page-wrapper">
         <main class="main-content" style="max-width: 900px; width: 100%;">
             <div class="content">
-                <h2 id="map-title" style="color: #4b6cb7; margin-top:0;">전체 매장 안내</h2>
+                <h2 id="map-title" style="color: #4b6cb7; margin-top:0;">📍 전체 매장 안내</h2>
                 <p>지도를 통해 가까운 매장의 위치와 재고 정보를 확인하실 수 있습니다.</p>
                 
                 <div id="map-container">
-                    카카오맵 API 연결 대기 중...
+                    🗺️ 카카오맵 API 연결 대기 중...
                 </div>
             </div>
         </main>
     </div>
-    
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3120d52a4a94a6575cb08b7ec6363881&libraries=services"></script>
 
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3120d52a4a94a6575cb08b7ec6363881&libraries=services&autoload=false"></script>
+    
     <script>
-    // 1. 지도 초기화 및 도구 준비
-    var mapContainer = document.getElementById('map-container');
-    var mapOption = { 
-        center: new kakao.maps.LatLng(37.566826, 126.978656), // 기본 중심 (서울시청)
-        level: 4 
-    };
-    var map = new kakao.maps.Map(mapContainer, mapOption);
-    
-    // 주소 변환기, 장소 검색기, 말풍선(정보창) 도구 생성
-    var geocoder = new kakao.maps.services.Geocoder();
-    var ps = new kakao.maps.services.Places(); 
-    var infowindow = new kakao.maps.InfoWindow({ zIndex: 1, removable: true });
-
-    // 2. 상단바에서 넘어온 데이터(이름, 주소) 읽기
-    const urlParams = new URLSearchParams(window.location.search);
-    const targetStore = urlParams.get('store');
-    const targetAddress = urlParams.get('address');
-
-    if (targetStore && targetAddress && targetAddress !== "-") {
-        // ========================================================
-        // [기능 1] 상세 페이지에서 넘어온 경우: 해당 매장 주소로 핀 찍기
-        // ========================================================
-        document.getElementById('map-title').innerText = `📍 ${targetStore} 위치 안내`;
-
-        geocoder.addressSearch(targetAddress, function(result, status) {
-            if (status === kakao.maps.services.Status.OK) {
-                var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-                map.setCenter(coords); // 지도 중심 이동
-                
-                var marker = new kakao.maps.Marker({ map: map, position: coords });
-                
-                // 정보창 내용 (디자인 적용)
-                var content = `
-                    <div style="padding:15px; min-width:200px; border-radius:8px;">
-                        <strong style="color:#4b6cb7; font-size:16px;">${targetStore}</strong><br>
-                        <span style="color:#666; font-size:12px;">${targetAddress}</span>
-                    </div>`;
-                infowindow.setContent(content);
-                infowindow.open(map, marker);
-            } else {
-                alert("매장의 상세 주소를 지도에서 찾을 수 없습니다.");
-                searchNearbyRefurbished(); // 실패 시 내 주변 검색으로 전환
-            }
-        });
-
-    } else {
-        // ========================================================
-        // [기능 2] 상단 메뉴에서 넘어온 경우: 내 주변 리퍼브 매장 검색
-        // ========================================================
-        document.getElementById('map-title').innerText = `📍 내 주변 리퍼브 매장 찾기`;
-        searchNearbyRefurbished();
-    }
-
-    // 내 현위치를 찾고 주변 '리퍼브' 매장을 검색하는 함수
-    function searchNearbyRefurbished() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var lat = position.coords.latitude;
-                var lon = position.coords.longitude;
-                var locPosition = new kakao.maps.LatLng(lat, lon);
-                
-                map.setCenter(locPosition); // 내 위치로 지도 이동
-
-                // 내 위치 마커 (파란색 대신 텍스트로 현위치 표시)
-                var myMarker = new kakao.maps.Marker({ map: map, position: locPosition });
-                infowindow.setContent('<div style="padding:5px; font-size:12px; color:blue;">🙋‍♂️ 현재 내 위치</div>');
-                infowindow.open(map, myMarker);
-
-                // 카카오맵 DB에서 주변 '리퍼브 매장', '반품 매장' 검색 (반경 5km)
-                ps.keywordSearch('리퍼브', placesSearchCB, { location: locPosition, radius: 5000 });
-                ps.keywordSearch('반품', placesSearchCB, { location: locPosition, radius: 5000 });
-            });
-        } else {
-            alert("현재 위치를 알 수 없어 서울시청 기준으로 검색합니다.");
-            ps.keywordSearch('리퍼브', placesSearchCB, { location: map.getCenter(), radius: 5000 });
-        }
-    }
-
-    // 카카오맵 검색 결과가 도착하면 실행되는 함수
-    function placesSearchCB(data, status, pagination) {
-        if (status === kakao.maps.services.Status.OK) {
-            for (var i = 0; i < data.length; i++) {
-                displayMarker(data[i]);
-            }
-        }
-    }
-
-    // ========================================================
-    // [기능 3] 지도에 마커를 그리고 클릭 시 정보(이름, 주소, 번호) 출력
-    // ========================================================
-    function displayMarker(place) {
-        var marker = new kakao.maps.Marker({
-            map: map,
-            position: new kakao.maps.LatLng(place.y, place.x)
-        });
-
-        // 마커를 클릭했을 때 실행되는 이벤트
-        kakao.maps.event.addListener(marker, 'click', function() {
-            var content = `
-                <div style="padding:15px; font-size:14px; width:260px; border-radius:8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-                    <strong style="color:#2c3e50; font-size:16px;">${place.place_name}</strong><br>
-                    <span style="color:#7f8fa6; font-size:12px;">${place.road_address_name || place.address_name}</span><br>
-                    <span style="color:#27ae60; font-size:13px; font-weight:bold; margin-top:5px; display:block;">📞 ${place.phone || '전화번호 없음'}</span>
-                    <div style="margin-top:10px; text-align:right;">
-                        <a href="https://map.kakao.com/link/map/${place.id}" target="_blank" style="color:#4b6cb7; text-decoration:none; font-weight:bold; font-size:12px;">카카오맵 상세보기 〉</a>
-                    </div>
-                </div>
+        // 상단바 로그인 유지
+        const currentUser = localStorage.getItem("username");
+        if (currentUser) {
+            document.querySelector(".navbar").innerHTML = `
+                <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
+                <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
             `;
-            infowindow.setContent(content);
-            infowindow.open(map, marker);
-        });
-    }
+            document.getElementById("logoutBtn").addEventListener("click", function(e) {
+                e.preventDefault(); localStorage.clear(); location.href = "index.html"; 
+            });
+        }
 
-    // 상단바 로그인 유지 코드
-    const currentUser = localStorage.getItem("username");
-    if (currentUser) {
-        document.querySelector(".navbar").innerHTML = `
-            <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
-            <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
-        `;
-        document.getElementById("logoutBtn").addEventListener("click", function(e) {
-            e.preventDefault(); localStorage.clear(); location.href = "index.html"; 
-        });
-    }
-</script>
+        // ★ 핵심 해결책: 카카오맵 준비물이 100% 다 다운로드된 후에만 아래 코드를 실행합니다! ★
+        kakao.maps.load(function() {
+            var mapContainer = document.getElementById('map-container');
+            mapContainer.innerHTML = ''; // 지도가 뜰 거니까 "대기 중..." 글씨 비우기
+
+            var mapOption = { 
+                center: new kakao.maps.LatLng(37.566826, 126.978656), // 기본 중심 (서울시청)
+                level: 4 
+            };
+            var map = new kakao.maps.Map(mapContainer, mapOption);
+            
+            var geocoder = new kakao.maps.services.Geocoder();
+            var ps = new kakao.maps.services.Places(); 
+            var infowindow = new kakao.maps.InfoWindow({ zIndex: 1, removable: true });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetStore = urlParams.get('store');
+            const targetAddress = urlParams.get('address');
+
+            if (targetStore && targetAddress && targetAddress !== "-") {
+                // [기능 1] 상세 페이지에서 매장 이름을 눌러서 넘어온 경우
+                document.getElementById('map-title').innerText = `📍 ${targetStore} 위치 안내`;
+
+                geocoder.addressSearch(targetAddress, function(result, status) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                        map.setCenter(coords);
+                        
+                        var marker = new kakao.maps.Marker({ map: map, position: coords });
+                        var content = `
+                            <div style="padding:15px; min-width:200px; border-radius:8px;">
+                                <strong style="color:#4b6cb7; font-size:16px;">${targetStore}</strong><br>
+                                <span style="color:#666; font-size:12px;">${targetAddress}</span>
+                            </div>`;
+                        infowindow.setContent(content);
+                        infowindow.open(map, marker);
+                    } else {
+                        // 주소가 잘못되었을 경우 알려주고 주변 검색으로 넘깁니다.
+                        alert(`입력된 주소(${targetAddress})를 카카오맵에서 찾을 수 없어 내 주변 검색으로 전환합니다.`);
+                        searchNearbyRefurbished();
+                    }
+                });
+
+            } else {
+                // [기능 2] 그냥 상단 메뉴에서 '지도' 버튼을 누른 경우 (내 주변 검색)
+                document.getElementById('map-title').innerText = `📍 내 주변 리퍼브 매장 찾기`;
+                searchNearbyRefurbished();
+            }
+
+            // 내 현위치를 찾고 주변 매장을 검색하는 함수
+            function searchNearbyRefurbished() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var lat = position.coords.latitude;
+                        var lon = position.coords.longitude;
+                        var locPosition = new kakao.maps.LatLng(lat, lon);
+                        
+                        map.setCenter(locPosition);
+
+                        var myMarker = new kakao.maps.Marker({ map: map, position: locPosition });
+                        infowindow.setContent('<div style="padding:5px; font-size:12px; color:blue; font-weight:bold;">🙋‍♂️ 현재 내 위치</div>');
+                        infowindow.open(map, myMarker);
+
+                        // 카카오맵 DB에서 리퍼브/반품 매장 검색 (반경 5km)
+                        ps.keywordSearch('리퍼브', placesSearchCB, { location: locPosition, radius: 5000 });
+                        ps.keywordSearch('반품', placesSearchCB, { location: locPosition, radius: 5000 });
+                    });
+                } else {
+                    alert("현재 위치를 알 수 없어 서울시청 기준으로 검색합니다.");
+                    ps.keywordSearch('리퍼브', placesSearchCB, { location: map.getCenter(), radius: 5000 });
+                }
+            }
+
+            function placesSearchCB(data, status, pagination) {
+                if (status === kakao.maps.services.Status.OK) {
+                    for (var i = 0; i < data.length; i++) {
+                        displayMarker(data[i]);
+                    }
+                }
+            }
+
+            // [기능 3] 지도에 주변 매장 핀 꽂기
+            function displayMarker(place) {
+                var marker = new kakao.maps.Marker({
+                    map: map,
+                    position: new kakao.maps.LatLng(place.y, place.x)
+                });
+
+                kakao.maps.event.addListener(marker, 'click', function() {
+                    var content = `
+                        <div style="padding:15px; font-size:14px; width:260px; border-radius:8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            <strong style="color:#2c3e50; font-size:16px;">${place.place_name}</strong><br>
+                            <span style="color:#7f8fa6; font-size:12px;">${place.road_address_name || place.address_name}</span><br>
+                            <span style="color:#27ae60; font-size:13px; font-weight:bold; margin-top:5px; display:block;">📞 ${place.phone || '전화번호 없음'}</span>
+                            <div style="margin-top:10px; text-align:right;">
+                                <a href="https://map.kakao.com/link/map/${place.id}" target="_blank" style="color:#4b6cb7; text-decoration:none; font-weight:bold; font-size:12px;">카카오맵 상세보기 〉</a>
+                            </div>
+                        </div>
+                    `;
+                    infowindow.setContent(content);
+                    infowindow.open(map, marker);
+                });
+            }
+        }); // kakao.maps.load 끝
+    </script>
 </body>
 </html>
