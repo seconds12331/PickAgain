@@ -77,15 +77,14 @@
                     <label>소비기한 (이 날짜 이전)</label>
                     <input type="date" id="ds-expiry-date">
                 </div>
-                <div class="ds-row">
-                    <div class="ds-group">
-                        <label>매장명</label>
-                        <input type="text" id="ds-store-name" placeholder="매장 이름을 입력하세요" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
+                <div class="ds-group">
+                    <label>매장명</label>
+                    <input type="text" id="ds-store-name" placeholder="매장 이름을 입력하세요" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
-                <div class="ds-footer">
-                    <button class="execute-btn" id="executeDetailBtn">조건 적용</button>
-                </div>
+            </div>
+            
+            <div class="ds-footer">
+                <button class="execute-btn" id="executeDetailBtn">조건 적용</button>
             </div>
         </div>
     </div>
@@ -113,18 +112,18 @@
         </div>
 
     </div>
+    
     <script>
         // 1. 전역 변수 및 설정
         const backendURL = 'https://pickagain-backend.onrender.com';
-        let allProducts = []; // 서버에서 가져온 전체 데이터를 저장할 창고
+        let allProducts = []; 
 
         // --- ★ 로그인 상태 확인 및 상단바 변경 ★ ---
         const currentUser = localStorage.getItem("username");
-        const userRole = localStorage.getItem("userRole"); // (추가) 현재 로그인한 사람의 권한 가져오기
+        const userRole = localStorage.getItem("userRole"); 
         const navbar = document.querySelector(".navbar");
 
         if (currentUser) {
-            // 대시보드 링크
             const adminLink = userRole === 'admin' 
                 ? `<a href="admin.html" style="color: #55efc4; margin-right: 15px; font-weight: bold;">[관리자 대시보드]</a>` 
                 : "";
@@ -137,7 +136,7 @@
             
             document.getElementById("logoutBtn").addEventListener("click", function(e) {
                 e.preventDefault();
-                localStorage.clear(); // 로그인 정보 모두 삭제
+                localStorage.clear(); 
                 alert("로그아웃 되었습니다.");
                 location.reload(); 
             });
@@ -149,7 +148,7 @@
             if (newPostBtn) {
                 newPostBtn.addEventListener("click", function(e) {
                     if (!currentUser) {
-                        e.preventDefault(); // 페이지 이동 막기
+                        e.preventDefault(); 
                         alert("로그인이 필요한 기능입니다.");
                         location.href = "login.html";
                     }
@@ -157,7 +156,7 @@
             }
         });
 
-        // 상세 검색을 위한 서브 카테고리 데이터
+        // 상세 검색 카테고리 데이터
         const categoryData = {
             "식품": ["가공식품", "신선식품 (과일/채소)", "축산/수산물", "음료/생수", "건강기능식품", "과자/간식"],
             "가전": ["주방가전 (냉장고/밥솥)", "생활가전 (세탁기/청소기)", "계절가전 (에어컨/선풍기)", "영상가전 (TV/모니터)", "음향가전 (스피커/이어폰)", "모바일/태블릿", "컴퓨터/노트북"],
@@ -167,34 +166,44 @@
             "기타": ["도서/음반", "완구/취미", "스포츠/레저", "기타"]
         };
 
-        // HTML 요소 미리 가져오기
         const contentContainer = document.getElementById("content");
         const resultsContainer = document.getElementById("results");
         const keywordInput = document.getElementById("keyword");
 
         // ==========================================
-        // 2. 데이터 통신 (Server -> Client)
+        // 2. 데이터 통신
         // ==========================================
-
-        // 서버에서 상품 목록 가져오기
         function fetchProducts() {
             fetch(`${backendURL}/products`)
                 .then(response => response.json())
                 .then(data => {
-                    allProducts = data;
-                    displayAllProducts(allProducts); // 처음에 전체 상품 출력
+                    allProducts = data; 
+
+                    // 지도에서 파라미터가 넘어왔는지 확인
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const storeKeyword = urlParams.get('search');
+
+                    if (storeKeyword) {
+                        const panel = document.getElementById("detailSearchPanel");
+                        if (panel) panel.style.display = "block";
+
+                        const dsStoreInput = document.getElementById("ds-store-name"); 
+                        if (dsStoreInput) dsStoreInput.value = storeKeyword;
+
+                        executeDetailedSearch(); 
+                    } else {
+                        displayAllProducts(allProducts);
+                    }
                 })
                 .catch(error => {
-                    console.error("상품 목록 로딩 실패:", error);
+                    console.error("상품 로딩 실패:", error);
                     contentContainer.innerHTML = "<p>상품을 불러오는 데 실패했습니다.</p>";
                 });
         }
 
         // ==========================================
-        // 3. 화면 렌더링 (Drawing UI)
+        // 3. 화면 렌더링
         // ==========================================
-
-        // 상품 카드 하나하나를 만드는 함수
         function renderProductCard(p) {
             const item = document.createElement("a");
             item.classList.add("product-item-link", "product-item");
@@ -206,9 +215,7 @@
             }
 
             let shortDetail = p.status_detail || "";
-            if (shortDetail.length > 15) {
-                shortDetail = shortDetail.substring(0, 15) + "...";
-            }
+            if (shortDetail.length > 15) shortDetail = shortDetail.substring(0, 15) + "...";
 
             const categoryInfo = `${p.type || '기타'} | ${p.type_detail || ''}`;
 
@@ -228,7 +235,6 @@
             return item;
         }
 
-        // 화면에 리스트를 그리는 함수
         function displayAllProducts(productsToDisplay) {
             contentContainer.innerHTML = "";
             productsToDisplay.forEach(p => {
@@ -238,10 +244,8 @@
         }
 
         // ==========================================
-        // 4. 검색 및 필터링 로직 (The Core Logic)
+        // 4. 검색 및 필터링 로직 (수정 완료)
         // ==========================================
-
-        // 대분류 선택 시 상세 카테고리 자동 변경
         function updateDsSubCategory() {
             const mainType = document.getElementById("ds-type").value;
             const subSelect = document.getElementById("ds-type-detail");
@@ -257,7 +261,6 @@
             }
         }
 
-        // 상세 검색 패널 토글
         document.getElementById("detailToggleBtn").addEventListener("click", function () {
             const panel = document.getElementById("detailSearchPanel");
             if (panel.style.display === "none") {
@@ -269,121 +272,97 @@
             }
         });
 
-        // index.html의 fetchProducts 함수 수정본
-function fetchProducts() {
-    fetch(`${backendURL}/products`)
-        .then(response => response.json())
-        .then(data => {
-            allProducts = data; // 전체 데이터 저장
+        // ★ 에러 방지 처리 및 로직 단일화 적용 완료! ★
+        function executeDetailedSearch() {
+            // HTML에서 값을 안전하게 가져옵니다.
+            const keyword = keywordInput ? keywordInput.value.toLowerCase().trim() : "";
+            
+            const storeInput = document.getElementById("ds-store-name");
+            const storeName = storeInput ? storeInput.value.toLowerCase().trim() : "";
+            
+            const typeInput = document.getElementById("ds-type");
+            const type = typeInput ? typeInput.value : "";
+            
+            const typeDetailInput = document.getElementById("ds-type-detail");
+            const typeDetail = typeDetailInput ? typeDetailInput.value : "";
+            
+            const statusInput = document.getElementById("ds-status");
+            const status = statusInput ? statusInput.value : "";
+            
+            const expiryTypeInput = document.getElementById("ds-expiry-type");
+            const expiryType = expiryTypeInput ? expiryTypeInput.value : "";
+            
+            const expiryDateInput = document.getElementById("ds-expiry-date");
+            const expiryDate = expiryDateInput ? expiryDateInput.value : "";
 
-            // 1. 주소창에서 'search' 파라미터(매장명)를 가져옵니다.
-            const urlParams = new URLSearchParams(window.location.search);
-            const storeKeyword = urlParams.get('search');
+            let filtered = allProducts;
 
-            if (storeKeyword) {
-                // 2. [중요] 상세 검색 패널을 화면에 펼칩니다.
-                const panel = document.getElementById("detailSearchPanel");
-                if (panel) panel.style.display = "block";
-
-                // 3. 메인 검색창(keyword)이 아닌, 상세 검색 내의 '매장명' 입력칸에 값을 넣습니다.
-                const dsStoreInput = document.getElementById("ds-store-name"); 
-                if (dsStoreInput) {
-                    dsStoreInput.value = storeKeyword;
-                }
-
-                // 4. 상세 검색 함수를 즉시 실행하여 매장명으로 필터링합니다.
-                executeDetailedSearch(); 
-            } else {
-                // 검색어가 없으면 전체 상품 출력
-                displayAllProducts(allProducts);
+            // 필터 1: 메인 검색어 (이름)
+            if (keyword) {
+                filtered = filtered.filter(p => p.name && p.name.toLowerCase().includes(keyword));
             }
-        })
-        .catch(error => {
-            console.error("상품 로딩 실패:", error);
-            contentContainer.innerHTML = "<p>상품을 불러오는 데 실패했습니다.</p>";
-        });
-}
 
-function executeDetailedSearch() {
-    const keyword = keywordInput.value.toLowerCase(); // 메인 검색어
-    
-    const storeInput = document.getElementById("ds-store-name");
-    const storeName = storeInput ? storeInput.value.toLowerCase() : "";
-    
-    const type = document.getElementById("ds-type").value;
-    const subtype = document.getElementById("ds-subtype").value;
-    const expiryType = document.getElementById("ds-expiry").value;
+            // 필터 2: 매장명
+            if (storeName) {
+                filtered = filtered.filter(p => p.store_name && p.store_name.toLowerCase().includes(storeName));
+            }
 
-    let filtered = allProducts.filter(p => {
-        const matchKeyword = p.name.toLowerCase().includes(keyword);
-        
-        const matchStore = p.store_name ? p.store_name.toLowerCase().includes(storeName) : true;
-        
-        const matchType = type === "" || p.type === type;
-        const matchSubtype = subtype === "" || p.type_detail === subtype;
-        
-        return matchKeyword && matchStore && matchType && matchSubtype;
-    });
+            // 필터 3: 대분류
+            if (type) {
+                filtered = filtered.filter(p => p.type === type);
+            }
 
-            // 1. 이름 키워드 필터
-            if (keyword) filtered = filtered.filter(p => p.name.includes(keyword));
+            // 필터 4: 상세 카테고리
+            if (typeDetail) {
+                filtered = filtered.filter(p => p.type_detail === typeDetail);
+            }
 
-            // 2. 대분류 & 상세 카테고리 필터
-            if (type) filtered = filtered.filter(p => p.type === type);
-            if (typeDetail) filtered = filtered.filter(p => p.type_detail === typeDetail);
+            // 필터 5: 상품 상태
+            if (status) {
+                filtered = filtered.filter(p => p.status_category === status);
+            }
 
-            // 3. 상품 상태 필터
-            if (status) filtered = filtered.filter(p => p.status_category === status);
-
-            // 4. 매장명 필터
-            if (store) filtered = filtered.filter(p => p.store_name && p.store_name.includes(store));
-
-            // 5. 소비기한 필터
+            // 필터 6: 소비기한
             if (expiryType === "has") {
-                filtered = filtered.filter(p => p.expiry_date != null);
+                filtered = filtered.filter(p => p.expiry_date != null && p.expiry_date !== "");
                 if (expiryDate) {
                     const targetDate = new Date(expiryDate);
                     filtered = filtered.filter(p => p.expiry_date && new Date(p.expiry_date) <= targetDate);
                 }
             } else if (expiryType === "none") {
-                filtered = filtered.filter(p => p.expiry_date == null);
+                filtered = filtered.filter(p => p.expiry_date == null || p.expiry_date === "");
             }
 
-            // 결과 출력
-            resultsContainer.style.display = "none";
-            contentContainer.style.display = "block";
-    
-            if (filtered.length === 0) {
-                contentContainer.innerHTML = "<div style='text-align:center; padding: 50px;'><h3 style='color:#777;'>조건에 맞는 상품이 없습니다. 😢</h3></div>";
-            } else {
-                displayAllProducts(filtered);
+            // 결과 화면 처리
+            if (resultsContainer) resultsContainer.style.display = "none";
+            if (contentContainer) {
+                contentContainer.style.display = "block";
+        
+                if (filtered.length === 0) {
+                    contentContainer.innerHTML = "<div style='text-align:center; padding: 50px;'><h3 style='color:#777;'>조건에 맞는 상품이 없습니다. 😢</h3></div>";
+                } else {
+                    displayAllProducts(filtered);
+                }
             }
         }
 
         // ==========================================
-        // 5. 이벤트 리스너 (Connecting UI & Logic)
+        // 5. 이벤트 리스너 세팅
         // ==========================================
-
-        // 검색 버튼 클릭 시
         document.getElementById("searchBtn").addEventListener("click", executeDetailedSearch);
+        document.getElementById("executeDetailBtn").addEventListener("click", executeDetailedSearch);
 
-        // 엔터키 입력 시
         keywordInput.addEventListener("keydown", function (e) {
             if (e.key === "Enter") executeDetailedSearch();
         });
 
-        // 상세 검색 조건 적용 버튼 클릭 시
-        document.getElementById("executeDetailBtn").addEventListener("click", executeDetailedSearch);
-
-        // 페이지 초기화
         function initializePage() {
-            resultsContainer.style.display = "none";
-            contentContainer.style.display = "block";
+            if (resultsContainer) resultsContainer.style.display = "none";
+            if (contentContainer) contentContainer.style.display = "block";
             fetchProducts();
         }
 
         initializePage();
     </script>
 </body>
-
 </html>
