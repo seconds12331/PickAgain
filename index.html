@@ -78,11 +78,17 @@
                     <input type="date" id="ds-expiry-date">
                 </div>
                 <div class="ds-group">
-                    <label>매장명</label>
-                    <input type="text" id="ds-store" placeholder="예: 여수점">
-                </div>
-                <div class="ds-group ds-btn-group">
-                    <button id="executeDetailBtn" class="creat_btn" style="width: 100%;">조건 적용하기</button>
+                    <div class="detail-search-panel" id="detailSearchPanel" style="display: none;">
+                        <div class="ds-row">
+                            <div class="ds-group">
+                                <label>매장명</label>
+                                <input type="text" id="ds-store-name" placeholder="매장 이름을 입력하세요" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                        </div>
+                        <div class="ds-footer">
+                            <button class="execute-btn" id="executeDetailBtn">조건 적용</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -302,17 +308,26 @@ function fetchProducts() {
         });
 }
 
-        // [통합 검색 함수] - 기존의 searchProducts 역할을 이 함수가 대신합니다.
-        function executeDetailedSearch() {
-            const keyword = keywordInput.value.trim();
-            const type = document.getElementById("ds-type").value;
-            const typeDetail = document.getElementById("ds-type-detail").value;
-            const status = document.getElementById("ds-status").value;
-            const expiryType = document.getElementById("ds-expiry-type").value;
-            const expiryDate = document.getElementById("ds-expiry-date").value;
-            const store = document.getElementById("ds-store").value.trim();
+function executeDetailedSearch() {
+    const keyword = keywordInput.value.toLowerCase(); // 메인 검색어
+    
+    const storeInput = document.getElementById("ds-store-name");
+    const storeName = storeInput ? storeInput.value.toLowerCase() : "";
+    
+    const type = document.getElementById("ds-type").value;
+    const subtype = document.getElementById("ds-subtype").value;
+    const expiryType = document.getElementById("ds-expiry").value;
 
-            let filtered = allProducts;
+    let filtered = allProducts.filter(p => {
+        const matchKeyword = p.name.toLowerCase().includes(keyword);
+        
+        const matchStore = p.store_name ? p.store_name.toLowerCase().includes(storeName) : true;
+        
+        const matchType = type === "" || p.type === type;
+        const matchSubtype = subtype === "" || p.type_detail === subtype;
+        
+        return matchKeyword && matchStore && matchType && matchSubtype;
+    });
 
             // 1. 이름 키워드 필터
             if (keyword) filtered = filtered.filter(p => p.name.includes(keyword));
@@ -339,9 +354,9 @@ function fetchProducts() {
             }
 
             // 결과 출력
-            resultsContainer.style.display = "none"; // 기존 results div는 사용 안 함
+            resultsContainer.style.display = "none";
             contentContainer.style.display = "block";
-
+    
             if (filtered.length === 0) {
                 contentContainer.innerHTML = "<div style='text-align:center; padding: 50px;'><h3 style='color:#777;'>조건에 맞는 상품이 없습니다. 😢</h3></div>";
             } else {
