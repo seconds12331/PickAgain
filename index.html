@@ -267,32 +267,40 @@
             }
         });
 
-        // index.html의 fetchProducts 함수 수정
-        function fetchProducts() {
-            fetch(`${backendURL}/products`)
-                .then(response => response.json())
-                .then(data => {
-                    allProducts = data; // 서버에서 받은 전체 데이터를 저장
+        // index.html의 fetchProducts 함수 수정본
+function fetchProducts() {
+    fetch(`${backendURL}/products`)
+        .then(response => response.json())
+        .then(data => {
+            allProducts = data; // 전체 데이터 저장
 
-                    // ★ 추가된 부분: 주소창에 'search'라는 쪽지가 있는지 확인합니다.
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const searchKeyword = urlParams.get('search');
+            // 1. 주소창에서 'search' 파라미터(매장명)를 가져옵니다.
+            const urlParams = new URLSearchParams(window.location.search);
+            const storeKeyword = urlParams.get('search');
 
-                    if (searchKeyword) {
-                        // 1. 쪽지가 있다면 검색창에 매장 이름을 넣습니다.
-                        document.getElementById("keyword").value = searchKeyword;
-                        // 2. 검색 기능을 즉시 실행해서 해당 매장 상품만 필터링합니다.
-                        executeDetailedSearch(); 
-                    } else {
-                        // 쪽지가 없으면 그냥 전체 상품을 보여줍니다.
-                        displayAllProducts(allProducts);
-                    }
-                })
-                .catch(error => {
-                    console.error("상품 로딩 실패:", error);
-                    contentContainer.innerHTML = "<p>상품을 불러오는 데 실패했습니다.</p>";
-                });
-        }
+            if (storeKeyword) {
+                // 2. [중요] 상세 검색 패널을 화면에 펼칩니다.
+                const panel = document.getElementById("detailSearchPanel");
+                if (panel) panel.style.display = "block";
+
+                // 3. 메인 검색창(keyword)이 아닌, 상세 검색 내의 '매장명' 입력칸에 값을 넣습니다.
+                const dsStoreInput = document.getElementById("ds-store-name"); 
+                if (dsStoreInput) {
+                    dsStoreInput.value = storeKeyword;
+                }
+
+                // 4. 상세 검색 함수를 즉시 실행하여 매장명으로 필터링합니다.
+                executeDetailedSearch(); 
+            } else {
+                // 검색어가 없으면 전체 상품 출력
+                displayAllProducts(allProducts);
+            }
+        })
+        .catch(error => {
+            console.error("상품 로딩 실패:", error);
+            contentContainer.innerHTML = "<p>상품을 불러오는 데 실패했습니다.</p>";
+        });
+}
 
         // [통합 검색 함수] - 기존의 searchProducts 역할을 이 함수가 대신합니다.
         function executeDetailedSearch() {
