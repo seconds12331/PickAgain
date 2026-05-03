@@ -110,8 +110,30 @@
                 <p style="text-align: center; color: #999;">(오른쪽 광고)</p>
             </aside>
         </div>
-
     </div>
+        <button id="chatbot-fab" class="chatbot-fab">
+            AI 상담
+        </button>
+
+        <div id="chatbot-window" class="chatbot-window" style="display: none;">
+            <div class="chatbot-header">
+                <h3 style="margin: 0; font-size: 16px;">PickAgain AI 매니저</h3>
+                <button id="chatbot-close" class="chatbot-close">&times;</button>
+            </div>
+        
+            <div id="chatbot-messages" class="chatbot-messages">
+                <div class="message bot-message">
+                    안녕하세요. 무엇이든 물어보세요.<br>
+                    <span style="font-size: 12px; color: #666;">(예: "10만원대 가성비 냉장고 찾아줘")</span>
+                </div>
+            </div>
+        
+            <div class="chatbot-input-area">
+                <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+                <button id="chatbot-send">전송</button>
+            </div>
+        </div>
+
     
     <script>
         // 1. 전역 변수 및 설정
@@ -361,6 +383,58 @@
             if (contentContainer) contentContainer.style.display = "block";
             fetchProducts();
         }
+
+        // ==========================================
+        // ★ AI 챗봇 프론트엔드 로직 ★
+        // ==========================================
+        const chatbotFab = document.getElementById('chatbot-fab');
+        const chatbotWindow = document.getElementById('chatbot-window');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSend = document.getElementById('chatbot-send');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+
+        // 1. 챗봇 창 열기/닫기
+        chatbotFab.addEventListener('click', () => {
+            chatbotWindow.style.display = chatbotWindow.style.display === 'none' ? 'flex' : 'none';
+        });
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotWindow.style.display = 'none';
+        });
+
+        // 2. 메시지 화면에 그리는 함수
+        function appendMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            msgDiv.innerHTML = text;
+            chatbotMessages.appendChild(msgDiv);
+            
+            // 스크롤을 맨 아래로 내리기
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        // 3. 메시지 전송 이벤트
+        function sendMessageToBot() {
+            const text = chatbotInput.value.trim();
+            if (!text) return;
+
+            // 1. 내가 쓴 글을 화면에 그리기
+            appendMessage(text, 'user');
+            chatbotInput.value = ''; // 입력창 비우기
+
+            // 2. AI 응답 대기 시뮬레이션
+            setTimeout(() => {
+                // (나중에는 여기에 백엔드(AI)로 질문을 보내는 코드가 들어갑니다)
+                appendMessage("아직 AI 서버가 연결되지 않았습니다.<br>백엔드 연동을 진행해 주세요.", 'bot');
+            }, 600);
+        }
+
+        chatbotSend.addEventListener('click', sendMessageToBot);
+        chatbotInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessageToBot();
+        });
 
         initializePage();
     </script>
