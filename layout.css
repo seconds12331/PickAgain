@@ -885,3 +885,134 @@ p {
     color: #222; 
     letter-spacing: 0.5px;
 }
+
+/* =================================
+   11. AI 챗봇 (Chatbot) 스타일
+   ================================= */
+   
+/* 우측 하단 둥근 버튼 */
+.chatbot-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #4b6cb7;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chatbot-fab:hover {
+    transform: translateY(-3px);
+    background-color: #3a5591;
+}
+
+/* 챗봇 창 패널 */
+.chatbot-window {
+    position: fixed;
+    bottom: 90px;
+    right: 30px;
+    width: 350px;
+    height: 500px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+    border: 1px solid #eaeaea;
+}
+
+/* 챗봇 헤더 */
+.chatbot-header {
+    background-color: #4b6cb7;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* 채팅 내용 영역 */
+.chatbot-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #f8faff;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 말풍선 공통 스타일 */
+.message {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* AI(봇) 말풍선 */
+.bot-message {
+    background-color: #fff;
+    border: 1px solid #eaeaea;
+    align-self: flex-start;
+    border-top-left-radius: 2px;
+}
+
+/* 사용자 말풍선 */
+.user-message {
+    background-color: #4b6cb7;
+    color: white;
+    align-self: flex-end;
+    border-top-right-radius: 2px;
+}
+
+/* 채팅 입력 영역 */
+.chatbot-input-area {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #eaeaea;
+    background-color: #fff;
+}
+
+.chatbot-input-area input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+}
+
+.chatbot-input-area button {
+    background-color: #4b6cb7;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
