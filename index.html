@@ -453,6 +453,12 @@
                 document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다. 백엔드가 켜져 있는지 확인해 주세요.";
             }
         }
+
+        chatbotSend.addEventListener('click', sendMessageToBot);
+        chatbotInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessageToBot();
+        });
+        
         initializePage();
     </script>
 </body>
