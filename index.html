@@ -194,6 +194,24 @@
         const keywordInput = document.getElementById("keyword");
 
         // ==========================================
+        // ★ 챗봇에서 상품/매장명 클릭 시 검색을 실행하는 함수 ★
+        // ==========================================
+        window.triggerChatSearch = function(searchTerm) {
+            // 1. 메인 검색창에 단어 넣기
+            const keywordInput = document.getElementById("keyword");
+            if (keywordInput) keywordInput.value = searchTerm;
+            
+            // 2. 다른 상세 조건(매장명 등)은 초기화해서 정확한 검색 유도
+            const dsStoreInput = document.getElementById("ds-store-name");
+            const dsTypeInput = document.getElementById("ds-type");
+            if (dsStoreInput) dsStoreInput.value = "";
+            if (dsTypeInput) dsTypeInput.value = "";
+            
+            // 3. 검색 버튼을 누른 것과 똑같이 필터링 실행!
+            executeDetailedSearch();
+        };
+
+        // ==========================================
         // 2. 데이터 통신
         // ==========================================
         function fetchProducts() {
