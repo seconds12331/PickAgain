@@ -1016,3 +1016,21 @@ p {
     cursor: pointer;
     font-weight: bold;
 }
+
+/* 챗봇 말풍선 내부의 클릭 가능한 링크(상품명, 매장명) 스타일 */
+.chatbot-messages a {
+    color: #4b6cb7;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 2px 6px;
+    background-color: #e8effa;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    display: inline-block;
+    margin: 2px 0;
+}
+
+.chatbot-messages a:hover {
+    background-color: #d1e0f7;
+    text-decoration: underline;
+}
