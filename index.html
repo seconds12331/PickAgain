@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
-    <title>CostReturn - 메인</title>
+    <title>PickAgain - 메인</title>
     <link rel="stylesheet" href="layout.css">
 </head>
+
 <body>
     <div class="navbar">
         <a href="login.html">Login/Sign Up</a>
@@ -14,14 +16,18 @@
         <div class="search-bar-row">
             <div class="title-container">
                 <h2 class="Title">
-                    <a href="index.html">CostReturn</a>
+                    <a href="index.html">PickAgain</a>
                 </h2>
             </div>
-            <input type="text" id="keyword" placeholder="상품명 또는 매장명을 입력하세요" autocomplete="off">
+            <input type="text" id="keyword" placeholder="상품명 또는 매장명을 검색해 보세요" autocomplete="off">
             <button id="searchBtn">검색</button>
             <button id="detailToggleBtn" class="detail-toggle-btn">상세 검색 ▼</button>
-            <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
-            <button class="map-btn" onclick="location.href='map.html'">지도</button>
+            <button class="alert-btn" onclick="location.href='alerts.html'">
+                알림
+            </button>
+            <button class="map-btn" onclick="location.href='map.html'">
+                지도
+            </button>
             <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px;">
                 AI 상담
             </button>
@@ -91,8 +97,11 @@
     </div>
 
     <div class="page-wrapper">
+
         <div class="ad-column-left">
-            <aside class="ad-slot ad-slot-left"><p style="text-align: center; color: #999;">(왼쪽 광고)</p></aside>
+            <aside class="ad-slot ad-slot-left">
+                <p style="text-align: center; color: #999;">(왼쪽 광고)</p>
+            </aside>
         </div>
 
         <main class="main-content">
@@ -104,44 +113,237 @@
         </main>
 
         <div class="ad-column-right">
-            <aside class="ad-slot ad-slot-right"><p style="text-align: center; color: #999;">(오른쪽 광고)</p></aside>
+            <aside class="ad-slot ad-slot-right">
+                <p style="text-align: center; color: #999;">(오른쪽 광고)</p>
+            </aside>
         </div>
     </div>
+        
 
-    <div id="chatbot-window" class="chatbot-window" style="display: none;">
-        <div class="chatbot-header">
-            <h3 style="margin: 0; font-size: 16px;">CostReturn AI 매니저</h3>
-            <button id="chatbot-close" class="chatbot-close">&times;</button>
+        <div id="chatbot-window" class="chatbot-window" style="display: none;">
+            <div class="chatbot-header">
+                <h3 style="margin: 0; font-size: 16px;">PickAgain AI 매니저</h3>
+                <button id="chatbot-close" class="chatbot-close">&times;</button>
+            </div>
+        
+            <div id="chatbot-messages" class="chatbot-messages">
+                <div class="message bot-message">
+                    안녕하세요. 무엇이든 물어보세요.<br>
+                    <span style="font-size: 12px; color: #666;">(예: "10만원대 가성비 냉장고 찾아줘")</span>
+                </div>
+            </div>
+        
+            <div class="chatbot-input-area">
+                <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+                <button id="chatbot-send">전송</button>
+            </div>
         </div>
-        <div id="chatbot-messages" class="chatbot-messages">
-            <div class="message bot-message">안녕하세요. 무엇이든 물어보세요.<br><span style="font-size: 12px; color: #666;">(예: "10만원대 가성비 냉장고 찾아줘")</span></div>
-        </div>
-        <div class="chatbot-input-area">
-            <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." autocomplete="off">
-            <button id="chatbot-send">전송</button>
-        </div>
-    </div>
 
+    
     <script>
-        const backendURL = 'https://pickagain-backend.onrender.com';
+        // 1. 전역 변수 및 설정
+        const backendURL = 'https://pickagain-backend-1.onrender.com';
         let allProducts = []; 
 
-        // 1. 검색 로직 (통합 검색 및 가격대 필터 적용)
-        function executeDetailedSearch() {
-            const keyword = document.getElementById("keyword").value.toLowerCase().trim();
-            const type = document.getElementById("ds-type").value;
-            const typeDetail = document.getElementById("ds-type-detail").value;
-            const status = document.getElementById("ds-status").value;
-            const expiryType = document.getElementById("ds-expiry-type").value;
-            const expiryDate = document.getElementById("ds-expiry-date").value;
+        // --- ★ 로그인 상태 확인 및 상단바 변경 ★ ---
+        const currentUser = localStorage.getItem("username");
+        const userRole = localStorage.getItem("userRole"); 
+        const navbar = document.querySelector(".navbar");
+
+        if (currentUser) {
+            const adminLink = userRole === 'admin' 
+                ? `<a href="admin.html" style="color: #55efc4; margin-right: 15px; font-weight: bold;">[관리자 대시보드]</a>` 
+                : "";
+
+            navbar.innerHTML = `
+                ${adminLink}
+                <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
+                <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
+            `;
             
-            // 가격 필터 값 가져오기
-            const minPrice = parseInt(document.getElementById("ds-min-price").value) || 0;
-            const maxPrice = parseInt(document.getElementById("ds-max-price").value) || Infinity;
+            document.getElementById("logoutBtn").addEventListener("click", function(e) {
+                e.preventDefault();
+                localStorage.clear(); 
+                alert("로그아웃 되었습니다.");
+                location.reload(); 
+            });
+        }
+
+        // --- ★ 비로그인 시 '새글' 버튼 클릭 차단 ★ ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const newPostBtn = document.querySelector(".creat_btn[href='product-form.html']");
+            if (newPostBtn) {
+                newPostBtn.addEventListener("click", function(e) {
+                    if (!currentUser) {
+                        e.preventDefault(); 
+                        alert("로그인이 필요한 기능입니다.");
+                        location.href = "login.html";
+                    }
+                });
+            }
+        });
+
+        // 상세 검색 카테고리 데이터
+        const categoryData = {
+            "식품": ["가공식품", "신선식품 (과일/채소)", "축산/수산물", "음료/생수", "건강기능식품", "과자/간식"],
+            "가전": ["주방가전 (냉장고/밥솥)", "생활가전 (세탁기/청소기)", "계절가전 (에어컨/선풍기)", "영상가전 (TV/모니터)", "음향가전 (스피커/이어폰)", "모바일/태블릿", "컴퓨터/노트북"],
+            "가구": ["침실가구 (침대/매트리스)", "거실가구 (소파/테이블)", "주방가구 (식탁/수납장)", "수납/정리", "사무용가구", "인테리어 소품"],
+            "의류": ["여성의류", "남성의류", "아동의류", "신발/잡화", "가방/지갑", "쥬얼리/시계"],
+            "생활": ["세탁/청소용품", "욕실용품", "주방용품", "문구/사무용품", "반려동물용품", "자동차용품"],
+            "기타": ["도서/음반", "완구/취미", "스포츠/레저", "기타"]
+        };
+
+        const contentContainer = document.getElementById("content");
+        const resultsContainer = document.getElementById("results");
+        const keywordInput = document.getElementById("keyword");
+
+        // ==========================================
+        // ★ 챗봇에서 상품/매장명 클릭 시 검색을 실행하는 함수 ★
+        // ==========================================
+        window.triggerChatSearch = function(searchTerm) {
+            // 1. 메인 검색창에 단어 넣기
+            if (keywordInput) keywordInput.value = searchTerm;
+            
+            // 2. 다른 상세 조건(가격대 등)은 초기화해서 정확한 검색 유도
+            const dsTypeInput = document.getElementById("ds-type");
+            const dsMinPrice = document.getElementById("ds-min-price");
+            const dsMaxPrice = document.getElementById("ds-max-price");
+            
+            if (dsTypeInput) dsTypeInput.value = "";
+            if (dsMinPrice) dsMinPrice.value = "";
+            if (dsMaxPrice) dsMaxPrice.value = "";
+            
+            // 3. 검색 버튼을 누른 것과 똑같이 필터링 실행!
+            executeDetailedSearch();
+        };
+
+        // ==========================================
+        // 2. 데이터 통신
+        // ==========================================
+        function fetchProducts() {
+            fetch(`${backendURL}/products`)
+                .then(response => response.json())
+                .then(data => {
+                    allProducts = data; 
+
+                    // 지도에서 파라미터가 넘어왔는지 확인
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const storeKeyword = urlParams.get('search');
+
+                    if (storeKeyword) {
+                        // ★ 지도에서 넘어온 경우, 매장명 칸이 없으므로 통합 검색창에 값을 넣습니다.
+                        if (keywordInput) keywordInput.value = storeKeyword;
+                        executeDetailedSearch(); 
+                    } else {
+                        displayAllProducts(allProducts);
+                    }
+                })
+                .catch(error => {
+                    console.error("상품 로딩 실패:", error);
+                    contentContainer.innerHTML = "<p>상품을 불러오는 데 실패했습니다.</p>";
+                });
+        }
+
+        // ==========================================
+        // 3. 화면 렌더링
+        // ==========================================
+        function renderProductCard(p) {
+            const item = document.createElement("a");
+            item.classList.add("product-item-link", "product-item");
+            item.href = `product-detail.html?id=${p.product_id}`;
+
+            let imageSrc = "https://placehold.co/100x100?text=No+Image";
+            if (p.image_path) {
+                imageSrc = `${backendURL}${p.image_path.split(',')[0]}`;
+            }
+
+            let shortDetail = p.status_detail || "";
+            if (shortDetail.length > 15) shortDetail = shortDetail.substring(0, 15) + "...";
+
+            const categoryInfo = `${p.type || '기타'} | ${p.type_detail || ''}`;
+
+            item.innerHTML = `
+                    <img src="${imageSrc}" alt="${p.name}" class="product-image">
+                    <div class="product-details">
+                        <div class="product-header">
+                            <span class="category-text">${categoryInfo}</span>
+                            <h4>${p.name}</h4>
+                            <span class="status-badge">${p.status_category || '기타'}</span>
+                        </div>
+                        <p class="status-reason">⚠️ ${shortDetail}</p>
+                        <p class="product-price">${p.price.toLocaleString()}원</p>
+                        <p class="store-info">🏪 ${p.store_name || '매장 정보 없음'}</p>
+                    </div>
+                `;
+            return item;
+        }
+
+        function displayAllProducts(productsToDisplay) {
+            contentContainer.innerHTML = "";
+            productsToDisplay.forEach(p => {
+                const item = renderProductCard(p);
+                contentContainer.appendChild(item);
+            });
+        }
+
+        // ==========================================
+        // 4. 검색 및 필터링 로직 (수정 완료)
+        // ==========================================
+        function updateDsSubCategory() {
+            const mainType = document.getElementById("ds-type").value;
+            const subSelect = document.getElementById("ds-type-detail");
+            subSelect.innerHTML = '<option value="">전체</option>';
+
+            if (mainType && categoryData[mainType]) {
+                categoryData[mainType].forEach(sub => {
+                    const option = document.createElement("option");
+                    option.value = sub;
+                    option.text = sub;
+                    subSelect.appendChild(option);
+                });
+            }
+        }
+
+        document.getElementById("detailToggleBtn").addEventListener("click", function () {
+            const panel = document.getElementById("detailSearchPanel");
+            if (panel.style.display === "none") {
+                panel.style.display = "block";
+                this.innerText = "상세 검색 ▲";
+            } else {
+                panel.style.display = "none";
+                this.innerText = "상세 검색 ▼";
+            }
+        });
+
+        // ★ 에러 방지 처리 및 로직 단일화 적용 완료! ★
+        function executeDetailedSearch() {
+            // HTML에서 값을 안전하게 가져옵니다.
+            const keyword = keywordInput ? keywordInput.value.toLowerCase().trim() : "";
+            
+            const typeInput = document.getElementById("ds-type");
+            const type = typeInput ? typeInput.value : "";
+            
+            const typeDetailInput = document.getElementById("ds-type-detail");
+            const typeDetail = typeDetailInput ? typeDetailInput.value : "";
+            
+            const statusInput = document.getElementById("ds-status");
+            const status = statusInput ? statusInput.value : "";
+            
+            const expiryTypeInput = document.getElementById("ds-expiry-type");
+            const expiryType = expiryTypeInput ? expiryTypeInput.value : "";
+            
+            const expiryDateInput = document.getElementById("ds-expiry-date");
+            const expiryDate = expiryDateInput ? expiryDateInput.value : "";
+
+            // ★ 가격대 값 가져오기
+            const minPriceInput = document.getElementById("ds-min-price");
+            const maxPriceInput = document.getElementById("ds-max-price");
+            const minPrice = minPriceInput && minPriceInput.value ? parseInt(minPriceInput.value) : 0;
+            const maxPrice = maxPriceInput && maxPriceInput.value ? parseInt(maxPriceInput.value) : Infinity;
 
             let filtered = allProducts;
 
-            // 통합 검색: 상품명 또는 매장명에 키워드 포함 시 필터링
+            // ★ 필터 1: 메인 검색어 (상품명 OR 매장명 통합 검색)
             if (keyword) {
                 filtered = filtered.filter(p => 
                     (p.name && p.name.toLowerCase().includes(keyword)) || 
@@ -149,15 +351,25 @@
                 );
             }
 
-            // 대분류/상세분류/상태 필터
-            if (type) filtered = filtered.filter(p => p.type === type);
-            if (typeDetail) filtered = filtered.filter(p => p.type_detail === typeDetail);
-            if (status) filtered = filtered.filter(p => p.status_category === status);
+            // 필터 2: 대분류
+            if (type) {
+                filtered = filtered.filter(p => p.type === type);
+            }
 
-            // 가격대 필터
+            // 필터 3: 상세 카테고리
+            if (typeDetail) {
+                filtered = filtered.filter(p => p.type_detail === typeDetail);
+            }
+
+            // 필터 4: 상품 상태
+            if (status) {
+                filtered = filtered.filter(p => p.status_category === status);
+            }
+
+            // ★ 필터 5: 가격대 검색
             filtered = filtered.filter(p => p.price >= minPrice && p.price <= maxPrice);
 
-            // 소비기한 필터
+            // 필터 6: 소비기한
             if (expiryType === "has") {
                 filtered = filtered.filter(p => p.expiry_date != null && p.expiry_date !== "");
                 if (expiryDate) {
@@ -168,51 +380,110 @@
                 filtered = filtered.filter(p => p.expiry_date == null || p.expiry_date === "");
             }
 
-            const contentContainer = document.getElementById("content");
-            contentContainer.innerHTML = "";
-            if (filtered.length === 0) {
-                contentContainer.innerHTML = "<div style='text-align:center; padding: 50px;'><h3 style='color:#777;'>조건에 맞는 상품이 없습니다.</h3></div>";
-            } else {
-                displayAllProducts(filtered);
+            // 결과 화면 처리
+            if (resultsContainer) resultsContainer.style.display = "none";
+            if (contentContainer) {
+                contentContainer.style.display = "block";
+        
+                if (filtered.length === 0) {
+                    contentContainer.innerHTML = "<div style='text-align:center; padding: 50px;'><h3 style='color:#777;'>조건에 맞는 상품이 없습니다. 😢</h3></div>";
+                } else {
+                    displayAllProducts(filtered);
+                }
             }
         }
 
-        // 2. 챗봇 연동 함수
-        window.triggerChatSearch = function(searchTerm) {
-            document.getElementById("keyword").value = searchTerm;
-            // 상세 검색창 옵션 초기화 후 통합 검색 실행
-            document.getElementById("ds-min-price").value = "";
-            document.getElementById("ds-max-price").value = "";
-            executeDetailedSearch();
-        };
-
-        // UI 및 초기화 관련 나머지 함수들 (생략됨, 기존 코드 유지)
-        function fetchProducts() {
-            fetch(`${backendURL}/products`)
-                .then(res => res.json())
-                .then(data => { allProducts = data; displayAllProducts(allProducts); });
-        }
-
-        function displayAllProducts(products) {
-            const container = document.getElementById("content");
-            products.forEach(p => {
-                const card = document.createElement("div");
-                card.className = "product-item";
-                card.innerHTML = `<h4>${p.name}</h4><p>${p.price.toLocaleString()}원</p><p>🏪 ${p.store_name}</p>`;
-                container.appendChild(card);
-            });
-        }
-
-        // 이벤트 연결
+        // ==========================================
+        // 5. 이벤트 리스너 세팅
+        // ==========================================
         document.getElementById("searchBtn").addEventListener("click", executeDetailedSearch);
         document.getElementById("executeDetailBtn").addEventListener("click", executeDetailedSearch);
-        document.getElementById("detailToggleBtn").addEventListener("click", function() {
-            const panel = document.getElementById("detailSearchPanel");
-            panel.style.display = panel.style.display === "none" ? "block" : "none";
+
+        keywordInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") executeDetailedSearch();
         });
 
-        // 페이지 초기 로드
-        fetchProducts();
+        function initializePage() {
+            if (resultsContainer) resultsContainer.style.display = "none";
+            if (contentContainer) contentContainer.style.display = "block";
+            fetchProducts();
+        }
+
+        // ==========================================
+        // ★ AI 챗봇 프론트엔드 로직 ★
+        // ==========================================
+        const chatbotFab = document.getElementById('chatbot-fab');
+        const chatbotWindow = document.getElementById('chatbot-window');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSend = document.getElementById('chatbot-send');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+
+        // 1. 챗봇 창 열기/닫기
+        chatbotFab.addEventListener('click', () => {
+            chatbotWindow.style.display = chatbotWindow.style.display === 'none' ? 'flex' : 'none';
+        });
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotWindow.style.display = 'none';
+        });
+
+        // 2. 메시지 화면에 그리는 함수
+        function appendMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            msgDiv.innerHTML = text;
+            chatbotMessages.appendChild(msgDiv);
+            
+            // 스크롤을 맨 아래로 내리기
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+       // 3. 메시지 전송 이벤트 (진짜 백엔드 AI 연결 버전)
+        async function sendMessageToBot() {
+            const text = chatbotInput.value.trim();
+            if (!text) return;
+
+            // 1. 내가 쓴 글을 화면에 그리기
+            appendMessage(text, 'user');
+            chatbotInput.value = '';
+
+            // 2. AI 로딩 표시 (생각하는 척)
+            const loadingId = "loading-" + Date.now();
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', 'bot-message');
+            msgDiv.id = loadingId;
+            msgDiv.innerHTML = "생각 중... 💭";
+            chatbotMessages.appendChild(msgDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            try {
+                // 3. 백엔드(/chat)로 질문 쏴주기
+                const response = await fetch(`${backendURL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                
+                const data = await response.json();
+                
+                // 4. 로딩 메시지를 지우고 진짜 답변으로 바꾸기
+                // AI가 준 줄바꿈(\n)을 화면 줄바꿈(<br>)으로 예쁘게 바꿔줍니다.
+                document.getElementById(loadingId).innerHTML = data.reply.replace(/\n/g, '<br>');
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            } catch (error) {
+                document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다. 백엔드가 켜져 있는지 확인해 주세요.";
+            }
+        }
+
+        chatbotSend.addEventListener('click', sendMessageToBot);
+        chatbotInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessageToBot();
+        });
+        
+        initializePage();
     </script>
 </body>
 </html>
