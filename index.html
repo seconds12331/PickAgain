@@ -232,35 +232,40 @@
         // ==========================================
         // 2. 데이터 통신
         // ==========================================
+        // ==========================================
+        // 2. 데이터 통신
+        // ==========================================
         function fetchProducts() {
-    fetch(`${backendURL}/products`)
-        .then(res => res.json())
-        .then(data => {
-            allProducts = data;
-            
-            // URL 파라미터 확인 (shop.html에서 넘어온 경우)
-            const urlParams = new URLSearchParams(window.location.search);
-            const storeFilter = urlParams.get('store'); // ?store=매장명
-            const searchKeyword = urlParams.get('keyword'); // 기존 검색어 파라미터
+            fetch(`${backendURL}/products`)
+                .then(res => res.json())
+                .then(data => {
+                    allProducts = data;
+                    
+                    // URL 파라미터 확인 (shop.html에서 넘어온 경우)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const storeFilter = urlParams.get('store'); // ?store=매장명
+                    const searchKeyword = urlParams.get('keyword'); // 기존 검색어 파라미터
 
-            if (storeFilter) {
-                // 매장 전용 필터링 모드
-                document.getElementById("keyword").value = storeFilter;
-                const filtered = allProducts.filter(p => p.store_name === storeFilter);
-                displayProducts(filtered);
-                
-                // 검색바 안내 문구 변경
-                document.getElementById("keyword").placeholder = `[${storeFilter}] 검색 결과입니다.`;
-            } else if (searchKeyword) {
-                // 일반 검색 모드
-                document.getElementById("keyword").value = searchKeyword;
-                executeDetailedSearch();
-            } else {
-                // 전체 로드
-                displayAllProducts(allProducts);
-            }
-        });
-}
+                    if (storeFilter) {
+                        // 매장 전용 필터링 모드
+                        document.getElementById("keyword").value = storeFilter;
+                        const filtered = allProducts.filter(p => p.store_name === storeFilter);
+                        
+                        displayAllProducts(filtered); 
+                        
+                        // 검색바 안내 문구 변경
+                        document.getElementById("keyword").placeholder = `[${storeFilter}] 검색 결과입니다.`;
+                    } else if (searchKeyword) {
+                        // 일반 검색 모드
+                        document.getElementById("keyword").value = searchKeyword;
+                        executeDetailedSearch();
+                    } else {
+                        // 전체 로드
+                        displayAllProducts(allProducts); 
+                    }
+                });
+        }
+        
         // ==========================================
         // 3. 화면 렌더링
         // ==========================================
