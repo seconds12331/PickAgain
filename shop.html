@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>PickAgain - 매장 찾기</title>
+    <link rel="stylesheet" href="layout.css">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Noto Sans KR', sans-serif; }
+        .shop-container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        .page-title { color: #4b6cb7; text-align: center; margin-bottom: 30px; }
+        
+        .store-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #e1e8f0;
+        }
+        .store-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #4b6cb7;
+        }
+        .store-info h3 { margin: 0 0 5px 0; color: #2c3e50; }
+        .store-info p { margin: 0; color: #7f8c8d; font-size: 14px; }
+        .distance-tag {
+            background: #eef2ff;
+            color: #4b6cb7;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+    </div>
+
+    <div class="shop-container">
+        <h2 class="page-title">내 주변 리퍼브 매장</h2>
+        <div id="store-list">
+            <p style="text-align: center; color: #999;">매장 정보를 불러오는 중입니다...</p>
+        </div>
+    </div>
+
+    <script>
+        const backendURL = 'https://pickagain-backend-1.onrender.com';
+        let userCoords = null;
+
+        // 1. 위경도 간 거리 계산 함수 (Haversine 공식)
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // 지구 반지름 (km)
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        async function fetchStores() {
+            try {
+                // 2. 위치 정보 동의 여부 확인
+                const geoConsent = localStorage.getItem("pickagain_geo_consent") === "true";
+                if (geoConsent && navigator.geolocation) {
+                    await new Promise((resolve) => {
+                        navigator.geolocation.getCurrentPosition(pos => {
+                            userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                            resolve();
+                        }, () => resolve()); // 실패해도 계속 진행
+                    });
+                }
+
+                // 3. 상품 목록을 가져와서 유니크한 매장 리스트 생성
+                // (매장 테이블이 따로 있다면 해당 API를 호출하는 것이 좋습니다)
+                const res = await fetch(`${backendURL}/products`);
+                const products = await res.json();
+                
+                // 중복 매장 제거 및 매장 객체 생성
+                const storesMap = new Map();
+                products.forEach(p => {
+                    if (p.store_name && !storesMap.has(p.store_name)) {
+                        storesMap.set(p.store_name, {
+                            name: p.store_name,
+                            // 실제 DB에 매장 위경도가 없다면 임시 좌표 사용 (테스트용)
+                            lat: p.lat || 37.5665, 
+                            lng: p.lng || 126.9780 
+                        });
+                    }
+                });
+
+                let stores = Array.from(storesMap.values());
+
+                // 4. 거리순 정렬
+                if (userCoords) {
+                    stores.forEach(s => {
+                        s.distance = getDistance(userCoords.lat, userCoords.lng, s.lat, s.lng);
+                    });
+                    stores.sort((a, b) => a.distance - b.distance);
+                }
+
+                displayStores(stores);
+            } catch (error) {
+                console.error("매장 로드 에러:", error);
+            }
+        }
+
+        function displayStores(stores) {
+            const container = document.getElementById("store-list");
+            container.innerHTML = "";
+
+            stores.forEach(s => {
+                const card = document.createElement("div");
+                card.className = "store-card";
+                card.onclick = () => {
+                    // ★ 클릭 시 index.html로 이동하며 매장명을 쿼리 스트링으로 전달
+                    location.href = `index.html?store=${encodeURIComponent(s.name)}`;
+                };
+
+                const distText = s.distance ? `${s.distance.toFixed(1)}km` : "위치 미확인";
+                
+                card.innerHTML = `
+                    <div class="store-info">
+                        <h3>${s.name}</h3>
+                        <p>현재 영업 중 | 리퍼브 전문 매장</p>
+                    </div>
+                    <div class="distance-tag">${distText}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.onload = fetchStores;
+    </script>
+</body>
+</html>
