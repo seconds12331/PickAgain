@@ -5,10 +5,7 @@
     <title>PickAgain - 매장 찾기</title>
     <link rel="stylesheet" href="layout.css">
     <style>
-        body { background-color: #f4f6f9; font-family: 'Noto Sans KR', sans-serif; }
-        .shop-container { max-width: 800px; margin: 40px auto; padding: 20px; }
-        .page-title { color: #4b6cb7; text-align: center; margin-bottom: 30px; }
-        
+        /* 매장 카드 전용 스타일 */
         .store-card {
             background: white;
             border-radius: 12px;
@@ -26,28 +23,88 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             border-color: #4b6cb7;
         }
-        .store-info h3 { margin: 0 0 5px 0; color: #2c3e50; }
+        .store-info h3 { margin: 0 0 5px 0; color: #2c3e50; font-size: 18px; }
         .store-info p { margin: 0; color: #7f8c8d; font-size: 14px; }
         .distance-tag {
             background: #eef2ff;
             color: #4b6cb7;
-            padding: 5px 12px;
+            padding: 6px 15px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
         }
+        .page-header-title {
+            text-align: center; color: #4b6cb7; font-size: 22px; font-weight: bold; margin-bottom: 20px;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <div class="navbar">
-        <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
+        <a href="login.html">Login/Sign Up</a>
     </div>
 
-    <div class="shop-container">
-        <h2 class="page-title">내 주변 리퍼브 매장</h2>
-        <div id="store-list">
-            <p style="text-align: center; color: #999;">매장 정보를 불러오는 중입니다...</p>
+    <div class="search-container" style="margin-bottom: 20px;">
+        <div class="search-bar-row">
+            <div class="title-container">
+                <h2 class="Title">
+                    <a href="main.html">PickAgain</a>
+                </h2>
+            </div>
+            
+            <div style="flex: 1; text-align: center; color: #7f8c8d; font-size: 16px;">
+                내 주변에서 가장 가까운 리퍼브 매장을 찾아보세요📍
+            </div>
+            
+            <button class="map-btn" onclick="location.href='map.html'">
+                지도
+            </button>
+            <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px;">
+                AI 상담
+            </button>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        
+        <div class="ad-column-left">
+            <aside class="ad-slot ad-slot-left">
+                <p style="text-align: center; color: #999;">(왼쪽 광고)</p>
+            </aside>
+        </div>
+
+        <main class="main-content">
+            <h2 class="page-header-title">주변 매장 목록</h2>
+            <div id="store-list">
+                <div style="text-align: center; padding: 50px; color: #999;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px;"></i><br>
+                    위치 정보를 기반으로 매장을 불러오는 중입니다...
+                </div>
+            </div>
+        </main>
+
+        <div class="ad-column-right">
+            <aside class="ad-slot ad-slot-right">
+                <p style="text-align: center; color: #999;">(오른쪽 광고)</p>
+            </aside>
+        </div>
+
+    </div>
+
+    <div id="chatbot-window" class="chatbot-window" style="display: none;">
+        <div class="chatbot-header">
+            <h3 style="margin: 0; font-size: 16px;">PickAgain AI 매니저</h3>
+            <button id="chatbot-close" class="chatbot-close">&times;</button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages">
+            <div class="message bot-message">
+                안녕하세요. 무엇이든 물어보세요.<br>
+                <span style="font-size: 12px; color: #666;">(예: "10만원대 가성비 냉장고 찾아줘")</span>
+            </div>
+        </div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+            <button id="chatbot-send">전송</button>
         </div>
     </div>
 
@@ -55,9 +112,37 @@
         const backendURL = 'https://pickagain-backend-1.onrender.com';
         let userCoords = null;
 
-        // 1. 위경도 간 거리 계산 함수 (Haversine 공식)
+        // ==========================================
+        // ★ 1. 로그인 상태 확인 및 상단바 변경 로직 ★
+        // ==========================================
+        const currentUser = localStorage.getItem("username");
+        const userRole = localStorage.getItem("userRole"); 
+        const navbar = document.querySelector(".navbar");
+
+        if (currentUser) {
+            const adminLink = userRole === 'admin' 
+                ? `<a href="admin.html" style="color: #55efc4; margin-right: 15px; font-weight: bold;">[관리자 대시보드]</a>` 
+                : "";
+
+            navbar.innerHTML = `
+                ${adminLink}
+                <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
+                <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
+            `;
+            
+            document.getElementById("logoutBtn").addEventListener("click", function(e) {
+                e.preventDefault();
+                localStorage.clear(); 
+                alert("로그아웃 되었습니다.");
+                location.reload(); 
+            });
+        }
+
+        // ==========================================
+        // ★ 2. 거리 계산 및 매장 불러오기 로직 ★
+        // ==========================================
         function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // 지구 반지름 (km)
+            const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -69,30 +154,27 @@
 
         async function fetchStores() {
             try {
-                // 2. 위치 정보 동의 여부 확인
+                // 위치 정보 가져오기
                 const geoConsent = localStorage.getItem("pickagain_geo_consent") === "true";
                 if (geoConsent && navigator.geolocation) {
                     await new Promise((resolve) => {
                         navigator.geolocation.getCurrentPosition(pos => {
                             userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                             resolve();
-                        }, () => resolve()); // 실패해도 계속 진행
+                        }, () => resolve());
                     });
                 }
 
-                // 3. 상품 목록을 가져와서 유니크한 매장 리스트 생성
-                // (매장 테이블이 따로 있다면 해당 API를 호출하는 것이 좋습니다)
+                // 상품 DB에서 매장 이름 추출
                 const res = await fetch(`${backendURL}/products`);
                 const products = await res.json();
                 
-                // 중복 매장 제거 및 매장 객체 생성
                 const storesMap = new Map();
                 products.forEach(p => {
                     if (p.store_name && !storesMap.has(p.store_name)) {
                         storesMap.set(p.store_name, {
                             name: p.store_name,
-                            // 실제 DB에 매장 위경도가 없다면 임시 좌표 사용 (테스트용)
-                            lat: p.lat || 37.5665, 
+                            lat: p.lat || 37.5665, // DB에 좌표가 없을 경우 임시 위경도
                             lng: p.lng || 126.9780 
                         });
                     }
@@ -100,7 +182,7 @@
 
                 let stores = Array.from(storesMap.values());
 
-                // 4. 거리순 정렬
+                // 거리순 정렬
                 if (userCoords) {
                     stores.forEach(s => {
                         s.distance = getDistance(userCoords.lat, userCoords.lng, s.lat, s.lng);
@@ -111,6 +193,7 @@
                 displayStores(stores);
             } catch (error) {
                 console.error("매장 로드 에러:", error);
+                document.getElementById("store-list").innerHTML = "<p style='text-align:center;'>매장 정보를 불러오는데 실패했습니다.</p>";
             }
         }
 
@@ -118,20 +201,25 @@
             const container = document.getElementById("store-list");
             container.innerHTML = "";
 
+            if (stores.length === 0) {
+                container.innerHTML = "<p style='text-align:center; padding: 30px;'>등록된 매장이 없습니다.</p>";
+                return;
+            }
+
             stores.forEach(s => {
                 const card = document.createElement("div");
                 card.className = "store-card";
                 card.onclick = () => {
-                    // ★ 클릭 시 index.html로 이동하며 매장명을 쿼리 스트링으로 전달
+                    // ★ 클릭 시 index.html로 이동하며 매장명 전달
                     location.href = `index.html?store=${encodeURIComponent(s.name)}`;
                 };
 
-                const distText = s.distance ? `${s.distance.toFixed(1)}km` : "위치 미확인";
+                const distText = s.distance ? `${s.distance.toFixed(1)}km` : "거리 계산 불가";
                 
                 card.innerHTML = `
                     <div class="store-info">
-                        <h3>${s.name}</h3>
-                        <p>현재 영업 중 | 리퍼브 전문 매장</p>
+                        <h3><i class="fa-solid fa-store" style="color:#4b6cb7; margin-right:8px;"></i>${s.name}</h3>
+                        <p>현재 영업 중 | PickAgain 공식 등록 매장</p>
                     </div>
                     <div class="distance-tag">${distText}</div>
                 `;
@@ -139,6 +227,72 @@
             });
         }
 
+        // ==========================================
+        // ★ 3. AI 챗봇 프론트엔드 로직 ★
+        // ==========================================
+        const chatbotFab = document.getElementById('chatbot-fab');
+        const chatbotWindow = document.getElementById('chatbot-window');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSend = document.getElementById('chatbot-send');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+
+        chatbotFab.addEventListener('click', () => {
+            chatbotWindow.style.display = chatbotWindow.style.display === 'none' ? 'flex' : 'none';
+        });
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotWindow.style.display = 'none';
+        });
+
+        function appendMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+            msgDiv.innerHTML = text;
+            chatbotMessages.appendChild(msgDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        async function sendMessageToBot() {
+            const text = chatbotInput.value.trim();
+            if (!text) return;
+
+            appendMessage(text, 'user');
+            chatbotInput.value = '';
+
+            const loadingId = "loading-" + Date.now();
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', 'bot-message');
+            msgDiv.id = loadingId;
+            msgDiv.innerHTML = "생각 중... 💭";
+            chatbotMessages.appendChild(msgDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            try {
+                const response = await fetch(`${backendURL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await response.json();
+                document.getElementById(loadingId).innerHTML = data.reply.replace(/\n/g, '<br>');
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            } catch (error) {
+                document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다.";
+            }
+        }
+
+        chatbotSend.addEventListener('click', sendMessageToBot);
+        chatbotInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessageToBot();
+        });
+        
+        // 챗봇에서 상품 링크 클릭 시 index.html로 검색어 전달하며 이동
+        window.triggerChatSearch = function(searchTerm) {
+            location.href = `index.html?keyword=${encodeURIComponent(searchTerm)}`;
+        };
+
+        // 초기 실행
         window.onload = fetchStores;
     </script>
 </body>
