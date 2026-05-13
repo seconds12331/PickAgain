@@ -1034,3 +1034,43 @@ p {
     background-color: #d1e0f7;
     text-decoration: underline;
 }
+
+/* 상품 목록 상단 컨트롤 바 */
+        .list-control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        /* 매장 목록으로 돌아가기 버튼 */
+        .back-btn {
+            background-color: white;
+            border: 1px solid #4b6cb7;
+            color: #4b6cb7;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            background-color: #4b6cb7;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* 정렬 선택 박스 */
+        .sort-options select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #d1d8e0;
+            font-size: 14px;
+            color: #2c3e50;
+            background-color: white;
+            outline: none;
+            cursor: pointer;
+        }
