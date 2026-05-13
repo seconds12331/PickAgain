@@ -106,6 +106,18 @@
 
         <main class="main-content">
             <div class="results" id="results"></div>
+            <div class="list-control-bar">
+                <button id="backToShopBtn" class="back-btn" onclick="location.href='shop.html'">
+                    <i class="fa-solid fa-arrow-left"></i> 매장 목록으로 돌아가기
+                </button>
+                <div class="sort-options">
+                    <select id="sortSelect" onchange="executeDetailedSearch()">
+                        <option value="latest">최신 등록순</option>
+                        <option value="priceLow">가격 낮은순</option>
+                        <option value="priceHigh">가격 높은순</option>
+                    </select>
+                </div>
+            </div>
             <div class="content" id="content"></div>
             <div class="button-container">
                 <a class="creat_btn" href="product-form.html">새글</a>
@@ -221,29 +233,34 @@
         // 2. 데이터 통신
         // ==========================================
         function fetchProducts() {
-            fetch(`${backendURL}/products`)
-                .then(response => response.json())
-                .then(data => {
-                    allProducts = data; 
+    fetch(`${backendURL}/products`)
+        .then(res => res.json())
+        .then(data => {
+            allProducts = data;
+            
+            // URL 파라미터 확인 (shop.html에서 넘어온 경우)
+            const urlParams = new URLSearchParams(window.location.search);
+            const storeFilter = urlParams.get('store'); // ?store=매장명
+            const searchKeyword = urlParams.get('keyword'); // 기존 검색어 파라미터
 
-                    // 지도에서 파라미터가 넘어왔는지 확인
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const storeKeyword = urlParams.get('search');
-
-                    if (storeKeyword) {
-                        // ★ 지도에서 넘어온 경우, 매장명 칸이 없으므로 통합 검색창에 값을 넣습니다.
-                        if (keywordInput) keywordInput.value = storeKeyword;
-                        executeDetailedSearch(); 
-                    } else {
-                        displayAllProducts(allProducts);
-                    }
-                })
-                .catch(error => {
-                    console.error("상품 로딩 실패:", error);
-                    contentContainer.innerHTML = "<p>상품을 불러오는 데 실패했습니다.</p>";
-                });
-        }
-
+            if (storeFilter) {
+                // 매장 전용 필터링 모드
+                document.getElementById("keyword").value = storeFilter;
+                const filtered = allProducts.filter(p => p.store_name === storeFilter);
+                displayProducts(filtered);
+                
+                // 검색바 안내 문구 변경
+                document.getElementById("keyword").placeholder = `[${storeFilter}] 검색 결과입니다.`;
+            } else if (searchKeyword) {
+                // 일반 검색 모드
+                document.getElementById("keyword").value = searchKeyword;
+                executeDetailedSearch();
+            } else {
+                // 전체 로드
+                displayProducts(allProducts);
+            }
+        });
+}
         // ==========================================
         // 3. 화면 렌더링
         // ==========================================
@@ -341,6 +358,8 @@
             const minPrice = minPriceInput && minPriceInput.value ? parseInt(minPriceInput.value) : 0;
             const maxPrice = maxPriceInput && maxPriceInput.value ? parseInt(maxPriceInput.value) : Infinity;
 
+            const sortValue = document.getElementById("sortSelect").value;
+
             let filtered = allProducts;
 
             // ★ 필터 1: 메인 검색어 (상품명 OR 매장명 통합 검색)
@@ -378,6 +397,14 @@
                 }
             } else if (expiryType === "none") {
                 filtered = filtered.filter(p => p.expiry_date == null || p.expiry_date === "");
+            }
+
+            if (sortValue === "priceLow") {
+                filtered.sort((a, b) => a.price - b.price); // 가격 오름차순
+            } else if (sortValue === "priceHigh") {
+                filtered.sort((a, b) => b.price - a.price); // 가격 내림차순
+            } else if (sortValue === "latest") {
+                filtered.sort((a, b) => b.product_id - a.product_id); // 최신 등록순
             }
 
             // 결과 화면 처리
