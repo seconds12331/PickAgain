@@ -156,6 +156,7 @@
         // 1. 전역 변수 및 설정
         const backendURL = 'https://pickagain-backend-1.onrender.com';
         let allProducts = []; 
+        let currentStoreContext = null; // 현재 접속한 매장을 기억할 변수
 
         // --- ★ 로그인 상태 확인 및 상단바 변경 ★ ---
         const currentUser = localStorage.getItem("username");
@@ -232,9 +233,6 @@
         // ==========================================
         // 2. 데이터 통신
         // ==========================================
-        // ==========================================
-        // 2. 데이터 통신
-        // ==========================================
         function fetchProducts() {
             fetch(`${backendURL}/products`)
                 .then(res => res.json())
@@ -248,19 +246,17 @@
 
                     if (storeFilter) {
                         // 매장 전용 필터링 모드
-                        document.getElementById("keyword").value = storeFilter;
+                        currentStoreContext = storeFilter; // 현재 매장 기억하기
+                        
+                        document.getElementById("keyword").value = ""; // 검색창은 깔끔하게 비우기
+                        document.getElementById("keyword").placeholder = `🔍 [${storeFilter}] 내 상품 검색...`; // 배경 글로 안내
+                        
                         const filtered = allProducts.filter(p => p.store_name === storeFilter);
-                        
-                        displayAllProducts(filtered); 
-                        
-                        // 검색바 안내 문구 변경
-                        document.getElementById("keyword").placeholder = `[${storeFilter}] 검색 결과입니다.`;
+                        displayAllProducts(filtered);
                     } else if (searchKeyword) {
-                        // 일반 검색 모드
                         document.getElementById("keyword").value = searchKeyword;
                         executeDetailedSearch();
                     } else {
-                        // 전체 로드
                         displayAllProducts(allProducts); 
                     }
                 });
@@ -366,6 +362,10 @@
             const sortValue = document.getElementById("sortSelect").value;
 
             let filtered = allProducts;
+
+            if (currentStoreContext) {
+                filtered = filtered.filter(p => p.store_name === currentStoreContext);
+            }
 
             // ★ 필터 1: 메인 검색어 (상품명 OR 매장명 통합 검색)
             if (keyword) {
