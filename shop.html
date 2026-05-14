@@ -157,6 +157,10 @@
         // shop.html 내 fetchStores 함수 및 관련 로직 수정
         async function fetchStores() {
             try{
+                //  테스트를 위해 내 위치를 여수시청 근처로 고정
+                userCoords = { lat: 34.760374, lng: 127.662222 };
+
+                /* GPS 요청 코드는 잠시 주석 처리
                 const geoConsent = localStorage.getItem("pickagain_geo_consent") === "true";
                 if (geoConsent && navigator.geolocation) {
                     await new Promise((resolve) => {
@@ -165,7 +169,7 @@
                             resolve();
                         }, () => resolve());
                     });
-                }
+                */
 
                 const res = await fetch(`${backendURL}/products`);
                 const products = await res.json();
