@@ -108,6 +108,8 @@
         </div>
     </div>
 
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3120d52a4a94a6575cb08b7ec6363881&libraries=services"></script>
+    
     <script>
         const backendURL = 'https://pickagain-backend-1.onrender.com';
         let userCoords = null;
@@ -152,48 +154,60 @@
             return R * c;
         }
 
+        // shop.html 내 fetchStores 함수 및 관련 로직 수정
         async function fetchStores() {
-            try {
-                // 위치 정보 가져오기
+            try{
                 const geoConsent = localStorage.getItem("pickagain_geo_consent") === "true";
                 if (geoConsent && navigator.geolocation) {
                     await new Promise((resolve) => {
-                        navigator.geolocation.getCurrentPosition(pos => {
+                            navigator.geolocation.getCurrentPosition(pos => {
                             userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                             resolve();
                         }, () => resolve());
                     });
                 }
 
-                // 상품 DB에서 매장 이름 추출
                 const res = await fetch(`${backendURL}/products`);
                 const products = await res.json();
-                
+        
+                // 1. 유니크한 매장 리스트 생성 (이름과 주소 추출)
                 const storesMap = new Map();
                 products.forEach(p => {
                     if (p.store_name && !storesMap.has(p.store_name)) {
                         storesMap.set(p.store_name, {
                             name: p.store_name,
-                            lat: p.lat || 37.5665, // DB에 좌표가 없을 경우 임시 위경도
-                            lng: p.lng || 126.9780 
+                            address: p.address || "주소 정보 없음" // DB의 address 컬럼 활용
                         });
                     }
                 });
 
-                let stores = Array.from(storesMap.values());
+                const stores = Array.from(storesMap.values());
+                const geocoder = new kakao.maps.services.Geocoder();
 
-                // 거리순 정렬
-                if (userCoords) {
-                    stores.forEach(s => {
-                        s.distance = getDistance(userCoords.lat, userCoords.lng, s.lat, s.lng);
+                // 2. 각 매장의 주소를 좌표로 변환하고 거리 계산
+                const storePromises = stores.map(store => {
+                    return new Promise((resolve) => {
+                        geocoder.addressSearch(store.address, (result, status) => {
+                            if (status === kakao.maps.services.Status.OK && userCoords) {
+                                const sLat = parseFloat(result[0].y);
+                                const sLng = parseFloat(result[0].x);
+                                store.distance = getDistance(userCoords.lat, userCoords.lng, sLat, sLng);
+                            } else {
+                                store.distance = Infinity; // 주소가 없거나 위치를 못 찾으면 맨 뒤로
+                            }
+                            resolve(store);
+                        });
                     });
-                    stores.sort((a, b) => a.distance - b.distance);
-                }
+                });
 
-                displayStores(stores);
+                const resolvedStores = await Promise.all(storePromises);
+
+                // 3. 거리순 정렬
+                resolvedStores.sort((a, b) => a.distance - b.distance);
+
+                displayStores(resolvedStores);
             } catch (error) {
                 console.error("매장 로드 에러:", error);
-                document.getElementById("store-list").innerHTML = "<p style='text-align:center;'>매장 정보를 불러오는데 실패했습니다.</p>";
             }
         }
 
