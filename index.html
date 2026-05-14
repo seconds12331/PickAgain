@@ -238,23 +238,27 @@
                 .then(res => res.json())
                 .then(data => {
                     allProducts = data;
-                    
-                    // URL 파라미터 확인 (shop.html에서 넘어온 경우)
+            
+                    // URL의 파라미터를 읽어옵니다.
                     const urlParams = new URLSearchParams(window.location.search);
-                    const storeFilter = urlParams.get('store'); // ?store=매장명
-                    const searchKeyword = urlParams.get('keyword'); // 기존 검색어 파라미터
+                    const storeFilter = urlParams.get('store'); 
+                    const searchKeyword = urlParams.get('keyword'); // ★ 지워졌던 부분 복구!
 
                     if (storeFilter) {
-                        // 매장 전용 필터링 모드
-                        currentStoreContext = storeFilter; // 현재 매장 기억하기
-                        
-                        document.getElementById("keyword").value = ""; // 검색창은 깔끔하게 비우기
-                        document.getElementById("keyword").placeholder = `🔍 [${storeFilter}] 내 상품 검색...`; // 배경 글로 안내
-                        
+                        currentStoreContext = storeFilter; 
+                
+                        const keywordInput = document.getElementById("keyword");
+                        if (keywordInput) {
+                            keywordInput.value = ""; 
+                            keywordInput.placeholder = `🔍 [${storeFilter}] 내 상품 검색...`;
+                        }
+                
                         const filtered = allProducts.filter(p => p.store_name === storeFilter);
-                        displayAllProducts(filtered);
+                        displayAllProducts(filtered); 
                     } else if (searchKeyword) {
-                        document.getElementById("keyword").value = searchKeyword;
+                        // ★ 챗봇 등에서 ?keyword= 로 넘어왔을 때 자동 검색 실행
+                        const keywordInput = document.getElementById("keyword");
+                        if (keywordInput) keywordInput.value = searchKeyword;
                         executeDetailedSearch();
                     } else {
                         displayAllProducts(allProducts); 
