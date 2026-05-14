@@ -105,8 +105,82 @@
             var geocoder = new kakao.maps.services.Geocoder();
             var ps = new kakao.maps.services.Places(); 
             var infowindow = new kakao.maps.InfoWindow({ zIndex: 1, removable: true });
-
             var searchMarkers = []; 
+
+            function clearMarkers() {
+                for (var i = 0; i < searchMarkers.length; i++) {
+                    searchMarkers[i].setMap(null);
+                }
+                searchMarkers = [];
+            }
+
+            function displayMarker(place) {
+                var marker = new kakao.maps.Marker({
+                    map: map,
+                    position: new kakao.maps.LatLng(place.y, place.x)
+                });
+                
+                searchMarkers.push(marker);
+
+                kakao.maps.event.addListener(marker, 'click', function() {
+                    var content = `
+                        <div style="padding:15px; font-size:14px; width:260px; border-radius:8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            <a href="index.html?store=${encodeURIComponent(place.place_name)}" style="color:#2c3e50; font-size:16px; font-weight:bold; text-decoration:underline; display:inline-block; margin-bottom:5px;">🔗 ${place.place_name} 상품 보기</a><br>
+                            <span style="color:#7f8fa6; font-size:12px;">${place.road_address_name || place.address_name}</span><br>
+                            <span style="color:#27ae60; font-size:13px; font-weight:bold; margin-top:5px; display:block;">📞 ${place.phone || '전화번호 없음'}</span>
+                        </div>
+                    `;
+                    infowindow.setContent(content);
+                    infowindow.open(map, marker);
+                });
+            }
+
+            function placesSearchCB(data, status, pagination) {
+                if (status === kakao.maps.services.Status.OK) {
+                    for (var i = 0; i < data.length; i++) {
+                        displayMarker(data[i]);
+                    }
+                }
+            }
+
+            function searchPlacesInBounds() {
+                var bounds = map.getBounds(); 
+                ps.keywordSearch('리퍼브', placesSearchCB, { bounds: bounds, size: 15 });
+                ps.keywordSearch('반품', placesSearchCB, { bounds: bounds, size: 15 });
+            }
+
+            function searchNearbyRefurbished() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png'; 
+                        var imageSize = new kakao.maps.Size(64, 69); 
+                        var imageOption = {offset: new kakao.maps.Point(27, 69)}; 
+                        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+
+                        var locPosition = new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                        map.setCenter(locPosition);
+
+                        var myMarker = new kakao.maps.Marker({ 
+                            map: map, 
+                            position: locPosition,
+                            image: markerImage
+                        });
+
+                        infowindow.setContent('<div style="padding:5px; font-size:12px; color:#e74c3c; font-weight:bold;">내 위치</div>');
+                        infowindow.open(map, myMarker);
+
+                        searchPlacesInBounds(); 
+                    });
+                } else {
+                    searchPlacesInBounds();
+                }
+            }
+
+            document.getElementById('search-here-btn').addEventListener('click', function() {
+                infowindow.close(); 
+                clearMarkers();
+                searchPlacesInBounds(); 
+            });
 
             const urlParams = new URLSearchParams(window.location.search);
             const targetStore = urlParams.get('store');
@@ -138,81 +212,6 @@
             } else {
                 document.getElementById('map-title').innerText = `내 주변 리퍼브 매장 찾기`;
                 searchNearbyRefurbished();
-            }
-
-            function searchNearbyRefurbished() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png'; 
-                        var imageSize = new kakao.maps.Size(64, 69); 
-                        var imageOption = {offset: new kakao.maps.Point(27, 69)}; 
-                        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
-
-                        var locPosition = new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                        map.setCenter(locPosition);
-
-                        var myMarker = new kakao.maps.Marker({ 
-                            map: map, 
-                            position: locPosition,
-                            image: markerImage
-                        });
-
-                        infowindow.setContent('<div style="padding:5px; font-size:12px; color:#e74c3c; font-weight:bold;">내 위치</div>');
-                        infowindow.open(map, myMarker);
-
-                        searchPlacesInBounds(); 
-                    });
-                } else {
-                    searchPlacesInBounds();
-                }
-            }
-
-            function clearMarkers() {
-                for (var i = 0; i < searchMarkers.length; i++) {
-                    searchMarkers[i].setMap(null);
-                }
-                searchMarkers = [];
-            }
-
-            function searchPlacesInBounds() {
-                var bounds = map.getBounds(); 
-                ps.keywordSearch('리퍼브', placesSearchCB, { bounds: bounds, size: 15 });
-                ps.keywordSearch('반품', placesSearchCB, { bounds: bounds, size: 15 });
-            }
-
-            document.getElementById('search-here-btn').addEventListener('click', function() {
-                infowindow.close(); 
-                clearMarkers();
-                searchPlacesInBounds(); 
-            });
-
-            function placesSearchCB(data, status, pagination) {
-                if (status === kakao.maps.services.Status.OK) {
-                    for (var i = 0; i < data.length; i++) {
-                        displayMarker(data[i]);
-                    }
-                }
-            }
-
-            function displayMarker(place) {
-                var marker = new kakao.maps.Marker({
-                    map: map,
-                    position: new kakao.maps.LatLng(place.y, place.x)
-                });
-                
-                searchMarkers.push(marker);
-
-                kakao.maps.event.addListener(marker, 'click', function() {
-                    var content = `
-                        <div style="padding:15px; font-size:14px; width:260px; border-radius:8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-                            <a href="index.html?store=${encodeURIComponent(place.place_name)}" style="color:#2c3e50; font-size:16px; font-weight:bold; text-decoration:underline; display:inline-block; margin-bottom:5px;">🔗 ${place.place_name} 상품 보기</a><br>
-                            <span style="color:#7f8fa6; font-size:12px;">${place.road_address_name || place.address_name}</span><br>
-                            <span style="color:#27ae60; font-size:13px; font-weight:bold; margin-top:5px; display:block;">📞 ${place.phone || '전화번호 없음'}</span>
-                        </div>
-                    `;
-                    infowindow.setContent(content);
-                    infowindow.open(map, marker);
-                });
             }
         }); 
     </script>
