@@ -77,10 +77,9 @@
         </main>
     </div>
 
-    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3120d52a4a94a6575cb08b7ec6363881&libraries=services&autoload=false"></script>
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3120d52a4a94a6575cb08b7ec6363881&libraries=services&autoload=false"></script>
     
     <script>
-        // 상단바 로그인 유지
         const currentUser = localStorage.getItem("username");
         if (currentUser) {
             document.querySelector(".navbar").innerHTML = `
@@ -99,7 +98,7 @@
             mapContainer.innerHTML = ''; 
 
             var mapOption = { 
-                center: new kakao.maps.LatLng(34.760374, 127.662222), // 여수시청 기본 좌표
+                center: new kakao.maps.LatLng(34.760374, 127.662222),
                 level: 5 
             };
             var map = new kakao.maps.Map(mapContainer, mapOption);
@@ -151,7 +150,6 @@
                 ps.keywordSearch('반품', placesSearchCB, { bounds: bounds, size: 15 });
             }
 
-            // 아까 잘렸던 내 위치 및 주변 검색 함수! 완벽하게 복구되었습니다.
             function searchNearbyRefurbished() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function(position) {
@@ -185,7 +183,6 @@
                 searchPlacesInBounds(); 
             });
 
-            // 페이지 로딩 시 주소 파라미터 확인 및 분기 처리
             const urlParams = new URLSearchParams(window.location.search);
             const targetStore = urlParams.get('store');
             const targetAddress = urlParams.get('address');
@@ -208,16 +205,14 @@
                         infowindow.setContent(content);
                         infowindow.open(map, targetMarker);
                     } else {
-                        // 주소가 잘못되었을 때의 경고창 및 줌아웃 로직
                         alert(`안내: [${targetStore}]의 등록된 주소가 올바르지 않아 매장 위치를 표시할 수 없습니다.\n전체 매장 지도로 전환합니다.`);
-                        
                         document.getElementById('map-title').innerText = `전체 매장 안내`;
                         
                         if (navigator.geolocation) {
                             navigator.geolocation.getCurrentPosition(function(position) {
                                 var locPosition = new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
                                 var myMarker = new kakao.maps.Marker({ map: map, position: locPosition });
-                                map.setLevel(8); // 전체를 볼 수 있게 지도를 조금 축소
+                                map.setLevel(8); 
                                 searchPlacesInBounds(); 
                             });
                         }
