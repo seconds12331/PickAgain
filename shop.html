@@ -317,11 +317,36 @@
         };
 
         // ==========================================
+        // ★ 랜덤 광고 삽입 로직
+        // ==========================================
+        function loadRandomAds() {
+            const adImages = [
+                "광고 (1).jpg", 
+                "광고 (2).jpg", 
+                "광고 (3).jpg", 
+                "광고 (4).jpg", 
+                "광고 (5).jpg"
+            ];
+
+            const leftAdSlot = document.querySelector('.ad-slot-left');
+            const rightAdSlot = document.querySelector('.ad-slot-right');
+
+            const randomLeft = adImages[Math.floor(Math.random() * adImages.length)];
+            let randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+            
+            while(randomLeft === randomRight) {
+                randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+            }
+
+            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">`;
+            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">`;
+        }
+
+        // ==========================================
         // ★ 다크 모드 기억 & 토글 로직
         // ==========================================
         const darkModeBtn = document.getElementById("darkModeBtn");
         
-        // 브라우저가 다크모드를 기억하고 있다면 켜주기
         if (localStorage.getItem("pickagain_dark_mode") === "true") {
             document.body.classList.add("dark-mode");
             if(darkModeBtn) darkModeBtn.innerText = "☀️";
@@ -332,21 +357,23 @@
                 document.body.classList.toggle("dark-mode");
                 
                 if (document.body.classList.contains("dark-mode")) {
-                    localStorage.setItem("pickagain_dark_mode", "true"); // 기억 저장
+                    localStorage.setItem("pickagain_dark_mode", "true"); 
                     darkModeBtn.innerText = "☀️";
-                    darkModeBtn.style.transform = "rotate(180deg)"; // 애니메이션
+                    darkModeBtn.style.transform = "rotate(180deg)"; 
                 } else {
-                    localStorage.setItem("pickagain_dark_mode", "false"); // 기억 삭제
+                    localStorage.setItem("pickagain_dark_mode", "false"); 
                     darkModeBtn.innerText = "🌙";
                     darkModeBtn.style.transform = "rotate(0deg)";
                 }
             });
         }
 
-        // 초기 실행 (수정된 부분)
+        // ==========================================
+        // ★ 초기 실행
+        // ==========================================
         window.onload = () => {
-            fetchStores();
-            loadRandomAds(); 
+            initializePage();  // fetchStores() 가 아니라 검색 페이지용 함수 실행
+            loadRandomAds();   // 광고 실행
         };
     </script>
 </body>
