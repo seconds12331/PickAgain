@@ -1074,3 +1074,39 @@ p {
             outline: none;
             cursor: pointer;
         }
+
+/* ==========================================
+           ★ 다크 모드 전용 스타일
+           ========================================== */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        /* 매장 카드, 배경, 챗봇 창 어둡게 */
+        body.dark-mode .store-card,
+        body.dark-mode .search-container,
+        body.dark-mode .chatbot-window {
+            background-color: #1e1e1e;
+            border-color: #333;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        /* 글씨 색상 밝게 반전 */
+        body.dark-mode .Title a, 
+        body.dark-mode .store-info h3,
+        body.dark-mode .page-header-title {
+            color: #f1f2f6;
+        }
+
+        /* 거리 표시 태그 색상 변경 */
+        body.dark-mode .distance-tag {
+            background: #2c3e50;
+            color: #55efc4;
+        }
+
+        /* 광고판 기본 배경 어둡게 */
+        body.dark-mode .ad-slot {
+            background-color: #1a1a1a;
+            border-color: #333;
+        }
