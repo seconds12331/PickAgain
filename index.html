@@ -543,8 +543,8 @@
                 randomRight = adImages[Math.floor(Math.random() * adImages.length)];
             }
 
-            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">`;
-            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">`;
+            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">`;
+            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">`;
         }
 
         // ==========================================
