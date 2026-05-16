@@ -46,6 +46,17 @@
             background-color: #4b6cb7;
             color: #fff;
         }
+
+        /* ★ 광고 위아래 여백 제거 및 투명화 강제 적용 */
+        .ad-column-left, .ad-column-right {
+            padding-top: 20px !important; /* 상단 여백 최소화 */
+        }
+        .ad-slot {
+            background: transparent !important; /* 하얀색 배경 강제 투명화 */
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+        }
     </style>
 </head>
 <body>
@@ -71,6 +82,12 @@
     </div>
 
     <div class="page-wrapper">
+        <div class="ad-column-left">
+            <aside class="ad-slot ad-slot-left">
+                <p style="text-align: center; color: #999;">(왼쪽 광고)</p>
+            </aside>
+        </div>
+
         <main class="main-content" style="max-width: 900px; width: 100%;">
             <div class="content">
                 <h2 id="map-title" style="color: #4b6cb7; margin-top:0;">전체 매장 안내</h2>
@@ -84,6 +101,12 @@
                 </div>
             </div>
         </main>
+
+        <div class="ad-column-right">
+            <aside class="ad-slot ad-slot-right">
+                <p style="text-align: center; color: #999;">(오른쪽 광고)</p>
+            </aside>
+        </div>
     </div>
 
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3120d52a4a94a6575cb08b7ec6363881&libraries=services&autoload=false"></script>
@@ -231,7 +254,34 @@
                 document.getElementById('map-title').innerText = `내 주변 리퍼브 매장 찾기`;
                 searchNearbyRefurbished();
             }
-        }); // ★ 카카오맵 닫는 괄호 복구
+        });
+        
+        // ==========================================
+        // ★ 랜덤 광고 삽입 로직 (여백 제거 로직 적용!)
+        // ==========================================
+        function loadRandomAds() {
+            const adImages = [
+                "광고 (1).jpg", 
+                "광고 (2).jpg", 
+                "광고 (3).jpg", 
+                "광고 (4).jpg", 
+                "광고 (5).jpg"
+            ];
+
+            const leftAdSlot = document.querySelector('.ad-slot-left');
+            const rightAdSlot = document.querySelector('.ad-slot-right');
+
+            const randomLeft = adImages[Math.floor(Math.random() * adImages.length)];
+            let randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+            
+            while(randomLeft === randomRight) {
+                randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+            }
+
+            // ★ height: auto; 와 display: block; 으로 이미지가 영역 전체를 군더더기 없이 채우게 만듭니다.
+            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+        }
 
         // ==========================================
         // ★ 다크 모드 기억 & 토글 로직
@@ -257,6 +307,10 @@
                 }
             });
         }
+
+        window.onload = () => {
+            loadRandomAds();
+        };
     </script>
 </body>
 </html>
