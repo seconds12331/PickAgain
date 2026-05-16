@@ -5,7 +5,7 @@
     <title>PickAgain - 매장 찾기</title>
     <link rel="stylesheet" href="layout.css">
     <style>
-        /* 매장 카드 전용 스타일 */
+        /* 기본 매장 카드 스타일 */
         .store-card {
             background: white;
             border-radius: 12px;
@@ -36,6 +36,31 @@
         .page-header-title {
             text-align: center; color: #4b6cb7; font-size: 22px; font-weight: bold; margin-bottom: 20px;
         }
+
+        /* ==========================================
+           ★ shop.html 전용 다크모드 강제 덮어쓰기!
+           ========================================== */
+        body.dark-mode .store-card {
+            background-color: #1e1e1e !important;
+            border-color: #333 !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+        }
+        body.dark-mode .store-info h3 { color: #f1f2f6 !important; }
+        body.dark-mode .store-info p { color: #a4b0be !important; }
+        body.dark-mode .distance-tag {
+            background-color: #2c2c2c !important;
+            color: #55efc4 !important;
+        }
+        body.dark-mode .page-header-title { color: #f1f2f6 !important; }
+        body.dark-mode .search-container {
+            background-color: #1e1e1e !important;
+            border-color: #333 !important;
+        }
+        body.dark-mode .Title a { color: #f1f2f6 !important; }
+
+        /* ★ 광고 여백 최소화 및 투명화 */
+        .ad-column-left, .ad-column-right { padding-top: 20px !important; }
+        .ad-slot { background: transparent !important; border: none !important; box-shadow: none !important; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -45,6 +70,7 @@
             document.body.classList.add("dark-mode");
         }
     </script>
+    
     <div class="navbar">
         <a href="login.html">Login/Sign Up</a>
     </div>
@@ -61,9 +87,7 @@
                 내 주변에서 가장 가까운 리퍼브 매장을 찾아보세요
             </div>
             
-            <button class="map-btn" onclick="location.href='map.html'">
-                지도
-            </button>
+            <button class="map-btn" onclick="location.href='map.html'">지도</button>
             <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px;">
                 AI 상담
             </button>
@@ -162,7 +186,6 @@
             return R * c;
         }
 
-        // shop.html 내 fetchStores 함수 교체
         async function fetchStores() {
             try{
                 // 테스트를 위해 내 위치를 여수시청 근처로 고정
@@ -171,26 +194,20 @@
                 const res = await fetch(`${backendURL}/products`);
                 const products = await res.json();
         
-                // ==========================================
-                // ★ 핵심 해결책: 매장 이름과 주소를 연결해주는 임시 주소록
-                // (실제 주소로 수정해서 사용하시면 됩니다!)
-                // ==========================================
                 const storeAddressBook = {
                     "PickAgain 여수점": "전남 여수시 대학로 50",
                     "여수점": "전남 여수시 시청동 1",
-                    "PickAgain 순천점": "전남 순천시 장명로 30", // 예: 순천시청
+                    "PickAgain 순천점": "전남 순천시 장명로 30",
                     "올랜드아울렛 여수점": "전남 여수시 좌수영로 55", 
                     "리씽크 여수점": "전남 여수시 망마로 46",
                     "어썸마켓 여수점": "전남 여수시 좌수영로 266"
                 };
 
-                // 1. 유니크한 매장 리스트 생성
                 const storesMap = new Map();
                 products.forEach(p => {
                     if (p.store_name && !storesMap.has(p.store_name)) {
                         storesMap.set(p.store_name, {
                             name: p.store_name,
-                            // DB에 주소가 없으면 주소록에서 꺼내오고, 주소록에도 없으면 기본값 설정
                             address: p.address || storeAddressBook[p.store_name] || "전남 여수시 시청로 1"
                         });
                     }
@@ -199,7 +216,6 @@
                 const stores = Array.from(storesMap.values());
                 const geocoder = new kakao.maps.services.Geocoder();
 
-                // 2. 카카오맵으로 주소 -> 좌표 변환 후 거리 계산
                 const storePromises = stores.map(store => {
                     return new Promise((resolve) => {
                         geocoder.addressSearch(store.address, (result, status) => {
@@ -216,8 +232,6 @@
                 });
 
                 const resolvedStores = await Promise.all(storePromises);
-
-                // 3. 거리순 정렬
                 resolvedStores.sort((a, b) => a.distance - b.distance);
 
                 displayStores(resolvedStores);
@@ -239,7 +253,6 @@
                 const card = document.createElement("div");
                 card.className = "store-card";
                 card.onclick = () => {
-                    // ★ 클릭 시 index.html로 이동하며 매장명 전달
                     location.href = `index.html?store=${encodeURIComponent(s.name)}`;
                 };
 
@@ -316,13 +329,12 @@
             if (e.key === 'Enter') sendMessageToBot();
         });
         
-        // 챗봇에서 상품 링크 클릭 시 index.html로 검색어 전달하며 이동
         window.triggerChatSearch = function(searchTerm) {
             location.href = `index.html?keyword=${encodeURIComponent(searchTerm)}`;
         };
 
         // ==========================================
-        // ★ 랜덤 광고 삽입 로직
+        // ★ 랜덤 광고 삽입 로직 (여백 제거!)
         // ==========================================
         function loadRandomAds() {
             const adImages = [
@@ -343,8 +355,9 @@
                 randomRight = adImages[Math.floor(Math.random() * adImages.length)];
             }
 
-            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">`;
-            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">`;
+            // ★ 이미지 크기를 height: auto 로 하여 위아래 여백을 꽉 물리게 수정!
+            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
         }
 
         // ==========================================
@@ -353,7 +366,6 @@
         const darkModeBtn = document.getElementById("darkModeBtn");
         
         if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            document.body.classList.add("dark-mode");
             if(darkModeBtn) darkModeBtn.innerText = "☀️";
         }
 
@@ -378,7 +390,7 @@
         // ==========================================
         window.onload = () => {
             fetchStores();
-            loadRandomAds();   // 광고 실행
+            loadRandomAds(); 
         };
     </script>
 </body>
