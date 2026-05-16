@@ -8,11 +8,11 @@
         /* ★ 레이아웃 가운데 정렬을 위한 추가 스타일 */
         .page-wrapper {
             display: flex;
-            justify-content: center; /* 광고가 빠진 공간을 가운데 정렬로 채움 */
+            justify-content: center; 
             padding: 20px;
         }
         .main-content {
-            max-width: 800px; /* 너무 넓게 퍼지지 않도록 폭 고정 */
+            max-width: 800px; 
             width: 100%;
         }
 
@@ -27,7 +27,7 @@
         }
 
         /* ==========================================
-           ★ 알림창 전용 다크모드 (캐시 무시하고 즉시 적용!)
+           ★ 알림창 전용 다크모드
            ========================================== */
         body.dark-mode .content,
         body.dark-mode .alert-item {
@@ -36,24 +36,30 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
         }
         body.dark-mode .alert-product-info h4 a {
-            color: #55efc4 !important; /* 상품명을 예쁜 민트색으로 */
+            color: #55efc4 !important; 
         }
         body.dark-mode .alert-product-info p,
         body.dark-mode .alert-contact span,
         body.dark-mode .content p {
-            color: #a4b0be !important; /* 설명 글씨는 밝은 회색 */
+            color: #a4b0be !important; 
         }
         body.dark-mode .content h2 {
             color: #f1f2f6 !important;
         }
         body.dark-mode .status-control-box {
-            background-color: #2a2a2a !important; /* 상태 변경 박스를 어둡게 */
+            background-color: #2a2a2a !important; 
             border-color: #444 !important;
         }
         body.dark-mode .store-badge {
             background-color: #333 !important;
             color: #f1f2f6 !important;
             border-color: #555 !important;
+        }
+        
+        /* ★ 추가된 부분: 하얀색 연락처 박스 제압! */
+        body.dark-mode .alert-contact {
+            background-color: #2a2a2a !important;
+            border-color: #444 !important;
         }
     </style>
 </head>
@@ -93,7 +99,6 @@
     <script>
         const backendURL = 'https://pickagain-backend.onrender.com';
 
-        // --- ★ 로그인 상태 확인 (판매자/관리자만 접근 가능) ★ ---
         const currentUser = localStorage.getItem("username");
         const navbar = document.querySelector(".navbar");
 
@@ -113,7 +118,6 @@
             location.href = "login.html";
         }
 
-        // --- ★ 알림 데이터 가져오기 및 렌더링 ★ ---
         function fetchAlerts() {
             fetch(`${backendURL}/reservations`)
                 .then(response => response.json())
@@ -133,7 +137,6 @@
                         const alertItem = document.createElement("div");
                         alertItem.classList.add("alert-item");
                         
-                        // ★ 수정 2: 자바스크립트 안에 있던 background: #fff; 삭제 후 클래스로 대체
                         alertItem.innerHTML = `
                             <div class="alert-product-info">
                                 <span class="store-badge">${alert.store_name || '전체 매장'}</span>
@@ -168,15 +171,11 @@
 
         window.onload = fetchAlerts;
 
-        // 검색창 엔터키 이벤트
         document.getElementById("searchBtn").addEventListener("click", function() {
             const keyword = document.getElementById("keyword").value;
             window.location.href = `index.html?search=${keyword}`;
         });
 
-        // ==========================================
-        // ★ 예약 상태 변경 요청 함수 ★
-        // ==========================================
         function updateReservationStatus(reservationId, newStatus) {
             fetch(`${backendURL}/reservations/${reservationId}/status`, {
                 method: 'PUT',
