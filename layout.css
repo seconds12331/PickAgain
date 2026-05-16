@@ -1075,54 +1075,109 @@ p {
             cursor: pointer;
         }
 
+/* ==========================================
+다크 모드
+========================================== */
+
+/* 1. 전체 배경 및 기본 글씨 */
 body.dark-mode {
-    background-color: #121212 !important; /* 가장 어두운 배경 */
+    background-color: #121212 !important;
     color: #e0e0e0 !important;
 }
 
-/* 1. 상품 카드, 상단바, 검색영역 (배경보다 살짝 밝게 구분) */
+/* 2. 모든 페이지의 '하얀색 박스(컨테이너)' 강제 어둡게 */
+/* (상품카드, 검색창, 대시보드, 폼, 모달, 알림창, 상세페이지 등 전부 포함) */
 body.dark-mode .product-item,
 body.dark-mode .search-container,
 body.dark-mode .detail-search-panel,
 body.dark-mode .list-control-bar,
-body.dark-mode .chatbot-window {
+body.dark-mode .chatbot-window,
+body.dark-mode .content,
+body.dark-mode .admin-panel,
+body.dark-mode .dashboard-card,
+body.dark-mode .form-container,
+body.dark-mode .product-detail-container,
+body.dark-mode .detail-box,
+body.dark-mode .alert-box,
+body.dark-mode .geo-modal,
+body.dark-mode .hero-section {
     background-color: #1e1e1e !important;
     border: 1px solid #333 !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+    color: #f1f2f6 !important;
 }
 
-/* 2. 검색창(Input) 및 일반 버튼(Button)들 조금 더 밝게 */
-body.dark-mode input[type="text"],
-body.dark-mode input[type="number"],
-body.dark-mode input[type="date"],
+/* 3. 제목과 강조 글씨들 (하얗고 선명하게) */
+body.dark-mode h1, 
+body.dark-mode h2, 
+body.dark-mode h3, 
+body.dark-mode h4, 
+body.dark-mode h5,
+body.dark-mode .Title a,
+body.dark-mode .page-header-title,
+body.dark-mode .product-price {
+    color: #f1f2f6 !important;
+}
+
+/* 4. 본문 글씨와 설명 (눈 안 아픈 밝은 회색) */
+body.dark-mode p, 
+body.dark-mode span, 
+body.dark-mode label,
+body.dark-mode .store-info {
+    color: #a4b0be !important;
+}
+
+body.dark-mode .status-reason {
+    color: #ffb8b8 !important; /* 경고 텍스트는 연한 붉은색 */
+}
+
+/* 5. 입력창, 드롭다운, 텍스트박스 (어둡게) */
+body.dark-mode input,
 body.dark-mode select,
-body.dark-mode button:not(#chatbot-fab):not(#darkModeBtn):not(.Title) {
+body.dark-mode textarea {
     background-color: #2c2c2c !important;
     color: #f1f2f6 !important;
     border: 1px solid #555 !important;
 }
 
-/* 3. 버튼에 마우스 올렸을 때 효과 */
+/* 6. 표(Table) 어둡게 (관리자 대시보드 등) */
+body.dark-mode table,
+body.dark-mode th,
+body.dark-mode td {
+    border-color: #444 !important;
+}
+body.dark-mode th {
+    background-color: #2a2a2a !important;
+    color: #55efc4 !important; /* 헤더는 포인트 색상 */
+}
+body.dark-mode td {
+    background-color: #1e1e1e !important;
+    color: #f1f2f6 !important;
+}
+
+/* 7. 일반 버튼들 어둡게 (특수 버튼 제외) */
+body.dark-mode button:not(#chatbot-fab):not(#darkModeBtn):not(.btn-agree):not(.creat_btn) {
+    background-color: #2c2c2c !important;
+    color: #f1f2f6 !important;
+    border: 1px solid #555 !important;
+}
 body.dark-mode button:not(#chatbot-fab):not(#darkModeBtn):hover {
-    background-color: #4b6cb7 !important; /* 고유 테마색 유지 */
-    color: #fff !important;
+    background-color: #4b6cb7 !important; /* 마우스 올리면 파란색 포인트 */
+    color: white !important;
 }
 
-/* 4. 글씨 색상 뚜렷하게 조정 */
-body.dark-mode h4,
-body.dark-mode .category-text,
-body.dark-mode .product-price {
-    color: #f1f2f6 !important; /* 상품명, 가격 흰색으로 뚜렷하게 */
+/* 8. 특정 요소 예외 처리 */
+/* 카카오맵 로딩 배경 */
+body.dark-mode #map-container {
+    background-color: #2a2a2a !important;
+    border-color: #444 !important;
+    color: #aaa !important;
 }
-
-body.dark-mode .status-reason {
-    color: #ffb8b8 !important; /* 경고 텍스트는 파스텔톤 빨강/주황으로 */
+/* 빈 광고 슬롯 배경 */
+body.dark-mode .ad-slot {
+    background-color: #1a1a1a !important;
+    border-color: #333 !important;
 }
-
-body.dark-mode .store-info {
-    color: #a4b0be !important; /* 매장명은 연한 회색으로 */
-}
-
 
 /* ==========================================
    ★ 광고 영역 크기 확장
