@@ -8,6 +8,11 @@
 </head>
 
 <body>
+    <script>
+        if (localStorage.getItem("pickagain_dark_mode") === "true") {
+            document.body.classList.add("dark-mode");
+        }
+    </script>
     <div class="navbar">
         <a href="login.html">Login/Sign Up</a>
     </div>
