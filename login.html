@@ -5,9 +5,7 @@
     <title>PickAgain - 로그인</title>
     <link rel="stylesheet" href="layout.css">
     <style>
-        /* ==========================================
-           ★ 로그인창 전용 다크모드 (즉시 적용)
-           ========================================== */
+        /* 로그인창 전용 다크모드 적용 */
         body.dark-mode .login-container,
         body.dark-mode .signup-container {
             background-color: #1e1e1e !important;
@@ -23,7 +21,7 @@
             border: 1px solid #555 !important;
         }
         body.dark-mode .switch-link {
-            color: #55efc4 !important; /* 링크 텍스트는 눈에 띄는 민트색 */
+            color: #55efc4 !important; 
         }
         body.dark-mode hr {
             border-top: 1px solid #444 !important;
@@ -50,7 +48,6 @@
     </div>
 
     <div class="form-page-container">
-
         <div class="login-container active">
             <h2>Login</h2>
             <form id="login-form">
@@ -80,17 +77,13 @@
     <script>
         const backendURL = 'https://pickagain-backend.onrender.com';
 
-        /**
-         * 1. 로그인/회원가입 폼 전환
-         */
+        // 1. 로그인/회원가입 폼 전환
         function toggleForms() {
             document.querySelector('.login-container').classList.toggle('active');
             document.querySelector('.signup-container').classList.toggle('active');
         }
 
-        /**
-         * 2. 로그인 폼 제출 이벤트
-         */
+        // 2. 로그인 요청
         document.getElementById("login-form").addEventListener("submit", function(e) {
             e.preventDefault(); 
 
@@ -116,7 +109,6 @@
                 
                 localStorage.setItem("username", data.username);
                 localStorage.setItem("userRole", data.role);
-                
                 localStorage.setItem("store_name", data.store_name || "");
                 localStorage.setItem("store_location", data.store_location || "");
                 localStorage.setItem("store_phone", data.store_phone || "");
@@ -128,9 +120,7 @@
             });
         });
 
-        /**
-         * 3. 회원가입 폼 제출 이벤트
-         */
+        // 3. 회원가입 요청
         document.getElementById("signup-form").addEventListener("submit", function(e) {
             e.preventDefault();
             
@@ -165,9 +155,7 @@
             })
             .then(data => {
                 alert(data.message);
-                
                 document.getElementById("signup-form").reset();
-                
                 toggleForms(); 
             })
             .catch(error => {
