@@ -6,71 +6,72 @@
     <title>PickAgain - 상품 상세</title>
     <link rel="stylesheet" href="layout.css">
     <style>
-        /* ==========================================
-           ★ 상품 상세 페이지 전용 다크모드
-           ========================================== */
-        body.dark-mode .product-detail-container {
-            background-color: #1e1e1e !important;
-            border-color: #333 !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
-        }
-        body.dark-mode .slider-wrapper {
-            background-color: #2a2a2a !important; /* 이미지 뒤 배경을 약간 어둡게 */
-        }
-        body.dark-mode .slider-btn {
-            background-color: rgba(255, 255, 255, 0.2) !important;
-            color: #fff !important;
-        }
-        body.dark-mode .slider-btn:hover {
-            background-color: rgba(255, 255, 255, 0.4) !important;
-        }
-        body.dark-mode .detail-price-box {
-            color: #55efc4 !important; /* 가격 강조는 민트색 */
-            background-color: rgba(85, 239, 196, 0.1) !important;
-            border: 1px solid rgba(85, 239, 196, 0.3) !important;
-        }
-        body.dark-mode .detail-section {
-            border-bottom: 1px solid #333 !important;
-        }
-        body.dark-mode .detail-section h3 {
-            color: #f1f2f6 !important;
-        }
-        body.dark-mode .detail-section p {
-            color: #a4b0be !important;
-        }
-        body.dark-mode .store-info-box {
-            background-color: #2a2a2a !important;
-            border: 1px solid #444 !important;
-        }
-        body.dark-mode #detail-store-name {
-            color: #55efc4 !important; /* 매장명 링크 색상 변경 */
-        }
-        body.dark-mode .admin-button-container {
-            background-color: #1e1e1e !important;
-            border-color: #333 !important;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.3) !important;
-        }
+        /* 상품 상세 페이지 전용 다크모드 */
+        body.dark-mode .product-detail-container { background-color: #1e1e1e !important; border-color: #333 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important; }
+        body.dark-mode .slider-wrapper { background-color: #2a2a2a !important; }
+        body.dark-mode .slider-btn { background-color: rgba(255, 255, 255, 0.2) !important; color: #fff !important; }
+        body.dark-mode .slider-btn:hover { background-color: rgba(255, 255, 255, 0.4) !important; }
+        body.dark-mode .detail-price-box { color: #55efc4 !important; background-color: rgba(85, 239, 196, 0.1) !important; border: 1px solid rgba(85, 239, 196, 0.3) !important; }
+        body.dark-mode .detail-section { border-bottom: 1px solid #333 !important; }
+        body.dark-mode .detail-section h3 { color: #f1f2f6 !important; }
+        body.dark-mode .detail-section p { color: #a4b0be !important; }
+        body.dark-mode .store-info-box { background-color: #2a2a2a !important; border: 1px solid #444 !important; }
+        body.dark-mode #detail-store-name { color: #55efc4 !important; }
+        body.dark-mode .admin-button-container { background-color: #1e1e1e !important; border-color: #333 !important; box-shadow: 0 -2px 10px rgba(0,0,0,0.3) !important; }
         
-        /* 광고 영역 투명화 */
         .ad-column-left, .ad-column-right { padding-top: 20px !important; }
         .ad-slot { background: transparent !important; border: none !important; box-shadow: none !important; }
+
+        /* ==========================================
+           ★ 업그레이드된 위시 메모장 위젯 (자유 메모 포함)
+           ========================================== */
+        #memo-widget { position: fixed; bottom: 20px; left: 20px; z-index: 9999; font-family: 'Pretendard', sans-serif; }
+        #memo-toggle-btn { background-color: #f39c12; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.3s, background-color 0.3s; }
+        #memo-toggle-btn:hover { transform: scale(1.05); }
+        #memo-panel { display: none; width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #ddd; margin-bottom: 15px; overflow: hidden; flex-direction: column; max-height: 550px; }
+        .memo-header { background: #f39c12; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .memo-header h4 { margin: 0; font-size: 16px; }
+        .memo-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        
+        /* 자유 메모 영역 */
+        .simple-memo-area { padding: 15px; border-bottom: 1px solid #ddd; background: #fff; }
+        .simple-memo-area textarea { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 6px; resize: none; font-size: 13px; font-family: inherit; }
+        
+        .memo-input-area { padding: 15px; background: #f9f9f9; border-bottom: 1px solid #ddd; }
+        .memo-input-area input { width: 100%; box-sizing: border-box; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
+        .memo-input-area button { width: 100%; padding: 8px; background: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        #memo-list { list-style: none; margin: 0; padding: 0; max-height: 100px; overflow-y: auto; }
+        #memo-list li { padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 13px; align-items: center;}
+        .memo-del-btn { color: #e74c3c; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 16px; }
+        #memo-match-area { background: #eef2ff; padding: 15px; flex: 1; overflow-y: auto; }
+        #memo-match-area h5 { margin: 0 0 10px 0; color: #4b6cb7; font-size: 14px; }
+        #memo-match-list { list-style: none; margin: 0; padding: 0; }
+        #memo-match-list li { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        #memo-match-list li a { color: #2c3e50; font-weight: bold; text-decoration: none; }
+
+        /* 위젯 다크모드 */
+        body.dark-mode #memo-panel { background: #1e1e1e; border-color: #333; }
+        body.dark-mode .simple-memo-area { background: #1e1e1e; border-color: #333; }
+        body.dark-mode .simple-memo-area textarea { background: #2a2a2a; color: #f1f2f6; border-color: #555; }
+        body.dark-mode .memo-input-area { background: #2a2a2a; border-color: #444; }
+        body.dark-mode .memo-input-area input { background: #1e1e1e; color: white; border-color: #555; }
+        body.dark-mode #memo-list li { border-color: #444; color: #a4b0be; }
+        body.dark-mode #memo-match-area { background: #2c3e50; }
+        body.dark-mode #memo-match-list li { background: #1e1e1e; color: #f1f2f6; border: 1px solid #444; }
+        body.dark-mode #memo-match-list li a { color: #55efc4; }
     </style>
 </head>
 
 <body>
     <script>
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            document.body.classList.add("dark-mode");
-        }
+        if (localStorage.getItem("pickagain_dark_mode") === "true") document.body.classList.add("dark-mode");
     </script>
     
     <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
     
     <div class="search-container">
         <div class="search-bar-row">
-            <div class="title-container">
-                <h2 class="Title"><a href="index.html">PickAgain</a></h2>
-            </div>
+            <div class="title-container"><h2 class="Title"><a href="index.html">PickAgain</a></h2></div>
             <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
             <button id="searchBtn">검색</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
@@ -87,7 +88,6 @@
         <main class="main-content">
             <div class="content">
                 <div class="product-detail-container">
-                    
                     <div class="product-image-slider">
                         <div class="slider-wrapper" id="slider-wrapper">
                             <img src="https://placehold.co/400x400?text=Loading..." alt="로딩 중" class="slide-image">
@@ -124,9 +124,7 @@
                         </div>
 
                         <div class="button-container">
-                            <button id="reserveBtn" class="creat_btn" style="background-color: #27ae60; border-color: #27ae60; width: 100%;">
-                                예약하기
-                            </button>
+                            <button id="reserveBtn" class="creat_btn" style="background-color: #27ae60; border-color: #27ae60; width: 100%;">예약하기</button>
                         </div>
                     </div>
                 </div>
@@ -143,102 +141,85 @@
         </div>
     </div>
 
+    <div id="memo-widget">
+        <div id="memo-panel">
+            <div class="memo-header">
+                <h4>📝 위시 메모 & 알리미</h4>
+                <button id="memo-close-btn">&times;</button>
+            </div>
+            
+            <div class="simple-memo-area">
+                <textarea id="simple-memo-text" placeholder="자유롭게 메모를 남겨보세요..." rows="3"></textarea>
+            </div>
+
+            <div class="memo-input-area">
+                <input type="text" id="memo-keyword" placeholder="찾는 상품명 (예: 냉장고)" autocomplete="off">
+                <input type="number" id="memo-max-price" placeholder="희망 최대 가격 (선택)" autocomplete="off">
+                <button id="memo-add-btn">알림 조건 저장</button>
+            </div>
+            <ul id="memo-list"></ul>
+            <div id="memo-match-area">
+                <h5>✨ 조건에 맞는 상품 발견!</h5>
+                <ul id="memo-match-list"></ul>
+            </div>
+        </div>
+        <button id="memo-toggle-btn">📝 위시 메모</button>
+    </div>
+
     <script>
         const backendURL = 'https://pickagain-backend-1.onrender.com';
         let currentProductId = null;
 
-        // 1. 로그인 상태 확인 (관리자 버튼 표시 여부)
         const currentUser = localStorage.getItem("username");
         const navbar = document.querySelector(".navbar");
 
         if (currentUser) {
-            navbar.innerHTML = `
-                <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
-                <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
-            `;
+            navbar.innerHTML = `<span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span><a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>`;
             document.getElementById("logoutBtn").addEventListener("click", function(e) {
-                e.preventDefault();
-                localStorage.clear(); 
-                alert("로그아웃 되었습니다.");
-                location.reload(); 
+                e.preventDefault(); localStorage.clear(); alert("로그아웃 되었습니다."); location.reload(); 
             });
 
-            // 로그인 상태면 관리자 제어 버튼 보이기
             const adminBtnContainer = document.querySelector(".admin-button-container");
             if (adminBtnContainer) adminBtnContainer.style.display = "flex";
         }
 
-        let currentSlideIndex = 0;
-        let totalSlides = 0;
+        let currentSlideIndex = 0; let totalSlides = 0;
 
         window.onload = function () {
             const urlParams = new URLSearchParams(window.location.search);
             currentProductId = urlParams.get('id');
 
-            if (currentProductId) {
-                fetchProductDetails(currentProductId);
-            } else {
-                document.getElementById('detail-name').innerText = "상품 ID가 필요합니다.";
-            }
+            if (currentProductId) fetchProductDetails(currentProductId);
+            else document.getElementById('detail-name').innerText = "상품 ID가 필요합니다.";
 
-            const deleteButton = document.querySelector('.btn-delete');
-            deleteButton.addEventListener('click', deleteProduct);
-
-            const editButton = document.querySelector('.btn-edit');
-            editButton.addEventListener('click', () => {
-                window.location.href = `product-form.html?id=${currentProductId}`;
-            });
+            document.querySelector('.btn-delete').addEventListener('click', deleteProduct);
+            document.querySelector('.btn-edit').addEventListener('click', () => window.location.href = `product-form.html?id=${currentProductId}`);
 
             loadRandomAds();
         };
 
-        // 2. 상품 상세 정보 불러오기
         function fetchProductDetails(productId) {
             fetch(`${backendURL}/products/${productId}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('상품을 찾을 수 없습니다.'); 
-                    return response.json();
-                })
+                .then(response => { if (!response.ok) throw new Error('상품을 찾을 수 없습니다.'); return response.json(); })
                 .then(product => {
-                    // 다중 이미지 슬라이더 렌더링
                     const sliderWrapper = document.getElementById('slider-wrapper');
-                    const prevBtn = document.getElementById('prevBtn');
-                    const nextBtn = document.getElementById('nextBtn');
-                    
-                    sliderWrapper.innerHTML = ''; 
-                    currentSlideIndex = 0; 
+                    const prevBtn = document.getElementById('prevBtn'); const nextBtn = document.getElementById('nextBtn');
+                    sliderWrapper.innerHTML = ''; currentSlideIndex = 0; 
 
                     if (product.image_path) {
-                        const paths = product.image_path.split(','); 
-                        totalSlides = paths.length; 
-
+                        const paths = product.image_path.split(','); totalSlides = paths.length; 
                         paths.forEach(path => {
                             const img = document.createElement('img');
-                            img.src = `${backendURL}${path}`;
-                            img.alt = '상품 이미지';
-                            img.classList.add('slide-image'); 
-                            sliderWrapper.appendChild(img);
+                            img.src = `${backendURL}${path}`; img.classList.add('slide-image'); sliderWrapper.appendChild(img);
                         });
-
-                        if (totalSlides > 1) {
-                            prevBtn.classList.remove('hidden');
-                            nextBtn.classList.remove('hidden');
-                        } else {
-                            prevBtn.classList.add('hidden');
-                            nextBtn.classList.add('hidden');
-                        }
+                        if (totalSlides > 1) { prevBtn.classList.remove('hidden'); nextBtn.classList.remove('hidden'); }
+                        else { prevBtn.classList.add('hidden'); nextBtn.classList.add('hidden'); }
                         showSlide(currentSlideIndex);
-
                     } else {
-                        const noImg = document.createElement('img');
-                        noImg.src = "https://placehold.co/400x400?text=No+Image";
-                        noImg.classList.add('slide-image');
-                        sliderWrapper.appendChild(noImg);
-                        prevBtn.classList.add('hidden');
-                        nextBtn.classList.add('hidden');
+                        sliderWrapper.innerHTML = `<img src="https://placehold.co/400x400?text=No+Image" class="slide-image">`;
+                        prevBtn.classList.add('hidden'); nextBtn.classList.add('hidden');
                     }
 
-                    // 텍스트 정보 매핑
                     document.getElementById('detail-name').innerText = product.name;
                     document.getElementById('detail-price').innerText = product.price.toLocaleString();
                     document.getElementById('detail-status-category').innerText = product.status_category || "-";
@@ -250,96 +231,56 @@
 
                     const storeNameEl = document.getElementById('detail-store-name');
                     storeNameEl.innerText = product.store_name || "-";
-                    if (product.store_name && product.store_location) {
-                        storeNameEl.href = `map.html?store=${encodeURIComponent(product.store_name)}&address=${encodeURIComponent(product.store_location)}`;
-                    }
+                    if (product.store_name && product.store_location) storeNameEl.href = `map.html?store=${encodeURIComponent(product.store_name)}&address=${encodeURIComponent(product.store_location)}`;
                 })
-                .catch(error => {
-                    console.error("상품 상세 정보 가져오기 실패:", error);
-                    document.getElementById('detail-name').innerText = error.message;
-                });
+                .catch(error => document.getElementById('detail-name').innerText = error.message);
         }
 
-        // 3. 상품 삭제
         function deleteProduct() {
             if (!confirm("정말로 이 상품을 삭제하시겠습니까?")) return; 
-
             fetch(`${backendURL}/products/${currentProductId}`, { method: 'DELETE' })
-                .then(response => {
-                    if (!response.ok) throw new Error('서버 응답 실패'); 
-                    return response.json();
-                })
-                .then(data => {
-                    alert(data.message);
-                    window.location.href = "index.html";
-                })
-                .catch(error => {
-                    console.error("상품 삭제 실패:", error);
-                    alert("상품 삭제에 실패했습니다.");
-                });
+                .then(response => { if (!response.ok) throw new Error('서버 응답 실패'); return response.json(); })
+                .then(data => { alert(data.message); window.location.href = "index.html"; })
+                .catch(error => alert("상품 삭제에 실패했습니다."));
         }
 
-        // 4. 슬라이더 로직
         function moveSlide(n) { showSlide(currentSlideIndex += n); }
-
         function showSlide(index) {
             const sliderWrapper = document.getElementById('slider-wrapper');
-            if (index >= totalSlides) { currentSlideIndex = 0; }
-            else if (index < 0) { currentSlideIndex = totalSlides - 1; }
-            else { currentSlideIndex = index; }
-
-            const percentage = -(currentSlideIndex * 100);
-            sliderWrapper.style.transform = `translateX(${percentage}%)`;
+            if (index >= totalSlides) currentSlideIndex = 0;
+            else if (index < 0) currentSlideIndex = totalSlides - 1;
+            else currentSlideIndex = index;
+            sliderWrapper.style.transform = `translateX(${-(currentSlideIndex * 100)}%)`;
         }
 
-        // 5. 구매 예약
         document.getElementById("reserveBtn").addEventListener("click", function(e) {
             e.preventDefault();
-
             const phone = prompt("상품을 예약하시겠습니까?\n연락받으실 전화번호를 입력해 주세요.\n(예: 010-1234-5678)");
-            
             if (phone && phone.trim() !== "") {
                 fetch(`${backendURL}/reservations`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        product_id: currentProductId,
-                        buyer_phone: phone.trim()
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('예약 실패');
-                    return response.json();
-                })
-                .then(data => { alert("예약이 완료되었습니다! 판매자가 확인 후 연락드릴 예정입니다."); })
-                .catch(error => {
-                    console.error("예약 에러:", error);
-                    alert("예약 처리 중 오류가 발생했습니다.");
-                });
-            } else if (phone === "") {
-                alert("전화번호를 입력하셔야 예약이 가능합니다.");
-            }
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: currentProductId, buyer_phone: phone.trim() })
+                }).then(response => { if (!response.ok) throw new Error('예약 실패'); return response.json(); })
+                  .then(data => alert("예약이 완료되었습니다! 판매자가 확인 후 연락드릴 예정입니다."))
+                  .catch(error => alert("예약 처리 중 오류가 발생했습니다."));
+            } else if (phone === "") alert("전화번호를 입력하셔야 예약이 가능합니다.");
         });
 
-        // 6. 검색 기능
         document.getElementById("searchBtn").addEventListener("click", function () {
             const keyword = document.getElementById("keyword").value;
             window.location.href = `index.html?search=${keyword}`;
         });
 
-        // 7. 랜덤 광고 로드 (여백 제거)
         function loadRandomAds() {
             const adImages = ["광고 (1).jpg", "광고 (2).jpg", "광고 (3).jpg", "광고 (4).jpg", "광고 (5).jpg"];
-            const leftAdSlot = document.querySelector('.ad-slot-left');
-            const rightAdSlot = document.querySelector('.ad-slot-right');
+            const leftAdSlot = document.querySelector('.ad-slot-left'); const rightAdSlot = document.querySelector('.ad-slot-right');
             const randomLeft = adImages[Math.floor(Math.random() * adImages.length)];
             let randomRight = adImages[Math.floor(Math.random() * adImages.length)];
             while(randomLeft === randomRight) randomRight = adImages[Math.floor(Math.random() * adImages.length)];
-            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
-            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:auto; display:block; border-radius:8px;">`;
+            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px;">`;
         }
 
-        // 8. 다크모드 스위치
         const darkModeBtn = document.getElementById("darkModeBtn");
         if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) darkModeBtn.innerText = "☀️";
         if (darkModeBtn) {
@@ -351,6 +292,105 @@
                 darkModeBtn.style.transform = isDark ? "rotate(180deg)" : "rotate(0deg)";
             });
         }
+
+        // ==========================================
+        // ★ 업그레이드된 위시 메모장 기능 (자유 메모 + 상태 기억)
+        // ==========================================
+        document.addEventListener("DOMContentLoaded", () => {
+            const memoToggleBtn = document.getElementById("memo-toggle-btn");
+            const memoPanel = document.getElementById("memo-panel");
+            const memoCloseBtn = document.getElementById("memo-close-btn");
+            const simpleMemoText = document.getElementById("simple-memo-text");
+            const memoList = document.getElementById("memo-list");
+            const matchList = document.getElementById("memo-match-list");
+
+            // 1. 패널 열림/닫힘 상태 기억 로직
+            if (localStorage.getItem("pickagain_memo_state") === "open") {
+                memoPanel.style.display = "flex";
+            }
+
+            memoToggleBtn.addEventListener("click", () => {
+                const isHidden = memoPanel.style.display === "none" || memoPanel.style.display === "";
+                memoPanel.style.display = isHidden ? "flex" : "none";
+                localStorage.setItem("pickagain_memo_state", isHidden ? "open" : "closed");
+            });
+
+            memoCloseBtn.addEventListener("click", () => {
+                memoPanel.style.display = "none";
+                localStorage.setItem("pickagain_memo_state", "closed");
+            });
+
+            // 2. 자유 메모장 (단순 텍스트) 자동 저장 로직
+            simpleMemoText.value = localStorage.getItem("pickagain_simple_memo") || "";
+            simpleMemoText.addEventListener("input", (e) => {
+                localStorage.setItem("pickagain_simple_memo", e.target.value);
+            });
+
+            // 3. 알리미 로직 (기존과 동일)
+            function getMemos() { return JSON.parse(localStorage.getItem("pickagain_memos") || "[]"); }
+            function renderMemosOnly(memos) {
+                memoList.innerHTML = "";
+                memos.forEach((memo, index) => {
+                    const priceText = memo.maxPrice > 0 ? `${memo.maxPrice.toLocaleString()}원 이하` : "가격 무관";
+                    const li = document.createElement("li");
+                    li.innerHTML = `<span><strong>${memo.keyword}</strong> (${priceText})</span><button class="memo-del-btn" onclick="deleteMemo(${index})">&times;</button>`;
+                    memoList.appendChild(li);
+                });
+            }
+
+            window.deleteMemo = function(index) {
+                const memos = getMemos(); memos.splice(index, 1);
+                localStorage.setItem("pickagain_memos", JSON.stringify(memos));
+                renderMemosOnly(memos); fetchAndMatchMemos(memos);
+            };
+
+            document.getElementById("memo-add-btn").addEventListener("click", () => {
+                const kwInput = document.getElementById("memo-keyword");
+                const pxInput = document.getElementById("memo-max-price");
+                if (!kwInput.value.trim()) return alert("상품명을 입력해 주세요!");
+
+                const memos = getMemos();
+                memos.push({ keyword: kwInput.value.trim(), maxPrice: parseInt(pxInput.value) || 0 });
+                localStorage.setItem("pickagain_memos", JSON.stringify(memos));
+
+                kwInput.value = ""; pxInput.value = "";
+                renderMemosOnly(memos); fetchAndMatchMemos(memos);
+            });
+
+            async function fetchAndMatchMemos(memos) {
+                if (memos.length === 0) {
+                    matchList.innerHTML = "<li>메모를 등록하시면 알림을 드려요!</li>";
+                    memoToggleBtn.innerText = `📝 위시 메모`; memoToggleBtn.style.backgroundColor = "#f39c12"; 
+                    return;
+                }
+                matchList.innerHTML = "<li>상품 탐색 중... 🔍</li>";
+                try {
+                    const res = await fetch(`${backendURL}/products`);
+                    const pdData = await res.json();
+                    let matchCount = 0; matchList.innerHTML = "";
+
+                    memos.forEach(memo => {
+                        pdData.filter(p => p.name && p.name.toLowerCase().includes(memo.keyword.toLowerCase()) && (memo.maxPrice === 0 || p.price <= memo.maxPrice))
+                            .forEach(item => {
+                                matchCount++;
+                                const li = document.createElement("li");
+                                li.innerHTML = `<a href="product-detail.html?id=${item.product_id}">🎁 ${item.name} (${item.price.toLocaleString()}원)</a><div style="color:#7f8c8d; font-size:11px; margin-top:3px;">🏪 ${item.store_name}</div>`;
+                                matchList.appendChild(li);
+                            });
+                    });
+
+                    if (matchCount === 0) {
+                        matchList.innerHTML = "<li>조건에 맞는 상품이 없습니다.</li>";
+                        memoToggleBtn.innerText = `📝 위시 메모`; memoToggleBtn.style.backgroundColor = "#f39c12";
+                    } else {
+                        memoToggleBtn.innerText = `📝 위시 메모 (✨${matchCount}건 발견!)`; memoToggleBtn.style.backgroundColor = "#e74c3c"; 
+                    }
+                } catch (error) { matchList.innerHTML = "<li>오류가 발생했습니다.</li>"; }
+            }
+
+            const initialMemos = getMemos();
+            renderMemosOnly(initialMemos); fetchAndMatchMemos(initialMemos);
+        });
     </script>
 </body>
 </html>
