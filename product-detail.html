@@ -5,6 +5,56 @@
     <meta charset="UTF-8">
     <title>PickAgain - 상품 상세</title>
     <link rel="stylesheet" href="layout.css">
+    <style>
+        /* ==========================================
+           ★ 상품 상세 페이지 전용 다크모드
+           ========================================== */
+        body.dark-mode .product-detail-container {
+            background-color: #1e1e1e !important;
+            border-color: #333 !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+        }
+        body.dark-mode .slider-wrapper {
+            background-color: #2a2a2a !important; /* 이미지 뒤 배경을 약간 어둡게 */
+        }
+        body.dark-mode .slider-btn {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #fff !important;
+        }
+        body.dark-mode .slider-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4) !important;
+        }
+        body.dark-mode .detail-price-box {
+            color: #55efc4 !important; /* 가격 강조는 민트색 */
+            background-color: rgba(85, 239, 196, 0.1) !important;
+            border: 1px solid rgba(85, 239, 196, 0.3) !important;
+        }
+        body.dark-mode .detail-section {
+            border-bottom: 1px solid #333 !important;
+        }
+        body.dark-mode .detail-section h3 {
+            color: #f1f2f6 !important;
+        }
+        body.dark-mode .detail-section p {
+            color: #a4b0be !important;
+        }
+        body.dark-mode .store-info-box {
+            background-color: #2a2a2a !important;
+            border: 1px solid #444 !important;
+        }
+        body.dark-mode #detail-store-name {
+            color: #55efc4 !important; /* 매장명 링크 색상 변경 */
+        }
+        body.dark-mode .admin-button-container {
+            background-color: #1e1e1e !important;
+            border-color: #333 !important;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3) !important;
+        }
+        
+        /* 광고 영역 투명화 */
+        .ad-column-left, .ad-column-right { padding-top: 20px !important; }
+        .ad-slot { background: transparent !important; border: none !important; box-shadow: none !important; }
+    </style>
 </head>
 
 <body>
@@ -13,40 +63,35 @@
             document.body.classList.add("dark-mode");
         }
     </script>
+    
     <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
+    
     <div class="search-container">
         <div class="search-bar-row">
             <div class="title-container">
-                <h2 class="Title">
-                    <a href="index.html">PickAgain</a>
-                </h2>
+                <h2 class="Title"><a href="index.html">PickAgain</a></h2>
             </div>
             <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
             <button id="searchBtn">검색</button>
-            <button class="alert-btn" onclick="location.href='alerts.html'">
-                알림
-            </button>
-            <button class="map-btn" onclick="location.href='map.html'">
-                지도
-            </button>
+            <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
+            <button class="map-btn" onclick="location.href='map.html'">지도</button>
+            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; margin-left: 10px; transition: transform 0.3s;">🌙</button>
         </div>
     </div>
 
     <div class="page-wrapper">
         <div class="ad-column-left">
-            <aside class="ad-slot ad-slot-left">
-                <p style="text-align: center; color: #999;">(왼쪽 광고)</p>
-            </aside>
+            <aside class="ad-slot ad-slot-left"><p style="text-align: center; color: #999;">(왼쪽 광고)</p></aside>
         </div>
 
         <main class="main-content">
             <div class="content">
                 <div class="product-detail-container">
+                    
                     <div class="product-image-slider">
                         <div class="slider-wrapper" id="slider-wrapper">
                             <img src="https://placehold.co/400x400?text=Loading..." alt="로딩 중" class="slide-image">
                         </div>
-
                         <button class="slider-btn prev-btn" id="prevBtn" onclick="moveSlide(-1)">&#10094;</button>
                         <button class="slider-btn next-btn" id="nextBtn" onclick="moveSlide(1)">&#10095;</button>
                     </div>
@@ -87,24 +132,22 @@
                 </div>
             </div>
 
-            <div class="admin-button-container">
+            <div class="admin-button-container" style="display: none;">
                 <a href="#" class="admin-btn btn-edit">수정</a>
                 <a href="#" class="admin-btn btn-delete">삭제</a>
             </div>
         </main>
 
         <div class="ad-column-right">
-            <aside class="ad-slot ad-slot-right">
-                <p style="text-align: center; color: #999;">(오른쪽 광고)</p>
-            </aside>
+            <aside class="ad-slot ad-slot-right"><p style="text-align: center; color: #999;">(오른쪽 광고)</p></aside>
         </div>
     </div>
 
     <script>
-        const backendURL = 'https://pickagain-backend.onrender.com';
+        const backendURL = 'https://pickagain-backend-1.onrender.com';
         let currentProductId = null;
 
-        // --- ★ 로그인 상태 확인 및 상단바 변경 ★ ---
+        // 1. 로그인 상태 확인 (관리자 버튼 표시 여부)
         const currentUser = localStorage.getItem("username");
         const navbar = document.querySelector(".navbar");
 
@@ -115,19 +158,15 @@
             `;
             document.getElementById("logoutBtn").addEventListener("click", function(e) {
                 e.preventDefault();
-                localStorage.clear(); // 로그인 정보 모두 삭제
+                localStorage.clear(); 
                 alert("로그아웃 되었습니다.");
                 location.reload(); 
             });
-        }
 
-        // --- ★ 비로그인 시 '수정', '삭제' 버튼 아예 숨기기 ★ ---
-        document.addEventListener("DOMContentLoaded", () => {
+            // 로그인 상태면 관리자 제어 버튼 보이기
             const adminBtnContainer = document.querySelector(".admin-button-container");
-            if (!currentUser && adminBtnContainer) {
-                adminBtnContainer.style.display = "none"; // 비로그인이면 안 보이게 처리
-            }
-        });
+            if (adminBtnContainer) adminBtnContainer.style.display = "flex";
+        }
 
         let currentSlideIndex = 0;
         let totalSlides = 0;
@@ -149,39 +188,38 @@
             editButton.addEventListener('click', () => {
                 window.location.href = `product-form.html?id=${currentProductId}`;
             });
+
+            loadRandomAds();
         };
 
+        // 2. 상품 상세 정보 불러오기
         function fetchProductDetails(productId) {
             fetch(`${backendURL}/products/${productId}`)
                 .then(response => {
-                    if (!response.ok) { throw new Error('상품을 찾을 수 없습니다.'); }
+                    if (!response.ok) throw new Error('상품을 찾을 수 없습니다.'); 
                     return response.json();
                 })
                 .then(product => {
-                    // ==========================================
-                    // ★ 통합 수정: 다중 이미지 슬라이더 렌더링 ★
-                    // ==========================================
+                    // 다중 이미지 슬라이더 렌더링
                     const sliderWrapper = document.getElementById('slider-wrapper');
                     const prevBtn = document.getElementById('prevBtn');
                     const nextBtn = document.getElementById('nextBtn');
                     
-                    sliderWrapper.innerHTML = ''; // 로딩 중 이미지 비우기
-                    currentSlideIndex = 0; // 인덱스 초기화
+                    sliderWrapper.innerHTML = ''; 
+                    currentSlideIndex = 0; 
 
                     if (product.image_path) {
-                        // 쉼표로 분리해서 배열로 만듦
                         const paths = product.image_path.split(','); 
-                        totalSlides = paths.length; // 총 사진 개수 저장
+                        totalSlides = paths.length; 
 
                         paths.forEach(path => {
                             const img = document.createElement('img');
                             img.src = `${backendURL}${path}`;
                             img.alt = '상품 이미지';
-                            img.classList.add('slide-image'); // CSS 클래스 적용
+                            img.classList.add('slide-image'); 
                             sliderWrapper.appendChild(img);
                         });
 
-                        // 사진이 한 장이면 버튼 숨김, 여러 장이면 보임
                         if (totalSlides > 1) {
                             prevBtn.classList.remove('hidden');
                             nextBtn.classList.remove('hidden');
@@ -189,42 +227,29 @@
                             prevBtn.classList.add('hidden');
                             nextBtn.classList.add('hidden');
                         }
-                        
-                        // 처음 로딩 시 첫 번째 사진 보여주기
                         showSlide(currentSlideIndex);
 
                     } else {
-                        // 사진이 하나도 없을 때
                         const noImg = document.createElement('img');
                         noImg.src = "https://placehold.co/400x400?text=No+Image";
                         noImg.classList.add('slide-image');
                         sliderWrapper.appendChild(noImg);
-                        // 버튼 둘 다 숨김
                         prevBtn.classList.add('hidden');
                         nextBtn.classList.add('hidden');
                     }
 
+                    // 텍스트 정보 매핑
                     document.getElementById('detail-name').innerText = product.name;
                     document.getElementById('detail-price').innerText = product.price.toLocaleString();
-
-                    // [수정] 변경된 필드 반영
                     document.getElementById('detail-status-category').innerText = product.status_category || "-";
                     document.getElementById('detail-status-detail').innerText = product.status_detail || "-";
-
-                    if (product.expiry_date) {
-                        document.getElementById('detail-expiry-date').innerText = product.expiry_date.split('T')[0];
-                    } else {
-                        document.getElementById('detail-expiry-date').innerText = "-";
-                    }
-
+                    document.getElementById('detail-expiry-date').innerText = product.expiry_date ? product.expiry_date.split('T')[0] : "-";
                     document.getElementById('detail-type-detail').innerText = product.type_detail || "기타";
-
                     document.getElementById('detail-store-location').innerText = product.store_location || "-";
                     document.getElementById('detail-store-phone').innerText = product.store_phone || "-";
 
                     const storeNameEl = document.getElementById('detail-store-name');
                     storeNameEl.innerText = product.store_name || "-";
-
                     if (product.store_name && product.store_location) {
                         storeNameEl.href = `map.html?store=${encodeURIComponent(product.store_name)}&address=${encodeURIComponent(product.store_location)}`;
                     }
@@ -235,12 +260,13 @@
                 });
         }
 
+        // 3. 상품 삭제
         function deleteProduct() {
-            if (!confirm("정말로 이 상품을 삭제하시겠습니까?")) { return; }
+            if (!confirm("정말로 이 상품을 삭제하시겠습니까?")) return; 
 
             fetch(`${backendURL}/products/${currentProductId}`, { method: 'DELETE' })
                 .then(response => {
-                    if (!response.ok) { throw new Error('서버 응답 실패'); }
+                    if (!response.ok) throw new Error('서버 응답 실패'); 
                     return response.json();
                 })
                 .then(data => {
@@ -253,43 +279,25 @@
                 });
         }
 
-        document.getElementById("searchBtn").addEventListener("click", function () {
-            const keyword = document.getElementById("keyword").value;
-            window.location.href = `index.html?search=${keyword}`;
-        });
+        // 4. 슬라이더 로직
+        function moveSlide(n) { showSlide(currentSlideIndex += n); }
 
-        // ==========================================
-        // ★ 추가: 슬라이드 이동 및 표시 함수 ★
-        // ==========================================
-        
-        // 1. n만큼 인덱스를 이동 (n은 1 또는 -1)
-        function moveSlide(n) {
-            showSlide(currentSlideIndex += n);
-        }
-
-        // 2. 특정 인덱스의 슬라이드를 화면에 표시
         function showSlide(index) {
             const sliderWrapper = document.getElementById('slider-wrapper');
-            
-            // 처음/끝 인덱스 처리 (무한 루프 방지: 처음에서 왼쪽 누르면 끝으로, 끝에서 오른쪽 누르면 처음으로)
             if (index >= totalSlides) { currentSlideIndex = 0; }
             else if (index < 0) { currentSlideIndex = totalSlides - 1; }
             else { currentSlideIndex = index; }
 
-            // ★ 핵심: 가로로 n%만큼 통로를 밀어서 이미지를 변경
             const percentage = -(currentSlideIndex * 100);
             sliderWrapper.style.transform = `translateX(${percentage}%)`;
         }
-        // ==========================================
-        // ★ 구매자 예약하기 로직 ★
-        // ==========================================
+
+        // 5. 구매 예약
         document.getElementById("reserveBtn").addEventListener("click", function(e) {
             e.preventDefault();
 
-            // 1. 브라우저 기본 알림창(Prompt)을 띄워 전화번호를 입력받습니다.
             const phone = prompt("상품을 예약하시겠습니까?\n연락받으실 전화번호를 입력해 주세요.\n(예: 010-1234-5678)");
             
-            // 2. 입력값이 정상적으로 들어왔을 때만 서버로 전송합니다.
             if (phone && phone.trim() !== "") {
                 fetch(`${backendURL}/reservations`, {
                     method: 'POST',
@@ -303,19 +311,46 @@
                     if (!response.ok) throw new Error('예약 실패');
                     return response.json();
                 })
-                .then(data => {
-                    alert("예약이 완료되었습니다! 판매자가 확인 후 연락드릴 예정입니다.");
-                })
+                .then(data => { alert("예약이 완료되었습니다! 판매자가 확인 후 연락드릴 예정입니다."); })
                 .catch(error => {
                     console.error("예약 에러:", error);
                     alert("예약 처리 중 오류가 발생했습니다.");
                 });
             } else if (phone === "") {
-                // 아무것도 안 적고 확인을 눌렀을 때
                 alert("전화번호를 입력하셔야 예약이 가능합니다.");
             }
         });
+
+        // 6. 검색 기능
+        document.getElementById("searchBtn").addEventListener("click", function () {
+            const keyword = document.getElementById("keyword").value;
+            window.location.href = `index.html?search=${keyword}`;
+        });
+
+        // 7. 랜덤 광고 로드 (여백 제거)
+        function loadRandomAds() {
+            const adImages = ["광고 (1).jpg", "광고 (2).jpg", "광고 (3).jpg", "광고 (4).jpg", "광고 (5).jpg"];
+            const leftAdSlot = document.querySelector('.ad-slot-left');
+            const rightAdSlot = document.querySelector('.ad-slot-right');
+            const randomLeft = adImages[Math.floor(Math.random() * adImages.length)];
+            let randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+            while(randomLeft === randomRight) randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+        }
+
+        // 8. 다크모드 스위치
+        const darkModeBtn = document.getElementById("darkModeBtn");
+        if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) darkModeBtn.innerText = "☀️";
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener("click", () => {
+                document.body.classList.toggle("dark-mode");
+                const isDark = document.body.classList.contains("dark-mode");
+                localStorage.setItem("pickagain_dark_mode", isDark ? "true" : "false"); 
+                darkModeBtn.innerText = isDark ? "☀️" : "🌙";
+                darkModeBtn.style.transform = isDark ? "rotate(180deg)" : "rotate(0deg)";
+            });
+        }
     </script>
 </body>
-
 </html>
