@@ -1,13 +1,96 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="ko">
 <head>
     <meta charset="utf-8">
     <title>PickAgain - 검색</title>
     <link rel="stylesheet" href="layout.css">
+    <style>
+        /* ==========================================
+           ★ 위시 메모장 위젯 전용 CSS (좌측 하단)
+           ========================================== */
+        #memo-widget {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        #memo-toggle-btn {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        #memo-toggle-btn:hover {
+            transform: scale(1.05);
+        }
+
+        #memo-panel {
+            display: none; 
+            width: 320px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: 500px;
+        }
+
+        .memo-header {
+            background: #f39c12;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .memo-header h4 { margin: 0; font-size: 16px; }
+        .memo-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+
+        .memo-input-area { padding: 15px; background: #f9f9f9; border-bottom: 1px solid #ddd; }
+        .memo-input-area input { width: 100%; box-sizing: border-box; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px; }
+        .memo-input-area button { width: 100%; padding: 8px; background: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        #memo-list { list-style: none; margin: 0; padding: 0; max-height: 120px; overflow-y: auto; }
+        #memo-list li { padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 13px; align-items: center;}
+        .memo-del-btn { color: #e74c3c; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 16px; }
+
+        #memo-match-area { background: #eef2ff; padding: 15px; flex: 1; overflow-y: auto; }
+        #memo-match-area h5 { margin: 0 0 10px 0; color: #4b6cb7; }
+        #memo-match-list { list-style: none; margin: 0; padding: 0; }
+        #memo-match-list li { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        #memo-match-list li a { color: #2c3e50; font-weight: bold; text-decoration: none; }
+
+        /* 다크모드 대응 */
+        body.dark-mode #memo-panel { background: #1e1e1e; border-color: #333; }
+        body.dark-mode .memo-input-area { background: #2a2a2a; border-color: #444; }
+        body.dark-mode .memo-input-area input { background: #1e1e1e; color: white; border-color: #555; }
+        body.dark-mode #memo-list li { border-color: #444; color: #a4b0be; }
+        body.dark-mode #memo-match-area { background: #2c3e50; }
+        body.dark-mode #memo-match-list li { background: #1e1e1e; color: #f1f2f6; border: 1px solid #444; }
+        body.dark-mode #memo-match-list li a { color: #55efc4; }
+    </style>
 </head>
 
 <body>
+    <script>
+        if (localStorage.getItem("pickagain_dark_mode") === "true") {
+            document.body.classList.add("dark-mode");
+        }
+    </script>
+
     <div class="navbar">
         <a href="login.html">Login/Sign Up</a>
     </div>
@@ -22,12 +105,8 @@
             <input type="text" id="keyword" placeholder="상품명 또는 매장명을 검색해 보세요" autocomplete="off">
             <button id="searchBtn">검색</button>
             <button id="detailToggleBtn" class="detail-toggle-btn">상세 검색 ▼</button>
-            <button class="alert-btn" onclick="location.href='alerts.html'">
-                알림
-            </button>
-            <button class="map-btn" onclick="location.href='map.html'">
-                지도
-            </button>
+            <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
+            <button class="map-btn" onclick="location.href='map.html'">지도</button>
             <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px;">
                 AI 상담
             </button>
@@ -100,7 +179,6 @@
     </div>
 
     <div class="page-wrapper">
-
         <div class="ad-column-left">
             <aside class="ad-slot ad-slot-left">
                 <p style="text-align: center; color: #999;">(왼쪽 광고)</p>
@@ -134,32 +212,53 @@
         </div>
     </div>
         
-
-        <div id="chatbot-window" class="chatbot-window" style="display: none;">
-            <div class="chatbot-header">
-                <h3 style="margin: 0; font-size: 16px;">PickAgain AI 매니저</h3>
-                <button id="chatbot-close" class="chatbot-close">&times;</button>
-            </div>
+    <div id="chatbot-window" class="chatbot-window" style="display: none;">
+        <div class="chatbot-header">
+            <h3 style="margin: 0; font-size: 16px;">PickAgain AI 매니저</h3>
+            <button id="chatbot-close" class="chatbot-close">&times;</button>
+        </div>
         
-            <div id="chatbot-messages" class="chatbot-messages">
-                <div class="message bot-message">
-                    안녕하세요. 무엇이든 물어보세요.<br>
-                    <span style="font-size: 12px; color: #666;">(예: "10만원대 가성비 냉장고 찾아줘")</span>
-                </div>
-            </div>
-        
-            <div class="chatbot-input-area">
-                <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." autocomplete="off">
-                <button id="chatbot-send">전송</button>
+        <div id="chatbot-messages" class="chatbot-messages">
+            <div class="message bot-message">
+                안녕하세요. 무엇이든 물어보세요.<br>
+                <span style="font-size: 12px; color: #666;">(예: "10만원대 가성비 냉장고 찾아줘")</span>
             </div>
         </div>
+        
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+            <button id="chatbot-send">전송</button>
+        </div>
+    </div>
 
+    <div id="memo-widget">
+        <div id="memo-panel">
+            <div class="memo-header">
+                <h4>📝 위시 메모 & 알리미</h4>
+                <button id="memo-close-btn">&times;</button>
+            </div>
+            
+            <div class="memo-input-area">
+                <input type="text" id="memo-keyword" placeholder="상품명 (예: 냉장고)" autocomplete="off">
+                <input type="number" id="memo-max-price" placeholder="희망 최대 가격 (선택사항)" autocomplete="off">
+                <button id="memo-add-btn">메모 저장하기</button>
+            </div>
+
+            <ul id="memo-list"></ul>
+
+            <div id="memo-match-area">
+                <h5>✨ 조건에 맞는 상품 발견!</h5>
+                <ul id="memo-match-list"></ul>
+            </div>
+        </div>
+        <button id="memo-toggle-btn">📝 위시 메모</button>
+    </div>
     
     <script>
         // 1. 전역 변수 및 설정
         const backendURL = 'https://pickagain-backend-1.onrender.com';
         let allProducts = []; 
-        let currentStoreContext = null; // 현재 접속한 매장을 기억할 변수
+        let currentStoreContext = null;
 
         // --- ★ 로그인 상태 확인 및 상단바 변경 ★ ---
         const currentUser = localStorage.getItem("username");
@@ -213,14 +312,10 @@
         const resultsContainer = document.getElementById("results");
         const keywordInput = document.getElementById("keyword");
 
-        // ==========================================
         // ★ 챗봇에서 상품/매장명 클릭 시 검색을 실행하는 함수 ★
-        // ==========================================
         window.triggerChatSearch = function(searchTerm) {
-            // 1. 메인 검색창에 단어 넣기
             if (keywordInput) keywordInput.value = searchTerm;
             
-            // 2. 다른 상세 조건(가격대 등)은 초기화해서 정확한 검색 유도
             const dsTypeInput = document.getElementById("ds-type");
             const dsMinPrice = document.getElementById("ds-min-price");
             const dsMaxPrice = document.getElementById("ds-max-price");
@@ -229,28 +324,23 @@
             if (dsMinPrice) dsMinPrice.value = "";
             if (dsMaxPrice) dsMaxPrice.value = "";
             
-            // 3. 검색 버튼을 누른 것과 똑같이 필터링 실행!
             executeDetailedSearch();
         };
 
-        // ==========================================
-        // 2. 데이터 통신
-        // ==========================================
+        // 2. 데이터 통신 (상품 불러오기)
         function fetchProducts() {
             fetch(`${backendURL}/products`)
                 .then(res => res.json())
                 .then(data => {
                     allProducts = data;
             
-                    // URL의 파라미터를 읽어옵니다.
                     const urlParams = new URLSearchParams(window.location.search);
                     const storeFilter = urlParams.get('store'); 
-                    const searchKeyword = urlParams.get('keyword'); // ★ 지워졌던 부분 복구!
+                    const searchKeyword = urlParams.get('keyword'); 
 
                     if (storeFilter) {
                         currentStoreContext = storeFilter; 
                 
-                        const keywordInput = document.getElementById("keyword");
                         if (keywordInput) {
                             keywordInput.value = ""; 
                             keywordInput.placeholder = `🔍 [${storeFilter}] 내 상품 검색...`;
@@ -259,8 +349,6 @@
                         const filtered = allProducts.filter(p => p.store_name === storeFilter);
                         displayAllProducts(filtered); 
                     } else if (searchKeyword) {
-                        // ★ 챗봇 등에서 ?keyword= 로 넘어왔을 때 자동 검색 실행
-                        const keywordInput = document.getElementById("keyword");
                         if (keywordInput) keywordInput.value = searchKeyword;
                         executeDetailedSearch();
                     } else {
@@ -269,9 +357,7 @@
                 });
         }
         
-        // ==========================================
         // 3. 화면 렌더링
-        // ==========================================
         function renderProductCard(p) {
             const item = document.createElement("a");
             item.classList.add("product-item-link", "product-item");
@@ -311,9 +397,7 @@
             });
         }
 
-        // ==========================================
-        // 4. 검색 및 필터링 로직 (수정 완료)
-        // ==========================================
+        // 4. 검색 및 필터링 로직
         function updateDsSubCategory() {
             const mainType = document.getElementById("ds-type").value;
             const subSelect = document.getElementById("ds-type-detail");
@@ -340,32 +424,22 @@
             }
         });
 
-        // ★ 에러 방지 처리 및 로직 단일화 적용 완료! ★
         function executeDetailedSearch() {
-            // HTML에서 값을 안전하게 가져옵니다.
             const keyword = keywordInput ? keywordInput.value.toLowerCase().trim() : "";
-            
             const typeInput = document.getElementById("ds-type");
             const type = typeInput ? typeInput.value : "";
-            
             const typeDetailInput = document.getElementById("ds-type-detail");
             const typeDetail = typeDetailInput ? typeDetailInput.value : "";
-            
             const statusInput = document.getElementById("ds-status");
             const status = statusInput ? statusInput.value : "";
-            
             const expiryTypeInput = document.getElementById("ds-expiry-type");
             const expiryType = expiryTypeInput ? expiryTypeInput.value : "";
-            
             const expiryDateInput = document.getElementById("ds-expiry-date");
             const expiryDate = expiryDateInput ? expiryDateInput.value : "";
-
-            // ★ 가격대 값 가져오기
             const minPriceInput = document.getElementById("ds-min-price");
             const maxPriceInput = document.getElementById("ds-max-price");
             const minPrice = minPriceInput && minPriceInput.value ? parseInt(minPriceInput.value) : 0;
             const maxPrice = maxPriceInput && maxPriceInput.value ? parseInt(maxPriceInput.value) : Infinity;
-
             const sortValue = document.getElementById("sortSelect").value;
 
             let filtered = allProducts;
@@ -374,7 +448,6 @@
                 filtered = filtered.filter(p => p.store_name === currentStoreContext);
             }
 
-            // ★ 필터 1: 메인 검색어 (상품명 OR 매장명 통합 검색)
             if (keyword) {
                 filtered = filtered.filter(p => 
                     (p.name && p.name.toLowerCase().includes(keyword)) || 
@@ -382,25 +455,11 @@
                 );
             }
 
-            // 필터 2: 대분류
-            if (type) {
-                filtered = filtered.filter(p => p.type === type);
-            }
-
-            // 필터 3: 상세 카테고리
-            if (typeDetail) {
-                filtered = filtered.filter(p => p.type_detail === typeDetail);
-            }
-
-            // 필터 4: 상품 상태
-            if (status) {
-                filtered = filtered.filter(p => p.status_category === status);
-            }
-
-            // ★ 필터 5: 가격대 검색
+            if (type) filtered = filtered.filter(p => p.type === type);
+            if (typeDetail) filtered = filtered.filter(p => p.type_detail === typeDetail);
+            if (status) filtered = filtered.filter(p => p.status_category === status);
             filtered = filtered.filter(p => p.price >= minPrice && p.price <= maxPrice);
 
-            // 필터 6: 소비기한
             if (expiryType === "has") {
                 filtered = filtered.filter(p => p.expiry_date != null && p.expiry_date !== "");
                 if (expiryDate) {
@@ -412,14 +471,13 @@
             }
 
             if (sortValue === "priceLow") {
-                filtered.sort((a, b) => a.price - b.price); // 가격 오름차순
+                filtered.sort((a, b) => a.price - b.price); 
             } else if (sortValue === "priceHigh") {
-                filtered.sort((a, b) => b.price - a.price); // 가격 내림차순
+                filtered.sort((a, b) => b.price - a.price); 
             } else if (sortValue === "latest") {
-                filtered.sort((a, b) => b.product_id - a.product_id); // 최신 등록순
+                filtered.sort((a, b) => b.product_id - a.product_id); 
             }
 
-            // 결과 화면 처리
             if (resultsContainer) resultsContainer.style.display = "none";
             if (contentContainer) {
                 contentContainer.style.display = "block";
@@ -432,9 +490,7 @@
             }
         }
 
-        // ==========================================
         // 5. 이벤트 리스너 세팅
-        // ==========================================
         document.getElementById("searchBtn").addEventListener("click", executeDetailedSearch);
         document.getElementById("executeDetailBtn").addEventListener("click", executeDetailedSearch);
 
@@ -448,9 +504,7 @@
             fetchProducts();
         }
 
-        // ==========================================
         // ★ AI 챗봇 프론트엔드 로직 ★
-        // ==========================================
         const chatbotFab = document.getElementById('chatbot-fab');
         const chatbotWindow = document.getElementById('chatbot-window');
         const chatbotClose = document.getElementById('chatbot-close');
@@ -458,7 +512,6 @@
         const chatbotSend = document.getElementById('chatbot-send');
         const chatbotMessages = document.getElementById('chatbot-messages');
 
-        // 1. 챗봇 창 열기/닫기
         chatbotFab.addEventListener('click', () => {
             chatbotWindow.style.display = chatbotWindow.style.display === 'none' ? 'flex' : 'none';
         });
@@ -467,28 +520,22 @@
             chatbotWindow.style.display = 'none';
         });
 
-        // 2. 메시지 화면에 그리는 함수
         function appendMessage(text, sender) {
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message');
             msgDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
             msgDiv.innerHTML = text;
             chatbotMessages.appendChild(msgDiv);
-            
-            // 스크롤을 맨 아래로 내리기
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
         }
 
-       // 3. 메시지 전송 이벤트 (진짜 백엔드 AI 연결 버전)
         async function sendMessageToBot() {
             const text = chatbotInput.value.trim();
             if (!text) return;
 
-            // 1. 내가 쓴 글을 화면에 그리기
             appendMessage(text, 'user');
             chatbotInput.value = '';
 
-            // 2. AI 로딩 표시 (생각하는 척)
             const loadingId = "loading-" + Date.now();
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message', 'bot-message');
@@ -498,7 +545,6 @@
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
             try {
-                // 3. 백엔드(/chat)로 질문 쏴주기
                 const response = await fetch(`${backendURL}/chat`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -507,7 +553,6 @@
                 
                 const data = await response.json();
                 
-                // 4. 로딩 메시지를 지우고 진짜 답변으로 바꾸기
                 document.getElementById(loadingId).innerHTML = data.reply.replace(/\n/g, '<br>');
                 chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
@@ -521,9 +566,7 @@
             if (e.key === 'Enter') sendMessageToBot();
         });
 
-        // ==========================================
         // ★ 랜덤 광고 삽입 로직
-        // ==========================================
         function loadRandomAds() {
             const adImages = [
                 "광고 (1).jpg", 
@@ -543,17 +586,14 @@
                 randomRight = adImages[Math.floor(Math.random() * adImages.length)];
             }
 
-            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">`;
-            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">`;
+            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
         }
 
-        // ==========================================
         // ★ 다크 모드 기억 & 토글 로직
-        // ==========================================
         const darkModeBtn = document.getElementById("darkModeBtn");
         
         if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            document.body.classList.add("dark-mode");
             if(darkModeBtn) darkModeBtn.innerText = "☀️";
         }
 
@@ -574,11 +614,86 @@
         }
 
         // ==========================================
-        // ★ 초기 실행
+        // ★ 위시 메모장 기능 (백엔드 연동) ★
         // ==========================================
+        document.addEventListener("DOMContentLoaded", () => {
+            const memoToggleBtn = document.getElementById("memo-toggle-btn");
+            const memoPanel = document.getElementById("memo-panel");
+            const memoList = document.getElementById("memo-list");
+            const matchList = document.getElementById("memo-match-list");
+
+            memoToggleBtn.addEventListener("click", () => memoPanel.style.display = memoPanel.style.display === "none" ? "flex" : "none");
+            document.getElementById("memo-close-btn").addEventListener("click", () => memoPanel.style.display = "none");
+
+            function getMemos() { return JSON.parse(localStorage.getItem("pickagain_memos") || "[]"); }
+            function renderMemosOnly(memos) {
+                memoList.innerHTML = "";
+                memos.forEach((memo, index) => {
+                    const priceText = memo.maxPrice > 0 ? `${memo.maxPrice.toLocaleString()}원 이하` : "가격 무관";
+                    const li = document.createElement("li");
+                    li.innerHTML = `<span><strong>${memo.keyword}</strong> (${priceText})</span><button class="memo-del-btn" onclick="deleteMemo(${index})">&times;</button>`;
+                    memoList.appendChild(li);
+                });
+            }
+
+            window.deleteMemo = function(index) {
+                const memos = getMemos(); memos.splice(index, 1);
+                localStorage.setItem("pickagain_memos", JSON.stringify(memos));
+                renderMemosOnly(memos); fetchAndMatchMemos(memos);
+            };
+
+            document.getElementById("memo-add-btn").addEventListener("click", () => {
+                const kwInput = document.getElementById("memo-keyword");
+                const pxInput = document.getElementById("memo-max-price");
+                if (!kwInput.value.trim()) return alert("상품명을 입력해 주세요!");
+
+                const memos = getMemos();
+                memos.push({ keyword: kwInput.value.trim(), maxPrice: parseInt(pxInput.value) || 0 });
+                localStorage.setItem("pickagain_memos", JSON.stringify(memos));
+
+                kwInput.value = ""; pxInput.value = "";
+                renderMemosOnly(memos); fetchAndMatchMemos(memos);
+            });
+
+            async function fetchAndMatchMemos(memos) {
+                if (memos.length === 0) {
+                    matchList.innerHTML = "<li>메모를 등록하시면 알림을 드려요!</li>";
+                    memoToggleBtn.innerText = `📝 위시 메모`; memoToggleBtn.style.backgroundColor = "#f39c12"; 
+                    return;
+                }
+                matchList.innerHTML = "<li>상품 탐색 중... 🔍</li>";
+                try {
+                    const res = await fetch(`${backendURL}/products`);
+                    const pdData = await res.json();
+                    let matchCount = 0; matchList.innerHTML = "";
+
+                    memos.forEach(memo => {
+                        pdData.filter(p => p.name && p.name.toLowerCase().includes(memo.keyword.toLowerCase()) && (memo.maxPrice === 0 || p.price <= memo.maxPrice))
+                            .forEach(item => {
+                                matchCount++;
+                                const li = document.createElement("li");
+                                li.innerHTML = `<a href="product-detail.html?id=${item.product_id}">🎁 ${item.name} (${item.price.toLocaleString()}원)</a><div style="color:#7f8c8d; font-size:11px; margin-top:3px;">🏪 ${item.store_name}</div>`;
+                                matchList.appendChild(li);
+                            });
+                    });
+
+                    if (matchCount === 0) {
+                        matchList.innerHTML = "<li>조건에 맞는 상품이 없습니다.</li>";
+                        memoToggleBtn.innerText = `📝 위시 메모`; memoToggleBtn.style.backgroundColor = "#f39c12";
+                    } else {
+                        memoToggleBtn.innerText = `📝 위시 메모 (✨${matchCount}건 발견!)`; memoToggleBtn.style.backgroundColor = "#e74c3c"; 
+                    }
+                } catch (error) { matchList.innerHTML = "<li>오류가 발생했습니다.</li>"; }
+            }
+
+            const initialMemos = getMemos();
+            renderMemosOnly(initialMemos); fetchAndMatchMemos(initialMemos);
+        });
+
+        // ★ 초기 실행
         window.onload = () => {
-            initializePage();  // fetchStores() 가 아니라 검색 페이지용 함수 실행
-            loadRandomAds();   // 광고 실행
+            initializePage();  
+            loadRandomAds();   
         };
     </script>
 </body>
