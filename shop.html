@@ -5,104 +5,96 @@
     <title>PickAgain - 매장 찾기</title>
     <link rel="stylesheet" href="layout.css">
     <style>
-        /* 기본 매장 카드 스타일 */
+        /* 매장 카드 스타일 */
         .store-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid #e1e8f0;
+            background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #e1e8f0;
         }
-        .store-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-color: #4b6cb7;
-        }
+        .store-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #4b6cb7; }
         .store-info h3 { margin: 0 0 5px 0; color: #2c3e50; font-size: 18px; }
         .store-info p { margin: 0; color: #7f8c8d; font-size: 14px; }
-        .distance-tag {
-            background: #eef2ff;
-            color: #4b6cb7;
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .page-header-title {
-            text-align: center; color: #4b6cb7; font-size: 22px; font-weight: bold; margin-bottom: 20px;
-        }
+        .distance-tag { background: #eef2ff; color: #4b6cb7; padding: 6px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; }
+        .page-header-title { text-align: center; color: #4b6cb7; font-size: 22px; font-weight: bold; margin-bottom: 20px; }
 
-        /* ==========================================
-           ★ shop.html 전용 다크모드 강제 덮어쓰기!
-           ========================================== */
-        body.dark-mode .store-card {
-            background-color: #1e1e1e !important;
-            border-color: #333 !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
-        }
+        /* shop.html 전용 다크모드 덮어쓰기 */
+        body.dark-mode .store-card { background-color: #1e1e1e !important; border-color: #333 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important; }
         body.dark-mode .store-info h3 { color: #f1f2f6 !important; }
         body.dark-mode .store-info p { color: #a4b0be !important; }
-        body.dark-mode .distance-tag {
-            background-color: #2c2c2c !important;
-            color: #55efc4 !important;
-        }
+        body.dark-mode .distance-tag { background-color: #2c2c2c !important; color: #55efc4 !important; }
         body.dark-mode .page-header-title { color: #f1f2f6 !important; }
-        body.dark-mode .search-container {
-            background-color: #1e1e1e !important;
-            border-color: #333 !important;
-        }
+        body.dark-mode .search-container { background-color: #1e1e1e !important; border-color: #333 !important; }
         body.dark-mode .Title a { color: #f1f2f6 !important; }
 
-        /* ★ 광고 여백 최소화 및 투명화 */
+        /* 광고 영역 설정 */
         .ad-column-left, .ad-column-right { padding-top: 20px !important; }
         .ad-slot { background: transparent !important; border: none !important; box-shadow: none !important; }
+
+        /* 위시 메모장 위젯 (좌측 하단) */
+        #memo-widget { position: fixed; bottom: 20px; left: 20px; z-index: 9999; font-family: 'Pretendard', sans-serif; }
+        #memo-toggle-btn {
+            background-color: #f39c12; color: white; border: none; padding: 12px 20px;
+            border-radius: 30px; font-size: 15px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.3s, background-color 0.3s;
+        }
+        #memo-toggle-btn:hover { transform: scale(1.05); }
+        #memo-panel {
+            display: none; width: 320px; background: white; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #ddd;
+            margin-bottom: 15px; overflow: hidden; display: flex; flex-direction: column; max-height: 500px;
+        }
+        .memo-header { background: #f39c12; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .memo-header h4 { margin: 0; font-size: 16px; }
+        .memo-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        .memo-input-area { padding: 15px; background: #f9f9f9; border-bottom: 1px solid #ddd; }
+        .memo-input-area input { width: 100%; box-sizing: border-box; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px; }
+        .memo-input-area button { width: 100%; padding: 8px; background: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        #memo-list { list-style: none; margin: 0; padding: 0; max-height: 120px; overflow-y: auto; }
+        #memo-list li { padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 13px; align-items: center;}
+        .memo-del-btn { color: #e74c3c; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 16px; }
+        #memo-match-area { background: #eef2ff; padding: 15px; flex: 1; overflow-y: auto; }
+        #memo-match-area h5 { margin: 0 0 10px 0; color: #4b6cb7; }
+        #memo-match-list { list-style: none; margin: 0; padding: 0; }
+        #memo-match-list li { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        #memo-match-list li a { color: #2c3e50; font-weight: bold; text-decoration: none; }
+
+        /* 위시 메모장 다크모드 적용 */
+        body.dark-mode #memo-panel { background: #1e1e1e; border-color: #333; }
+        body.dark-mode .memo-input-area { background: #2a2a2a; border-color: #444; }
+        body.dark-mode .memo-input-area input { background: #1e1e1e; color: white; border-color: #555; }
+        body.dark-mode #memo-list li { border-color: #444; color: #a4b0be; }
+        body.dark-mode #memo-match-area { background: #2c3e50; }
+        body.dark-mode #memo-match-list li { background: #1e1e1e; color: #f1f2f6; border: 1px solid #444; }
+        body.dark-mode #memo-match-list li a { color: #55efc4; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <script>
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            document.body.classList.add("dark-mode");
-        }
+        if (localStorage.getItem("pickagain_dark_mode") === "true") document.body.classList.add("dark-mode");
     </script>
     
-    <div class="navbar">
-        <a href="login.html">Login/Sign Up</a>
-    </div>
+    <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
 
     <div class="search-container" style="margin-bottom: 20px;">
         <div class="search-bar-row">
             <div class="title-container">
-                <h2 class="Title">
-                    <a href="main.html">PickAgain</a>
-                </h2>
+                <h2 class="Title"><a href="main.html">PickAgain</a></h2>
             </div>
-            
             <div style="flex: 1; text-align: center; color: #7f8c8d; font-size: 16px;">
                 내 주변에서 가장 가까운 리퍼브 매장을 찾아보세요
             </div>
-            
             <button class="map-btn" onclick="location.href='map.html'">지도</button>
             <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px;">
                 AI 상담
             </button>
-            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; margin-left: 10px; transition: transform 0.3s;">
-                🌙
-            </button>
+            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; margin-left: 10px; transition: transform 0.3s;">🌙</button>
         </div>
     </div>
 
     <div class="page-wrapper">
-        
         <div class="ad-column-left">
-            <aside class="ad-slot ad-slot-left">
-                <p style="text-align: center; color: #999;">(왼쪽 광고)</p>
-            </aside>
+            <aside class="ad-slot ad-slot-left"><p style="text-align: center; color: #999;">(왼쪽 광고)</p></aside>
         </div>
 
         <main class="main-content">
@@ -116,11 +108,8 @@
         </main>
 
         <div class="ad-column-right">
-            <aside class="ad-slot ad-slot-right">
-                <p style="text-align: center; color: #999;">(오른쪽 광고)</p>
-            </aside>
+            <aside class="ad-slot ad-slot-right"><p style="text-align: center; color: #999;">(오른쪽 광고)</p></aside>
         </div>
-
     </div>
 
     <div id="chatbot-window" class="chatbot-window" style="display: none;">
@@ -140,156 +129,118 @@
         </div>
     </div>
 
+    <div id="memo-widget">
+        <div id="memo-panel">
+            <div class="memo-header">
+                <h4>📝 위시 메모 & 알리미</h4>
+                <button id="memo-close-btn">&times;</button>
+            </div>
+            <div class="memo-input-area">
+                <input type="text" id="memo-keyword" placeholder="상품명 (예: 냉장고)" autocomplete="off">
+                <input type="number" id="memo-max-price" placeholder="희망 최대 가격 (선택사항)" autocomplete="off">
+                <button id="memo-add-btn">메모 저장하기</button>
+            </div>
+            <ul id="memo-list"></ul>
+            <div id="memo-match-area">
+                <h5>✨ 조건에 맞는 상품 발견!</h5>
+                <ul id="memo-match-list"></ul>
+            </div>
+        </div>
+        <button id="memo-toggle-btn">📝 위시 메모</button>
+    </div>
+
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3120d52a4a94a6575cb08b7ec6363881&libraries=services"></script>
     
     <script>
         const backendURL = 'https://pickagain-backend-1.onrender.com';
         let userCoords = null;
 
-        // ==========================================
-        // ★ 1. 로그인 상태 확인 및 상단바 변경 로직 ★
-        // ==========================================
+        // 로그인 상태 확인
         const currentUser = localStorage.getItem("username");
         const userRole = localStorage.getItem("userRole"); 
         const navbar = document.querySelector(".navbar");
 
         if (currentUser) {
-            const adminLink = userRole === 'admin' 
-                ? `<a href="admin.html" style="color: #55efc4; margin-right: 15px; font-weight: bold;">[관리자 대시보드]</a>` 
-                : "";
-
-            navbar.innerHTML = `
-                ${adminLink}
-                <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
-                <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
-            `;
-            
-            document.getElementById("logoutBtn").addEventListener("click", function(e) {
-                e.preventDefault();
-                localStorage.clear(); 
-                alert("로그아웃 되었습니다.");
-                location.reload(); 
+            const adminLink = userRole === 'admin' ? `<a href="admin.html" style="color: #55efc4; margin-right: 15px; font-weight: bold;">[관리자 대시보드]</a>` : "";
+            navbar.innerHTML = `${adminLink}<span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span><a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>`;
+            document.getElementById("logoutBtn").addEventListener("click", (e) => {
+                e.preventDefault(); localStorage.clear(); alert("로그아웃 되었습니다."); location.reload(); 
             });
         }
 
-        // ==========================================
-        // ★ 2. 거리 계산 및 매장 불러오기 로직 ★
-        // ==========================================
+        // 카카오맵 거리 계산 로직
         function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
+            const R = 6371; const dLat = (lat2 - lat1) * Math.PI / 180; const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
         async function fetchStores() {
-            try{
-                // 테스트를 위해 내 위치를 여수시청 근처로 고정
-                userCoords = { lat: 34.7729957206494, lng: 127.700518386399 };
-
+            try {
+                userCoords = { lat: 34.7729957206494, lng: 127.700518386399 }; // 테스트용 위치 고정
                 const res = await fetch(`${backendURL}/products`);
                 const products = await res.json();
         
+                // 임시 매장 주소록 (DB에 주소 없을 시 사용)
                 const storeAddressBook = {
-                    "PickAgain 여수점": "전남 여수시 대학로 50",
-                    "여수점": "전남 여수시 시청동 1",
-                    "PickAgain 순천점": "전남 순천시 장명로 30",
-                    "올랜드아울렛 여수점": "전남 여수시 좌수영로 55", 
-                    "리씽크 여수점": "전남 여수시 망마로 46",
-                    "어썸마켓 여수점": "전남 여수시 좌수영로 266"
+                    "PickAgain 여수점": "전남 여수시 대학로 50", "여수점": "전남 여수시 시청동 1",
+                    "PickAgain 순천점": "전남 순천시 장명로 30", "올랜드아울렛 여수점": "전남 여수시 좌수영로 55", 
+                    "리씽크 여수점": "전남 여수시 망마로 46", "어썸마켓 여수점": "전남 여수시 좌수영로 266"
                 };
 
                 const storesMap = new Map();
                 products.forEach(p => {
                     if (p.store_name && !storesMap.has(p.store_name)) {
-                        storesMap.set(p.store_name, {
-                            name: p.store_name,
-                            address: p.address || storeAddressBook[p.store_name] || "전남 여수시 시청로 1"
-                        });
+                        storesMap.set(p.store_name, { name: p.store_name, address: p.address || storeAddressBook[p.store_name] || "전남 여수시 시청로 1" });
                     }
                 });
 
                 const stores = Array.from(storesMap.values());
                 const geocoder = new kakao.maps.services.Geocoder();
 
-                const storePromises = stores.map(store => {
-                    return new Promise((resolve) => {
-                        geocoder.addressSearch(store.address, (result, status) => {
-                            if (status === kakao.maps.services.Status.OK && userCoords) {
-                                const sLat = parseFloat(result[0].y);
-                                const sLng = parseFloat(result[0].x);
-                                store.distance = getDistance(userCoords.lat, userCoords.lng, sLat, sLng);
-                            } else {
-                                store.distance = Infinity; 
-                            }
-                            resolve(store);
-                        });
+                const storePromises = stores.map(store => new Promise(resolve => {
+                    geocoder.addressSearch(store.address, (result, status) => {
+                        if (status === kakao.maps.services.Status.OK && userCoords) {
+                            store.distance = getDistance(userCoords.lat, userCoords.lng, parseFloat(result[0].y), parseFloat(result[0].x));
+                        } else store.distance = Infinity; 
+                        resolve(store);
                     });
-                });
+                }));
 
                 const resolvedStores = await Promise.all(storePromises);
                 resolvedStores.sort((a, b) => a.distance - b.distance);
-
                 displayStores(resolvedStores);
-            } catch (error) {
-                console.error("매장 로드 에러:", error);
-            }
+            } catch (error) { console.error("매장 로드 에러:", error); }
         }
 
         function displayStores(stores) {
             const container = document.getElementById("store-list");
             container.innerHTML = "";
-
-            if (stores.length === 0) {
-                container.innerHTML = "<p style='text-align:center; padding: 30px;'>등록된 매장이 없습니다.</p>";
-                return;
-            }
+            if (stores.length === 0) return container.innerHTML = "<p style='text-align:center; padding: 30px;'>등록된 매장이 없습니다.</p>";
 
             stores.forEach(s => {
                 const card = document.createElement("div");
                 card.className = "store-card";
-                card.onclick = () => {
-                    location.href = `index.html?store=${encodeURIComponent(s.name)}`;
-                };
-
+                card.onclick = () => location.href = `index.html?store=${encodeURIComponent(s.name)}`;
                 const distText = s.distance ? `${s.distance.toFixed(1)}km` : "거리 계산 불가";
-                
                 card.innerHTML = `
-                    <div class="store-info">
-                        <h3><i class="fa-solid fa-store" style="color:#4b6cb7; margin-right:8px;"></i>${s.name}</h3>
-                        <p>현재 영업 중 | PickAgain 공식 등록 매장</p>
-                    </div>
-                    <div class="distance-tag">${distText}</div>
-                `;
+                    <div class="store-info"><h3><i class="fa-solid fa-store" style="color:#4b6cb7; margin-right:8px;"></i>${s.name}</h3><p>현재 영업 중 | PickAgain 공식 등록 매장</p></div>
+                    <div class="distance-tag">${distText}</div>`;
                 container.appendChild(card);
             });
         }
 
-        // ==========================================
-        // ★ 3. AI 챗봇 프론트엔드 로직 ★
-        // ==========================================
+        // AI 챗봇
         const chatbotFab = document.getElementById('chatbot-fab');
         const chatbotWindow = document.getElementById('chatbot-window');
-        const chatbotClose = document.getElementById('chatbot-close');
+        chatbotFab.addEventListener('click', () => chatbotWindow.style.display = chatbotWindow.style.display === 'none' ? 'flex' : 'none');
+        document.getElementById('chatbot-close').addEventListener('click', () => chatbotWindow.style.display = 'none');
         const chatbotInput = document.getElementById('chatbot-input');
-        const chatbotSend = document.getElementById('chatbot-send');
         const chatbotMessages = document.getElementById('chatbot-messages');
-
-        chatbotFab.addEventListener('click', () => {
-            chatbotWindow.style.display = chatbotWindow.style.display === 'none' ? 'flex' : 'none';
-        });
-
-        chatbotClose.addEventListener('click', () => {
-            chatbotWindow.style.display = 'none';
-        });
 
         function appendMessage(text, sender) {
             const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+            msgDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
             msgDiv.innerHTML = text;
             chatbotMessages.appendChild(msgDiv);
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
@@ -298,96 +249,127 @@
         async function sendMessageToBot() {
             const text = chatbotInput.value.trim();
             if (!text) return;
-
             appendMessage(text, 'user');
             chatbotInput.value = '';
 
             const loadingId = "loading-" + Date.now();
             const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message', 'bot-message');
-            msgDiv.id = loadingId;
-            msgDiv.innerHTML = "생각 중... 💭";
-            chatbotMessages.appendChild(msgDiv);
-            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            msgDiv.className = 'message bot-message'; msgDiv.id = loadingId; msgDiv.innerHTML = "생각 중... 💭";
+            chatbotMessages.appendChild(msgDiv); chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
             try {
-                const response = await fetch(`${backendURL}/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text })
-                });
+                const response = await fetch(`${backendURL}/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) });
                 const data = await response.json();
                 document.getElementById(loadingId).innerHTML = data.reply.replace(/\n/g, '<br>');
-                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-            } catch (error) {
-                document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다.";
-            }
+            } catch (error) { document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다."; }
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
         }
 
-        chatbotSend.addEventListener('click', sendMessageToBot);
-        chatbotInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') sendMessageToBot();
-        });
-        
-        window.triggerChatSearch = function(searchTerm) {
-            location.href = `index.html?keyword=${encodeURIComponent(searchTerm)}`;
-        };
+        document.getElementById('chatbot-send').addEventListener('click', sendMessageToBot);
+        chatbotInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessageToBot(); });
+        window.triggerChatSearch = function(searchTerm) { location.href = `index.html?keyword=${encodeURIComponent(searchTerm)}`; };
 
-        // ==========================================
-        // ★ 랜덤 광고 삽입 로직 (여백 제거!)
-        // ==========================================
+        // 랜덤 광고
         function loadRandomAds() {
-            const adImages = [
-                "광고 (1).jpg", 
-                "광고 (2).jpg", 
-                "광고 (3).jpg", 
-                "광고 (4).jpg", 
-                "광고 (5).jpg"
-            ];
+            const adImages = ["광고 (1).jpg", "광고 (2).jpg", "광고 (3).jpg", "광고 (4).jpg", "광고 (5).jpg"];
+            const randomLeft = adImages[Math.floor(Math.random() * adImages.length)];
+            let randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+            while(randomLeft === randomRight) randomRight = adImages[Math.floor(Math.random() * adImages.length)];
 
             const leftAdSlot = document.querySelector('.ad-slot-left');
             const rightAdSlot = document.querySelector('.ad-slot-right');
-
-            const randomLeft = adImages[Math.floor(Math.random() * adImages.length)];
-            let randomRight = adImages[Math.floor(Math.random() * adImages.length)];
-            
-            while(randomLeft === randomRight) {
-                randomRight = adImages[Math.floor(Math.random() * adImages.length)];
-            }
-
-            // ★ 이미지 크기를 height: auto 로 하여 위아래 여백을 꽉 물리게 수정!
             if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
             if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
         }
 
-        // ==========================================
-        // ★ 다크 모드 기억 & 토글 로직
-        // ==========================================
+        // 다크모드 토글
         const darkModeBtn = document.getElementById("darkModeBtn");
-        
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            if(darkModeBtn) darkModeBtn.innerText = "☀️";
-        }
-
+        if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) darkModeBtn.innerText = "☀️";
         if (darkModeBtn) {
             darkModeBtn.addEventListener("click", () => {
                 document.body.classList.toggle("dark-mode");
-                
-                if (document.body.classList.contains("dark-mode")) {
-                    localStorage.setItem("pickagain_dark_mode", "true"); 
-                    darkModeBtn.innerText = "☀️";
-                    darkModeBtn.style.transform = "rotate(180deg)"; 
-                } else {
-                    localStorage.setItem("pickagain_dark_mode", "false"); 
-                    darkModeBtn.innerText = "🌙";
-                    darkModeBtn.style.transform = "rotate(0deg)";
-                }
+                const isDark = document.body.classList.contains("dark-mode");
+                localStorage.setItem("pickagain_dark_mode", isDark ? "true" : "false"); 
+                darkModeBtn.innerText = isDark ? "☀️" : "🌙";
+                darkModeBtn.style.transform = isDark ? "rotate(180deg)" : "rotate(0deg)"; 
             });
         }
 
-        // ==========================================
-        // ★ 초기 실행
-        // ==========================================
+        // 위시 메모장 로직
+        document.addEventListener("DOMContentLoaded", () => {
+            const memoToggleBtn = document.getElementById("memo-toggle-btn");
+            const memoPanel = document.getElementById("memo-panel");
+            const memoList = document.getElementById("memo-list");
+            const matchList = document.getElementById("memo-match-list");
+
+            memoToggleBtn.addEventListener("click", () => memoPanel.style.display = memoPanel.style.display === "none" ? "flex" : "none");
+            document.getElementById("memo-close-btn").addEventListener("click", () => memoPanel.style.display = "none");
+
+            function getMemos() { return JSON.parse(localStorage.getItem("pickagain_memos") || "[]"); }
+            function renderMemosOnly(memos) {
+                memoList.innerHTML = "";
+                memos.forEach((memo, index) => {
+                    const priceText = memo.maxPrice > 0 ? `${memo.maxPrice.toLocaleString()}원 이하` : "가격 무관";
+                    const li = document.createElement("li");
+                    li.innerHTML = `<span><strong>${memo.keyword}</strong> (${priceText})</span><button class="memo-del-btn" onclick="deleteMemo(${index})">&times;</button>`;
+                    memoList.appendChild(li);
+                });
+            }
+
+            window.deleteMemo = function(index) {
+                const memos = getMemos(); memos.splice(index, 1);
+                localStorage.setItem("pickagain_memos", JSON.stringify(memos));
+                renderMemosOnly(memos); fetchAndMatchMemos(memos);
+            };
+
+            document.getElementById("memo-add-btn").addEventListener("click", () => {
+                const keywordInput = document.getElementById("memo-keyword");
+                const maxPriceInput = document.getElementById("memo-max-price");
+                if (!keywordInput.value.trim()) return alert("상품명을 입력해 주세요!");
+
+                const memos = getMemos();
+                memos.push({ keyword: keywordInput.value.trim(), maxPrice: parseInt(maxPriceInput.value) || 0 });
+                localStorage.setItem("pickagain_memos", JSON.stringify(memos));
+
+                keywordInput.value = ""; maxPriceInput.value = "";
+                renderMemosOnly(memos); fetchAndMatchMemos(memos);
+            });
+
+            async function fetchAndMatchMemos(memos) {
+                if (memos.length === 0) {
+                    matchList.innerHTML = "<li>메모를 등록하시면 알림을 드려요!</li>";
+                    memoToggleBtn.innerText = `📝 위시 메모`; memoToggleBtn.style.backgroundColor = "#f39c12"; 
+                    return;
+                }
+                matchList.innerHTML = "<li>상품 탐색 중... 🔍</li>";
+                try {
+                    const res = await fetch(`${backendURL}/products`);
+                    const allProducts = await res.json();
+                    let matchCount = 0; matchList.innerHTML = "";
+
+                    memos.forEach(memo => {
+                        allProducts.filter(p => p.name && p.name.toLowerCase().includes(memo.keyword.toLowerCase()) && (memo.maxPrice === 0 || p.price <= memo.maxPrice))
+                            .forEach(item => {
+                                matchCount++;
+                                const li = document.createElement("li");
+                                li.innerHTML = `<a href="product-detail.html?id=${item.product_id}">🎁 ${item.name} (${item.price.toLocaleString()}원)</a><div style="color:#7f8c8d; font-size:11px; margin-top:3px;">🏪 ${item.store_name}</div>`;
+                                matchList.appendChild(li);
+                            });
+                    });
+
+                    if (matchCount === 0) {
+                        matchList.innerHTML = "<li>조건에 맞는 상품이 없습니다.</li>";
+                        memoToggleBtn.innerText = `📝 위시 메모`; memoToggleBtn.style.backgroundColor = "#f39c12";
+                    } else {
+                        memoToggleBtn.innerText = `📝 위시 메모 (✨${matchCount}건 발견!)`; memoToggleBtn.style.backgroundColor = "#e74c3c"; 
+                    }
+                } catch (error) { matchList.innerHTML = "<li>오류가 발생했습니다.</li>"; }
+            }
+
+            const initialMemos = getMemos();
+            renderMemosOnly(initialMemos); fetchAndMatchMemos(initialMemos);
+        });
+
         window.onload = () => {
             fetchStores();
             loadRandomAds(); 
