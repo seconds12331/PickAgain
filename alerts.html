@@ -5,62 +5,31 @@
     <title>PickAgain - 예약 알림</title>
     <link rel="stylesheet" href="layout.css">
     <style>
-        /* ★ 레이아웃 가운데 정렬을 위한 추가 스타일 */
+        /* 레이아웃 가운데 정렬 */
         .page-wrapper {
-            display: flex;
-            justify-content: center; 
-            padding: 20px;
+            display: flex; justify-content: center; padding: 20px;
         }
         .main-content {
-            max-width: 800px; 
-            width: 100%;
+            max-width: 800px; width: 100%;
         }
 
-        /* ★ 자바스크립트 내부에 있던 인라인 스타일을 클래스로 빼기 */
+        /* 상태 관리 박스 스타일 */
         .status-control-box {
-            margin-top: 15px; 
-            text-align: left; 
-            background: #f9f9f9; 
-            padding: 10px; 
-            border-radius: 6px; 
-            border: 1px solid #eaeaea;
+            margin-top: 15px; text-align: left; background: #f9f9f9; 
+            padding: 10px; border-radius: 6px; border: 1px solid #eaeaea;
         }
 
-        /* ==========================================
-           ★ 알림창 전용 다크모드
-           ========================================== */
+        /* 알림창 전용 다크모드 적용 */
         body.dark-mode .content,
-        body.dark-mode .alert-item {
-            background-color: #1e1e1e !important;
-            border: 1px solid #333 !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
-        }
-        body.dark-mode .alert-product-info h4 a {
-            color: #55efc4 !important; 
-        }
+        body.dark-mode .alert-item { background-color: #1e1e1e !important; border: 1px solid #333 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important; }
+        body.dark-mode .alert-product-info h4 a { color: #55efc4 !important; }
         body.dark-mode .alert-product-info p,
         body.dark-mode .alert-contact span,
-        body.dark-mode .content p {
-            color: #a4b0be !important; 
-        }
-        body.dark-mode .content h2 {
-            color: #f1f2f6 !important;
-        }
-        body.dark-mode .status-control-box {
-            background-color: #2a2a2a !important; 
-            border-color: #444 !important;
-        }
-        body.dark-mode .store-badge {
-            background-color: #333 !important;
-            color: #f1f2f6 !important;
-            border-color: #555 !important;
-        }
-        
-        /* ★ 추가된 부분: 하얀색 연락처 박스 제압! */
-        body.dark-mode .alert-contact {
-            background-color: #2a2a2a !important;
-            border-color: #444 !important;
-        }
+        body.dark-mode .content p { color: #a4b0be !important; }
+        body.dark-mode .content h2 { color: #f1f2f6 !important; }
+        body.dark-mode .status-control-box { background-color: #2a2a2a !important; border-color: #444 !important; }
+        body.dark-mode .store-badge { background-color: #333 !important; color: #f1f2f6 !important; border-color: #555 !important; }
+        body.dark-mode .alert-contact { background-color: #2a2a2a !important; border-color: #444 !important; }
     </style>
 </head>
 <body>
@@ -80,13 +49,14 @@
             <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
             <button id="searchBtn">검색</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
+            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; margin-left: 10px; transition: transform 0.3s;">🌙</button>
         </div>
     </div>
 
     <div class="page-wrapper">
         <main class="main-content">
             <div class="content">
-                <h2 style="color: #4b6cb7; margin-top:0;"> 구매 예약 알림</h2>
+                <h2 style="color: #4b6cb7; margin-top:0;">📋 구매 예약 알림</h2>
                 <p>고객이 예약을 희망하는 상품과 연락처 목록입니다.</p>
                 
                 <div id="alerts-container" class="alerts-list">
@@ -97,8 +67,9 @@
     </div>
 
     <script>
-        const backendURL = 'https://pickagain-backend.onrender.com';
+        const backendURL = 'https://pickagain-backend-1.onrender.com';
 
+        // 1. 판매자/관리자 로그인 확인
         const currentUser = localStorage.getItem("username");
         const navbar = document.querySelector(".navbar");
 
@@ -118,6 +89,7 @@
             location.href = "login.html";
         }
 
+        // 2. 예약 알림 데이터 가져오기
         function fetchAlerts() {
             fetch(`${backendURL}/reservations`)
                 .then(response => response.json())
@@ -171,11 +143,13 @@
 
         window.onload = fetchAlerts;
 
+        // 3. 검색 기능
         document.getElementById("searchBtn").addEventListener("click", function() {
             const keyword = document.getElementById("keyword").value;
             window.location.href = `index.html?search=${keyword}`;
         });
 
+        // 4. 진행 상태 관리 업데이트
         function updateReservationStatus(reservationId, newStatus) {
             fetch(`${backendURL}/reservations/${reservationId}/status`, {
                 method: 'PUT',
@@ -193,6 +167,29 @@
                 console.error("상태 변경 에러:", error);
                 alert("상태 변경에 실패했습니다. 다시 시도해 주세요.");
                 location.reload(); 
+            });
+        }
+
+        // 5. 다크 모드 토글 로직
+        const darkModeBtn = document.getElementById("darkModeBtn");
+        
+        if (localStorage.getItem("pickagain_dark_mode") === "true") {
+            if(darkModeBtn) darkModeBtn.innerText = "☀️";
+        }
+
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener("click", () => {
+                document.body.classList.toggle("dark-mode");
+                
+                if (document.body.classList.contains("dark-mode")) {
+                    localStorage.setItem("pickagain_dark_mode", "true"); 
+                    darkModeBtn.innerText = "☀️";
+                    darkModeBtn.style.transform = "rotate(180deg)"; 
+                } else {
+                    localStorage.setItem("pickagain_dark_mode", "false"); 
+                    darkModeBtn.innerText = "🌙";
+                    darkModeBtn.style.transform = "rotate(0deg)";
+                }
             });
         }
     </script>
