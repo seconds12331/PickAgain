@@ -7,105 +7,56 @@
     <style>
         /* 기본 바디 설정 */
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
+            margin: 0; padding: 0; height: 100%;
             background-color: #f4f6f9; 
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* 1. 메인 히어로 섹션 */
+        /* 메인 히어로 섹션 */
         .hero-section {
-            background: #ffffff;
-            color: #2c3e50;
+            background: #ffffff; color: #2c3e50;
             min-height: calc(100vh - 60px); 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; padding: 20px; box-sizing: border-box;
             box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
             transition: background-color 0.3s, color 0.3s;
         }
-        
-        .hero-section h1 { 
-            font-size: 56px; 
-            margin-bottom: 20px; 
-            font-weight: bold; 
-            letter-spacing: 2px; 
-            color: #4b6cb7; 
-        }
-        
-        .hero-section p { 
-            font-size: 18px; 
-            color: #5c6873; 
-            margin-bottom: 50px; 
-            line-height: 1.8; 
-            font-weight: 400; 
-        }
+        .hero-section h1 { font-size: 56px; margin-bottom: 20px; font-weight: bold; letter-spacing: 2px; color: #4b6cb7; }
+        .hero-section p { font-size: 18px; color: #5c6873; margin-bottom: 50px; line-height: 1.8; font-weight: 400; }
         
         /* 4개 버튼 그리드 */
         .main-btn-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            max-width: 1000px;
-            width: 100%;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+            max-width: 1000px; width: 100%;
         }
-        
-        /* 메인 버튼 스타일 */
         .main-btn {
-            background-color: #ffffff;
-            border: 1px solid #d1d8e0;
-            color: #4b6cb7;
-            padding: 30px 20px;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
+            background-color: #ffffff; border: 1px solid #d1d8e0; color: #4b6cb7;
+            padding: 30px 20px; border-radius: 12px; font-size: 18px; font-weight: bold;
+            cursor: pointer; transition: all 0.3s ease; display: flex;
+            flex-direction: column; align-items: center; gap: 15px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.02);
         }
-        
         .main-btn:hover {
-            background-color: #4b6cb7;
-            color: white;
-            border-color: #4b6cb7;
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(75, 108, 183, 0.2);
+            background-color: #4b6cb7; color: white; border-color: #4b6cb7;
+            transform: translateY(-5px); box-shadow: 0 8px 15px rgba(75, 108, 183, 0.2);
         }
-        
         .main-btn i { font-size: 32px; }
 
         /* 판매자 안내 문구 */
         .seller-notice {
-            margin-top: 40px;
-            font-size: 14px;
-            color: #856404;
-            background: #fff3cd;
-            padding: 12px 25px;
-            border-radius: 30px;
-            border: 1px solid #ffeeba;
-            transition: all 0.3s;
+            margin-top: 40px; font-size: 14px; color: #856404; background: #fff3cd;
+            padding: 12px 25px; border-radius: 30px; border: 1px solid #ffeeba; transition: all 0.3s;
         }
 
-        /* 2. 위치 정보 동의 모달 */
+        /* 위치 정보 동의 모달 */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); 
-            display: none; justify-content: center; align-items: center;
-            z-index: 10000;
+            background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 10000;
         }
         .geo-modal {
             background: white; padding: 40px; border-radius: 16px;
-            max-width: 450px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: all 0.3s;
+            max-width: 450px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: all 0.3s;
         }
         .geo-modal h3 { margin-top: 0; color: #182848; font-size: 22px; }
         .geo-modal p { color: #555; font-size: 15px; line-height: 1.6; margin: 20px 0; }
@@ -114,45 +65,52 @@
         .btn-agree { background-color: #4b6cb7; color: white; }
         .btn-deny { background-color: #f1f3f5; color: #495057; }
 
-        /* ==========================================
-           ★ 메인 페이지 전용 다크모드 스타일 ★
-           ========================================== */
-        body.dark-mode .hero-section {
-            background: #121212 !important;
-            color: #e0e0e0;
+        /* 위시 메모장 위젯 (좌측 하단) */
+        #memo-widget { position: fixed; bottom: 20px; left: 20px; z-index: 9999; font-family: 'Pretendard', sans-serif; }
+        #memo-toggle-btn {
+            background-color: #f39c12; color: white; border: none; padding: 12px 20px;
+            border-radius: 30px; font-size: 15px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.3s, background-color 0.3s;
         }
-        body.dark-mode .hero-section p {
-            color: #a4b0be;
+        #memo-toggle-btn:hover { transform: scale(1.05); }
+        #memo-panel {
+            display: none; width: 320px; background: white; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #ddd;
+            margin-bottom: 15px; overflow: hidden; display: flex; flex-direction: column; max-height: 500px;
         }
-        body.dark-mode .main-btn {
-            background-color: #1e1e1e;
-            border-color: #333;
-            color: #f1f2f6;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        body.dark-mode .main-btn:hover {
-            background-color: #4b6cb7;
-            color: white;
-            border-color: #4b6cb7;
-        }
-        body.dark-mode .seller-notice {
-            background-color: #2c2c2c;
-            border-color: #444;
-            color: #f1c40f;
-        }
-        body.dark-mode .geo-modal {
-            background-color: #1e1e1e;
-        }
-        body.dark-mode .geo-modal h3 {
-            color: #f1f2f6;
-        }
-        body.dark-mode .geo-modal p {
-            color: #a4b0be;
-        }
-        body.dark-mode .btn-deny {
-            background-color: #333;
-            color: #e0e0e0;
-        }
+        .memo-header { background: #f39c12; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .memo-header h4 { margin: 0; font-size: 16px; }
+        .memo-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        .memo-input-area { padding: 15px; background: #f9f9f9; border-bottom: 1px solid #ddd; }
+        .memo-input-area input { width: 100%; box-sizing: border-box; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px; }
+        .memo-input-area button { width: 100%; padding: 8px; background: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        #memo-list { list-style: none; margin: 0; padding: 0; max-height: 120px; overflow-y: auto; }
+        #memo-list li { padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 13px; align-items: center;}
+        .memo-del-btn { color: #e74c3c; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 16px; }
+        #memo-match-area { background: #eef2ff; padding: 15px; flex: 1; overflow-y: auto; }
+        #memo-match-area h5 { margin: 0 0 10px 0; color: #4b6cb7; }
+        #memo-match-list { list-style: none; margin: 0; padding: 0; }
+        #memo-match-list li { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        #memo-match-list li a { color: #2c3e50; font-weight: bold; text-decoration: none; }
+
+        /* 다크모드 적용 */
+        body.dark-mode .hero-section { background: #121212 !important; color: #e0e0e0; }
+        body.dark-mode .hero-section p { color: #a4b0be; }
+        body.dark-mode .main-btn { background-color: #1e1e1e; border-color: #333; color: #f1f2f6; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        body.dark-mode .main-btn:hover { background-color: #4b6cb7; color: white; border-color: #4b6cb7; }
+        body.dark-mode .seller-notice { background-color: #2c2c2c; border-color: #444; color: #f1c40f; }
+        body.dark-mode .geo-modal { background-color: #1e1e1e; }
+        body.dark-mode .geo-modal h3, body.dark-mode .geo-modal p { color: #f1f2f6; }
+        body.dark-mode .btn-deny { background-color: #333; color: #e0e0e0; }
+        
+        /* 위시 메모장 다크모드 */
+        body.dark-mode #memo-panel { background: #1e1e1e; border-color: #333; }
+        body.dark-mode .memo-input-area { background: #2a2a2a; border-color: #444; }
+        body.dark-mode .memo-input-area input { background: #1e1e1e; color: white; border-color: #555; }
+        body.dark-mode #memo-list li { border-color: #444; color: #a4b0be; }
+        body.dark-mode #memo-match-area { background: #2c3e50; }
+        body.dark-mode #memo-match-list li { background: #1e1e1e; color: #f1f2f6; border: 1px solid #444; }
+        body.dark-mode #memo-match-list li a { color: #55efc4; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -190,20 +148,16 @@
         
         <div class="main-btn-grid">
             <button class="main-btn" onclick="location.href='shop.html'">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                상품/매장 검색
+                <i class="fa-solid fa-magnifying-glass"></i> 상품/매장 검색
             </button>
             <button class="main-btn" onclick="location.href='map.html'">
-                <i class="fa-solid fa-map-location-dot"></i>
-                내 주변 지도
+                <i class="fa-solid fa-map-location-dot"></i> 내 주변 지도
             </button>
             <button class="main-btn" onclick="openChatbot()">
-                <i class="fa-solid fa-robot"></i>
-                AI 상담 매니저
+                <i class="fa-solid fa-robot"></i> AI 상담 매니저
             </button>
             <button class="main-btn" onclick="location.href='login.html'">
-                <i class="fa-solid fa-user-circle"></i>
-                로그인 / 가입
+                <i class="fa-solid fa-user-circle"></i> 로그인 / 가입
             </button>
         </div>
         
@@ -211,6 +165,29 @@
             <i class="fa-solid fa-circle-info"></i> 회원가입은 <strong>판매자(매장 관리자)</strong>만 가능하며, 일반 사용자는 가입 없이 서비스 이용이 가능합니다.
         </div>
     </header>
+
+    <div id="memo-widget">
+        <div id="memo-panel">
+            <div class="memo-header">
+                <h4>📝 위시 메모 & 알리미</h4>
+                <button id="memo-close-btn">&times;</button>
+            </div>
+            
+            <div class="memo-input-area">
+                <input type="text" id="memo-keyword" placeholder="상품명 (예: 냉장고)" autocomplete="off">
+                <input type="number" id="memo-max-price" placeholder="희망 최대 가격 (선택사항)" autocomplete="off">
+                <button id="memo-add-btn">메모 저장하기</button>
+            </div>
+
+            <ul id="memo-list"></ul>
+
+            <div id="memo-match-area">
+                <h5>✨ 조건에 맞는 상품 발견!</h5>
+                <ul id="memo-match-list"></ul>
+            </div>
+        </div>
+        <button id="memo-toggle-btn">📝 위시 메모</button>
+    </div>
 
     <div id="chatbot-window" class="chatbot-window" style="display: none;">
         <div class="chatbot-header">
@@ -222,10 +199,10 @@
                 안녕하세요! PickAgain AI 매니저입니다. 상품 추천이나 가성비 분석이 필요하시면 언제든 말씀해주세요.<br><br>
                 <span style="font-size: 12px; color: #555; background-color: #f1f3f5; padding: 8px; border-radius: 5px; display: inline-block; line-height: 1.5;">
                     💡 예: "10만원대 가성비 냉장고 찾아줘"<br>
-                    💡 <b>Tip:</b> 인터넷 최저가 비교를 원하신다면 정확한 상품명(예: <b>LG 오브제컬렉션 청소기</b>)을 입력해 주세요!
+                    💡 <b>Tip:</b> 인터넷 최저가 비교를 원하신다면 정확한 상품명을 입력해 주세요!
                 </span>
             </div>
-            </div>
+        </div>
         <div class="chatbot-input-area">
             <input type="text" id="chatbot-input" placeholder="질문을 입력하세요..." autocomplete="off">
             <button id="chatbot-send">전송</button>
@@ -235,7 +212,7 @@
     <script>
         const backendURL = 'https://pickagain-backend-1.onrender.com';
 
-        // 1. 초기 셋팅 (위치 팝업 및 로그인 확인)
+        // 1. 초기 셋팅 (팝업, 로그인 확인, 다크모드 UI 반영)
         window.onload = function() {
             const geoConsent = localStorage.getItem("pickagain_geo_consent");
             if (!geoConsent) {
@@ -256,9 +233,14 @@
                     location.reload();
                 });
             }
+
+            const darkModeBtn = document.getElementById("darkModeBtn");
+            if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) {
+                darkModeBtn.innerText = "☀️";
+            }
         };
 
-        // 2. 위치 동의 처리
+        // 2. 위치 동의
         function closeGeoModal(isAgreed) {
             document.getElementById("geoModal").style.display = "none";
             if (isAgreed) {
@@ -274,26 +256,22 @@
             }
         }
 
-        // 3. AI 챗봇 창 열기/닫기
+        // 3. AI 챗봇
         function openChatbot() {
-            const win = document.getElementById("chatbot-window");
-            win.style.display = "flex";
+            document.getElementById("chatbot-window").style.display = "flex";
             document.getElementById("chatbot-input").focus();
         }
-
         document.getElementById('chatbot-close').addEventListener('click', () => {
             document.getElementById('chatbot-window').style.display = 'none';
         });
 
-        // 4. AI 챗봇 통신 로직
         const chatbotInput = document.getElementById('chatbot-input');
         const chatbotSend = document.getElementById('chatbot-send');
         const chatbotMessages = document.getElementById('chatbot-messages');
 
         function appendMessage(text, sender) {
             const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message');
-            msgDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            msgDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
             msgDiv.innerHTML = text;
             chatbotMessages.appendChild(msgDiv);
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
@@ -308,7 +286,7 @@
 
             const loadingId = "loading-" + Date.now();
             const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message', 'bot-message');
+            msgDiv.className = 'message bot-message';
             msgDiv.id = loadingId;
             msgDiv.innerHTML = "생각 중... 💭";
             chatbotMessages.appendChild(msgDiv);
@@ -329,38 +307,113 @@
         }
 
         chatbotSend.addEventListener('click', sendMessageToBot);
-        chatbotInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') sendMessageToBot();
-        });
+        chatbotInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessageToBot(); });
+        window.triggerChatSearch = function(searchTerm) { location.href = `search.html?keyword=${encodeURIComponent(searchTerm)}`; };
 
-        window.triggerChatSearch = function(searchTerm) {
-            location.href = `index.html?keyword=${encodeURIComponent(searchTerm)}`;
-        };
-
-        // ==========================================
-        // ★ 메인 페이지용 다크 모드 토글 로직 추가
-        // ==========================================
+        // 4. 다크모드 토글
         const darkModeBtn = document.getElementById("darkModeBtn");
-        
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            if(darkModeBtn) darkModeBtn.innerText = "☀️";
-        }
-
         if (darkModeBtn) {
             darkModeBtn.addEventListener("click", () => {
                 document.body.classList.toggle("dark-mode");
-                
-                if (document.body.classList.contains("dark-mode")) {
-                    localStorage.setItem("pickagain_dark_mode", "true"); 
-                    darkModeBtn.innerText = "☀️";
-                    darkModeBtn.style.transform = "rotate(180deg)"; 
-                } else {
-                    localStorage.setItem("pickagain_dark_mode", "false"); 
-                    darkModeBtn.innerText = "🌙";
-                    darkModeBtn.style.transform = "rotate(0deg)";
-                }
+                const isDark = document.body.classList.contains("dark-mode");
+                localStorage.setItem("pickagain_dark_mode", isDark ? "true" : "false"); 
+                darkModeBtn.innerText = isDark ? "☀️" : "🌙";
+                darkModeBtn.style.transform = isDark ? "rotate(180deg)" : "rotate(0deg)"; 
             });
         }
+
+        // 5. 위시 메모장 기능
+        document.addEventListener("DOMContentLoaded", () => {
+            const memoToggleBtn = document.getElementById("memo-toggle-btn");
+            const memoPanel = document.getElementById("memo-panel");
+            const memoCloseBtn = document.getElementById("memo-close-btn");
+            const memoAddBtn = document.getElementById("memo-add-btn");
+            const keywordInput = document.getElementById("memo-keyword");
+            const maxPriceInput = document.getElementById("memo-max-price");
+            const memoList = document.getElementById("memo-list");
+            const matchList = document.getElementById("memo-match-list");
+
+            memoToggleBtn.addEventListener("click", () => memoPanel.style.display = memoPanel.style.display === "none" ? "flex" : "none");
+            memoCloseBtn.addEventListener("click", () => memoPanel.style.display = "none");
+
+            function getMemos() { return JSON.parse(localStorage.getItem("pickagain_memos") || "[]"); }
+
+            function renderMemosOnly(memos) {
+                memoList.innerHTML = "";
+                memos.forEach((memo, index) => {
+                    const li = document.createElement("li");
+                    const priceText = memo.maxPrice > 0 ? `${memo.maxPrice.toLocaleString()}원 이하` : "가격 무관";
+                    li.innerHTML = `<span><strong>${memo.keyword}</strong> (${priceText})</span><button class="memo-del-btn" onclick="deleteMemo(${index})">&times;</button>`;
+                    memoList.appendChild(li);
+                });
+            }
+
+            window.deleteMemo = function(index) {
+                const memos = getMemos();
+                memos.splice(index, 1);
+                localStorage.setItem("pickagain_memos", JSON.stringify(memos));
+                renderMemosOnly(memos);
+                fetchAndMatchMemos(memos);
+            };
+
+            memoAddBtn.addEventListener("click", () => {
+                const keyword = keywordInput.value.trim();
+                const maxPrice = parseInt(maxPriceInput.value) || 0;
+                if (!keyword) return alert("상품명을 입력해 주세요!");
+
+                const memos = getMemos();
+                memos.push({ keyword, maxPrice });
+                localStorage.setItem("pickagain_memos", JSON.stringify(memos));
+
+                keywordInput.value = ""; maxPriceInput.value = "";
+                renderMemosOnly(memos);
+                fetchAndMatchMemos(memos);
+            });
+
+            async function fetchAndMatchMemos(memos) {
+                if (memos.length === 0) {
+                    matchList.innerHTML = "<li>메모를 등록하시면 알림을 드려요!</li>";
+                    memoToggleBtn.innerText = `📝 위시 메모`;
+                    memoToggleBtn.style.backgroundColor = "#f39c12"; 
+                    return;
+                }
+
+                matchList.innerHTML = "<li>상품 탐색 중... 🔍</li>";
+
+                try {
+                    const res = await fetch(`${backendURL}/products`);
+                    const allProducts = await res.json();
+                    let matchCount = 0;
+                    matchList.innerHTML = "";
+
+                    memos.forEach(memo => {
+                        allProducts.filter(p => p.name && p.name.toLowerCase().includes(memo.keyword.toLowerCase()) && (memo.maxPrice === 0 || p.price <= memo.maxPrice))
+                            .forEach(item => {
+                                matchCount++;
+                                const li = document.createElement("li");
+                                li.innerHTML = `<a href="product-detail.html?id=${item.product_id}">🎁 ${item.name} (${item.price.toLocaleString()}원)</a><div style="color:#7f8c8d; font-size:11px; margin-top:3px;">🏪 ${item.store_name}</div>`;
+                                matchList.appendChild(li);
+                            });
+                    });
+
+                    if (matchCount === 0) {
+                        matchList.innerHTML = "<li>조건에 맞는 상품이 없습니다.</li>";
+                        memoToggleBtn.innerText = `📝 위시 메모`;
+                        memoToggleBtn.style.backgroundColor = "#f39c12";
+                    } else {
+                        memoToggleBtn.innerText = `📝 위시 메모 (✨${matchCount}건 발견!)`;
+                        memoToggleBtn.style.backgroundColor = "#e74c3c"; 
+                    }
+                } catch (error) {
+                    console.error("메모 매칭 통신 에러:", error);
+                    matchList.innerHTML = "<li>오류가 발생했습니다.</li>";
+                }
+            }
+
+            const initialMemos = getMemos();
+            renderMemosOnly(initialMemos);
+            fetchAndMatchMemos(initialMemos);
+        });
     </script>
 </body>
 </html>
