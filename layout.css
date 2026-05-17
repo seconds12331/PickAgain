@@ -63,7 +63,6 @@ button {
     background-color: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(5px);
     padding: 15px 0;
-    /* 상하 여백을 조금 줄여 컴팩트하게 변경 */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid #eaeaea;
     position: fixed;
@@ -77,7 +76,7 @@ button {
     transition: all 0.3s ease;
 }
 
-/* 검색바 행: 요소들을 일렬로 세우고 줄바꿈 방지 */
+/* 검색바 행 */
 .search-bar-row {
     display: flex;
     align-items: center;
@@ -86,7 +85,6 @@ button {
     max-width: 1000px;
     flex-wrap: nowrap;
     position: relative; 
-    
     padding-right: 90px; 
     box-sizing: border-box; 
 }
@@ -171,7 +169,7 @@ button {
 }
 
 /* =================================
-   3. 레이아웃 (Page Wrapper)
+   3. 레이아웃 (Page Wrapper & Ad)
    ================================= */
 .page-wrapper {
     display: flex;
@@ -191,13 +189,13 @@ button {
 
 .ad-column-left,
 .ad-column-right {
-    width: 180px;
+    width: 200px !important; /* 확장된 광고 영역 너비 적용 */
     flex-shrink: 0;
 }
 
 .ad-slot {
     width: 100%;
-    height: 400px;
+    min-height: 700px !important; /* 확장된 광고 영역 높이 적용 */
     background-color: #fff;
     border-radius: 8px;
     border: 1px dashed #d1d1d1;
@@ -268,11 +266,9 @@ p {
     border: 1px solid #eee;
 }
 
-/* [수정] 간격 조정 */
 .product-details h4 {
     font-size: 17px;
     margin: 0 0 4px 0;
-    /* 제목 아래 간격을 조금 줄임 */
     color: #333;
     font-weight: 600;
 }
@@ -283,7 +279,6 @@ p {
     color: #4b6cb7;
 }
 
-/* [신규 추가] 카테고리 텍스트 스타일 */
 .category-text {
     font-size: 12px;
     color: #999;
@@ -291,21 +286,15 @@ p {
     display: block;
 }
 
-/* [신규 추가] 상태 상세 요약 (⚠️ 박스 훼손...) */
 .status-reason {
     font-size: 13px !important;
-    /* 기존 p 태그 스타일 덮어쓰기 */
     color: #e67e22 !important;
-    /* 주의 느낌의 주황색 */
     margin: 5px 0 8px 0;
     white-space: nowrap;
-    /* 줄바꿈 방지 */
     overflow: hidden;
     text-overflow: ellipsis;
-    /* 말줄임표(...) 처리 */
 }
 
-/* 가격과 위 요소 간격 정리 */
 .product-price {
     margin-bottom: 4px;
 }
@@ -355,14 +344,8 @@ p {
     margin-left: 8px;
 }
 
-.btn-edit {
-    background-color: #7f8fa6;
-}
-
-.btn-delete {
-    background-color: #e84118;
-}
-
+.btn-edit { background-color: #7f8fa6; }
+.btn-delete { background-color: #e84118; }
 
 /* =================================
    7. 로그인 & 회원가입 폼
@@ -520,7 +503,6 @@ p {
    9. 반응형 (Mobile)
    ================================= */
 @media (max-width: 1024px) {
-
     .ad-column-left,
     .ad-column-right {
         display: none;
@@ -528,8 +510,6 @@ p {
 }
 
 @media (max-width: 768px) {
-
-    /* 상단 여백 조정 */
     body {
         padding-top: 140px;
     }
@@ -540,12 +520,7 @@ p {
         padding-right:0;
     }
 
-    .alert-btn {
-        position: static; 
-        margin-left: auto; 
-    }
-
-   .map-btn {
+    .alert-btn, .map-btn {
         position: static; 
         margin-left: auto; 
     }
@@ -558,10 +533,8 @@ p {
 
     .search-container input[type="text"] {
         width: calc(100% - 100px);
-        /* 버튼 공간 제외하고 꽉 채움 */
     }
 
-    /* 상세 검색 패널 내부 행 정렬 */
     .ds-row {
         flex-direction: column;
         gap: 10px;
@@ -573,7 +546,6 @@ p {
    ================================= */
 .search-container {
     flex-direction: column;
-    /* 가로 배열을 세로 배열로 변경 허용 */
     align-items: center;
 }
 
@@ -600,7 +572,6 @@ p {
     background-color: #718093;
 }
 
-/* 열리는 패널 디자인 */
 .detail-search-panel {
     width: 100%;
     max-width: 900px;
@@ -649,95 +620,68 @@ p {
 }
 
 /* =================================
-   버튼 클릭(Active) 및 호버(Hover) 효과 강화
+   버튼 클릭(Active) 및 호버(Hover) 효과
    ================================= */
-
-/* 1. 기본 검색 버튼 및 상세 검색 버튼 */
 .search-container button,
 .detail-toggle-btn,
 .creat_btn,
 .admin-btn {
     transition: all 0.1s ease;
-    /* 색상 변화를 부드럽게 */
 }
 
-/* 마우스를 올렸을 때 (Hover) */
 .search-container button:hover,
 .detail-toggle-btn:hover {
     filter: brightness(90%);
-    /* 기존 색상보다 10% 어둡게 */
 }
 
-/* ★ 핵심: 마우스로 클릭했을 때 (Active) ★ */
 .search-container button:active,
 .detail-toggle-btn:active,
 .creat_btn:active,
 .admin-btn:active {
     filter: brightness(80%);
-    /* 더 어둡게 */
     transform: scale(0.96);
-    /* 버튼이 4% 정도 작아지며 눌리는 효과 */
     box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2);
-    /* 안쪽으로 그림자 생성 */
 }
 
-/* 2. 상세 검색 패널 안의 '조건 적용하기' 버튼 전용 */
 #executeDetailBtn:active {
     background-color: #3a5591;
-    /* 클릭 시 더 진한 파란색으로 변경 */
     transform: scale(0.98);
 }
 
 /* =================================
-상품 이미지 슬라이더 (Carousel) 스타일
-================================= */
+   11. 상품 이미지 슬라이더 (Carousel)
+   ================================= */
 .product-image-slider {
     width: 100%;
     max-width: 350px;
     height: 350px;
-
-    /* 좌우 auto 정렬은 유지하되, 하단 여백을 조금 더 넓게(35px) 설정 */
     margin: 0 auto 35px;
-
     position: relative;
     overflow: hidden;
     border-radius: 12px;
-    /* 둥근 모서리 유지 */
     border: 1px solid #eaeaea;
     background-color: #fff;
-
-    /* 슬라이더 전체를 감싸는 부드러운 안쪽 그림자 추가 (선택 사항, 더 고급스러워 보임) */
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02);
 }
 
-/* 이미지들이 나열되는 통로 */
 .slider-wrapper {
     display: flex;
-    /* 이미지를 가로로 한 줄 나열 */
     height: 100%;
     transition: transform 0.4s ease-in-out;
-    /* 넘길 때 부드러운 애니메이션 */
 }
 
-/* 개별 이미지 스타일 */
 .slide-image {
     width: 100%;
-    /* 슬라이더 너비에 맞춤 */
     height: 100%;
     object-fit: contain;
-    /* 이미지가 찌그러지지 않고 영역 안에 꽉 차게 */
     flex-shrink: 0;
-    /* 슬라이더 안에서 크기가 줄어들지 않게 고정 */
 }
 
-/* 왼쪽/오른쪽 화살표 버튼 공통 스타일 */
 .slider-btn {
     position: absolute;
     top: 50%;
-    /* 세로 중앙 */
     transform: translateY(-50%);
     background-color: rgba(0, 0, 0, 0.3);
-    /* 반투명 배경 */
     color: white;
     border: none;
     padding: 12px 16px;
@@ -752,27 +696,15 @@ p {
     background-color: rgba(0, 0, 0, 0.6);
 }
 
-.prev-btn {
-    left: 15px;
-}
-
-/* 왼쪽 버튼 위치 */
-.next-btn {
-    right: 15px;
-}
-
-/* 오른쪽 버튼 위치 */
-
-/* 사진이 한 장일 때는 버튼 숨기기용 */
-.slider-btn.hidden {
-    display: none;
-}
+.prev-btn { left: 15px; }
+.next-btn { right: 15px; }
+.slider-btn.hidden { display: none; }
 
 /* =================================
-   알림 버튼 & 상단바 추가 스타일
+   12. 알림 & 지도 버튼
    ================================= */
 .search-bar-row {
-    position: relative; /* 알림 버튼이 왼쪽 끝에 붙을 수 있도록 기준점 설정 */
+    position: relative; 
 }
 
 .alert-btn, .map-btn {
@@ -799,16 +731,14 @@ p {
 }
 
 /* =================================
-   알림 페이지 (alerts.html) 스타일
+   13. 알림 페이지 (alerts.html)
    ================================= */
-.alerts-list {
-    margin-top: 25px;
-}
+.alerts-list { margin-top: 25px; }
 
 .alert-item {
     background: #fff; 
     border: 1px solid #eaeaea; 
-    border-left: 5px solid #4b6cb7; /* 왼쪽을 파란색으로 강조 */
+    border-left: 5px solid #4b6cb7; 
     padding: 20px; 
     border-radius: 8px; 
     margin-bottom: 15px;
@@ -887,206 +817,85 @@ p {
 }
 
 /* =================================
-   11. AI 챗봇 (Chatbot) 스타일
+   14. AI 챗봇 (Chatbot)
    ================================= */
-   
-/* 우측 하단 둥근 버튼 */
 .chatbot-fab {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background-color: #4b6cb7;
-    color: white;
-    border: none;
-    border-radius: 30px;
-    padding: 12px 20px;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    position: fixed; bottom: 30px; right: 30px;
+    background-color: #4b6cb7; color: white; border: none;
+    border-radius: 30px; padding: 12px 20px; font-size: 15px; font-weight: bold;
+    cursor: pointer; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); z-index: 1000;
+    transition: all 0.3s; display: flex; align-items: center; gap: 8px;
 }
 
-.chatbot-fab:hover {
-    transform: translateY(-3px);
-    background-color: #3a5591;
-}
+.chatbot-fab:hover { transform: translateY(-3px); background-color: #3a5591; }
 
-/* 챗봇 창 패널 */
 .chatbot-window {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 350px;
-    height: 500px;
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
-    overflow: hidden;
-    border: 1px solid #eaeaea;
+    position: fixed; bottom: 30px; right: 30px; width: 350px; height: 500px;
+    background-color: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+    display: flex; flex-direction: column; z-index: 1000; overflow: hidden; border: 1px solid #eaeaea;
 }
 
-/* 챗봇 헤더 */
 .chatbot-header {
-    background-color: #4b6cb7;
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background-color: #4b6cb7; color: white; padding: 15px 20px;
+    display: flex; justify-content: space-between; align-items: center;
 }
 
 .chatbot-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    line-height: 1;
+    background: none; border: none; color: white; font-size: 24px; cursor: pointer; line-height: 1;
 }
 
-/* 채팅 내용 영역 */
 .chatbot-messages {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    background-color: #f8faff;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    flex: 1; padding: 20px; overflow-y: auto; background-color: #f8faff; display: flex; flex-direction: column; gap: 15px;
 }
 
-/* 말풍선 공통 스타일 */
 .message {
-    max-width: 80%;
-    padding: 10px 15px;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.4;
-    word-break: break-word;
+    max-width: 80%; padding: 10px 15px; border-radius: 12px; font-size: 14px; line-height: 1.4; word-break: break-word;
 }
 
-/* AI(봇) 말풍선 */
-.bot-message {
-    background-color: #fff;
-    border: 1px solid #eaeaea;
-    align-self: flex-start;
-    border-top-left-radius: 2px;
-}
+.bot-message { background-color: #fff; border: 1px solid #eaeaea; align-self: flex-start; border-top-left-radius: 2px; }
+.user-message { background-color: #4b6cb7; color: white; align-self: flex-end; border-top-right-radius: 2px; }
 
-/* 사용자 말풍선 */
-.user-message {
-    background-color: #4b6cb7;
-    color: white;
-    align-self: flex-end;
-    border-top-right-radius: 2px;
-}
+.chatbot-input-area { display: flex; padding: 15px; border-top: 1px solid #eaeaea; background-color: #fff; }
+.chatbot-input-area input { flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; font-size: 14px; }
+.chatbot-input-area button { background-color: #4b6cb7; color: white; border: none; border-radius: 20px; padding: 0 15px; margin-left: 10px; cursor: pointer; font-weight: bold; }
 
-/* 채팅 입력 영역 */
-.chatbot-input-area {
-    display: flex;
-    padding: 15px;
-    border-top: 1px solid #eaeaea;
-    background-color: #fff;
-}
-
-.chatbot-input-area input {
-    flex: 1;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
-    font-size: 14px;
-}
-
-.chatbot-input-area button {
-    background-color: #4b6cb7;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 0 15px;
-    margin-left: 10px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-/* 챗봇 말풍선 내부의 클릭 가능한 링크(상품명, 매장명) 스타일 */
 .chatbot-messages a {
-    color: #4b6cb7;
-    font-weight: bold;
-    text-decoration: none;
-    padding: 2px 6px;
-    background-color: #e8effa;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-    display: inline-block;
-    margin: 2px 0;
+    color: #4b6cb7; font-weight: bold; text-decoration: none; padding: 2px 6px;
+    background-color: #e8effa; border-radius: 4px; transition: background-color 0.2s;
+    display: inline-block; margin: 2px 0;
+}
+.chatbot-messages a:hover { background-color: #d1e0f7; text-decoration: underline; }
+
+/* =================================
+   15. 상품 목록 상단 컨트롤 바
+   ================================= */
+.list-control-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; width: 100%;
 }
 
-.chatbot-messages a:hover {
-    background-color: #d1e0f7;
-    text-decoration: underline;
+.back-btn {
+    background-color: white; border: 1px solid #4b6cb7; color: #4b6cb7;
+    padding: 8px 16px; border-radius: 6px; cursor: pointer;
+    font-weight: 600; font-size: 14px; transition: all 0.2s ease;
 }
 
-/* 상품 목록 상단 컨트롤 바 */
-        .list-control-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            width: 100%;
-        }
-        
-        /* 매장 목록으로 돌아가기 버튼 */
-        .back-btn {
-            background-color: white;
-            border: 1px solid #4b6cb7;
-            color: #4b6cb7;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-        
-        .back-btn:hover {
-            background-color: #4b6cb7;
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        /* 정렬 선택 박스 */
-        .sort-options select {
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #d1d8e0;
-            font-size: 14px;
-            color: #2c3e50;
-            background-color: white;
-            outline: none;
-            cursor: pointer;
-        }
+.back-btn:hover { background-color: #4b6cb7; color: white; transform: translateY(-2px); }
+
+.sort-options select {
+    padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d8e0;
+    font-size: 14px; color: #2c3e50; background-color: white; outline: none; cursor: pointer;
+}
 
 /* ==========================================
-다크 모드
-========================================== */
-
-/* 1. 전체 배경 및 기본 글씨 */
+   16. 글로벌 다크 모드 (Dark Mode)
+   ========================================== */
 body.dark-mode {
     background-color: #121212 !important;
     color: #e0e0e0 !important;
 }
 
-/* 2. 모든 페이지의 '하얀색 박스(컨테이너)' 강제 어둡게 */
-/* (상품카드, 검색창, 대시보드, 폼, 모달, 알림창, 상세페이지 등 전부 포함) */
+/* 박스/컨테이너 어둡게 */
 body.dark-mode .product-item,
 body.dark-mode .search-container,
 body.dark-mode .detail-search-panel,
@@ -1107,7 +916,7 @@ body.dark-mode .hero-section {
     color: #f1f2f6 !important;
 }
 
-/* 3. 제목과 강조 글씨들 (하얗고 선명하게) */
+/* 텍스트 색상 전환 */
 body.dark-mode h1, 
 body.dark-mode h2, 
 body.dark-mode h3, 
@@ -1119,7 +928,6 @@ body.dark-mode .product-price {
     color: #f1f2f6 !important;
 }
 
-/* 4. 본문 글씨와 설명 (눈 안 아픈 밝은 회색) */
 body.dark-mode p, 
 body.dark-mode span, 
 body.dark-mode label,
@@ -1127,11 +935,9 @@ body.dark-mode .store-info {
     color: #a4b0be !important;
 }
 
-body.dark-mode .status-reason {
-    color: #ffb8b8 !important; /* 경고 텍스트는 연한 붉은색 */
-}
+body.dark-mode .status-reason { color: #ffb8b8 !important; }
 
-/* 5. 입력창, 드롭다운, 텍스트박스 (어둡게) */
+/* 입력 필드 전환 */
 body.dark-mode input,
 body.dark-mode select,
 body.dark-mode textarea {
@@ -1140,7 +946,7 @@ body.dark-mode textarea {
     border: 1px solid #555 !important;
 }
 
-/* 6. 표(Table) 어둡게 (관리자 대시보드 등) */
+/* 표(Table) 다크모드 */
 body.dark-mode table,
 body.dark-mode th,
 body.dark-mode td {
@@ -1148,47 +954,31 @@ body.dark-mode td {
 }
 body.dark-mode th {
     background-color: #2a2a2a !important;
-    color: #55efc4 !important; /* 헤더는 포인트 색상 */
+    color: #55efc4 !important;
 }
 body.dark-mode td {
     background-color: #1e1e1e !important;
     color: #f1f2f6 !important;
 }
 
-/* 7. 일반 버튼들 어둡게 (특수 버튼 제외) */
+/* 버튼 다크모드 */
 body.dark-mode button:not(#chatbot-fab):not(#darkModeBtn):not(.btn-agree):not(.creat_btn) {
     background-color: #2c2c2c !important;
     color: #f1f2f6 !important;
     border: 1px solid #555 !important;
 }
 body.dark-mode button:not(#chatbot-fab):not(#darkModeBtn):hover {
-    background-color: #4b6cb7 !important; /* 마우스 올리면 파란색 포인트 */
+    background-color: #4b6cb7 !important;
     color: white !important;
 }
 
-/* 8. 특정 요소 예외 처리 */
-/* 카카오맵 로딩 배경 */
+/* 카카오맵, 빈 광고 슬롯 배경 투명화 및 어둡게 처리 */
 body.dark-mode #map-container {
     background-color: #2a2a2a !important;
     border-color: #444 !important;
     color: #aaa !important;
 }
-/* 빈 광고 슬롯 배경 */
 body.dark-mode .ad-slot {
     background-color: #1a1a1a !important;
     border-color: #333 !important;
-}
-
-/* ==========================================
-   ★ 광고 영역 크기 확장
-   ========================================== */
-.ad-column-left, .ad-column-right {
-    width: 200px !important; /* 너비를 조금 더 넓게 (기존보다 +30~50px) */
-}
-
-.ad-slot {
-    min-height: 700px !important; /* 높이를 길게 늘려서 위아래가 안 잘리게 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
