@@ -4,46 +4,32 @@
     <meta charset="utf-8">
     <title>PickAgain - 로그인</title>
     <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* 로그인창 전용 다크모드 적용 */
         body.dark-mode .login-container,
-        body.dark-mode .signup-container {
-            background-color: #1e1e1e !important;
-            border: 1px solid #333 !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
-        }
-        body.dark-mode h2 {
-            color: #f1f2f6 !important;
-        }
-        body.dark-mode input {
-            background-color: #2c2c2c !important;
-            color: #f1f2f6 !important;
-            border: 1px solid #555 !important;
-        }
-        body.dark-mode .switch-link {
-            color: #55efc4 !important; 
-        }
-        body.dark-mode hr {
-            border-top: 1px solid #444 !important;
-        }
+        body.dark-mode .signup-container { background-color: #1e1e1e !important; border: 1px solid #333 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important; }
+        body.dark-mode h2 { color: #f1f2f6 !important; }
+        body.dark-mode input { background-color: #2c2c2c !important; color: #f1f2f6 !important; border: 1px solid #555 !important; }
+        body.dark-mode .switch-link { color: #55efc4 !important; }
+        body.dark-mode hr { border-top: 1px solid #444 !important; }
     </style>
 </head>
 <body>
     <script>
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            document.body.classList.add("dark-mode");
-        }
+        if (localStorage.getItem("pickagain_dark_mode") === "true") document.body.classList.add("dark-mode");
     </script>
 
-    <div class="navbar">
-      <a href="login.html">Login/Sign Up</a>
-    </div>
+    <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
 
     <div class="search-container">
-        <div class="title-container">
-            <h2 class="Title">
-                <a href="shop.html">PickAgain</a>
-            </h2>
+        <div class="search-bar-row">
+            <div class="title-container">
+                <h2 class="Title"><a href="index.html">PickAgain</a></h2>
+            </div>
+            <div style="flex:1;"></div>
+            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 20px; cursor: pointer; margin-left: 15px; transition: transform 0.3s; color: #f1c40f;">
+                <i class="fa-solid fa-moon"></i>
+            </button>
         </div>
     </div>
 
@@ -75,55 +61,50 @@
     </div>
     
     <script>
-        const backendURL = 'https://pickagain-backend.onrender.com';
+        const backendURL = 'https://pickagain-backend-1.onrender.com';
 
-        // 1. 로그인/회원가입 폼 전환
+        const darkModeBtn = document.getElementById("darkModeBtn");
+        if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
+        
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener("click", () => {
+                document.body.classList.toggle("dark-mode");
+                const isDark = document.body.classList.contains("dark-mode");
+                localStorage.setItem("pickagain_dark_mode", isDark ? "true" : "false"); 
+                darkModeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun" style="color: white;"></i>' : '<i class="fa-solid fa-moon" style="color: #f1c40f;"></i>';
+            });
+        }
+
         function toggleForms() {
             document.querySelector('.login-container').classList.toggle('active');
             document.querySelector('.signup-container').classList.toggle('active');
         }
 
-        // 2. 로그인 요청
         document.getElementById("login-form").addEventListener("submit", function(e) {
             e.preventDefault(); 
-
             const usernameInput = document.getElementById("login-username").value;
             const passwordInput = document.getElementById("login-password").value;
 
             fetch(`${backendURL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    username: usernameInput, 
-                    password: passwordInput 
-                })
+                body: JSON.stringify({ username: usernameInput, password: passwordInput })
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.message); });
-                }
-                return response.json();
-            })
+            .then(response => { if (!response.ok) return response.json().then(err => { throw new Error(err.message); }); return response.json(); })
             .then(data => {
                 alert(data.message); 
-                
                 localStorage.setItem("username", data.username);
                 localStorage.setItem("userRole", data.role);
                 localStorage.setItem("store_name", data.store_name || "");
                 localStorage.setItem("store_location", data.store_location || "");
                 localStorage.setItem("store_phone", data.store_phone || "");
-                
                 window.location.href = "index.html"; 
             })
-            .catch(error => {
-                alert(error.message); 
-            });
+            .catch(error => alert(error.message));
         });
 
-        // 3. 회원가입 요청
         document.getElementById("signup-form").addEventListener("submit", function(e) {
             e.preventDefault();
-            
             const userid = document.getElementById("signup-userid").value;
             const password = document.getElementById("signup-password").value;
             const confirmPassword = document.getElementById("signup-confirm-password").value;
@@ -131,37 +112,16 @@
             const storeLocation = document.getElementById("signup-store-location").value;
             const storePhone = document.getElementById("signup-store-phone").value;
 
-            if (password !== confirmPassword) {
-                alert("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.");
-                return;
-            }
+            if (password !== confirmPassword) return alert("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.");
 
             fetch(`${backendURL}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    userid: userid, 
-                    password: password,
-                    store_name: storeName,
-                    store_location: storeLocation,
-                    store_phone: storePhone
-                })
+                body: JSON.stringify({ userid: userid, password: password, store_name: storeName, store_location: storeLocation, store_phone: storePhone })
             })
-            .then(response => {
-                if (!response.ok) { 
-                    return response.text().then(text => { throw new Error(text) });
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert(data.message);
-                document.getElementById("signup-form").reset();
-                toggleForms(); 
-            })
-            .catch(error => {
-                console.error("회원가입 실패:", error);
-                alert(error.message);
-            });
+            .then(response => { if (!response.ok) return response.text().then(text => { throw new Error(text) }); return response.json(); })
+            .then(data => { alert(data.message); document.getElementById("signup-form").reset(); toggleForms(); })
+            .catch(error => { console.error("회원가입 실패:", error); alert(error.message); });
         });
     </script>
 </body>
