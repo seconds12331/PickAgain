@@ -982,3 +982,43 @@ body.dark-mode .ad-slot {
     background-color: #1a1a1a !important;
     border-color: #333 !important;
 }
+
+/* ==========================================
+   AI 챗봇 다크모드 전용 코드
+   ========================================== */
+body.dark-mode .chatbot-header {
+    background-color: #1a1a1a !important;
+    border-bottom: 1px solid #333 !important;
+}
+
+body.dark-mode .chatbot-messages {
+    background-color: #121212 !important;
+}
+
+body.dark-mode .bot-message {
+    background-color: #2a2a2a !important;
+    color: #f1f2f6 !important;
+    border-color: #444 !important;
+}
+
+/* 챗봇 최초 안내 메시지 내 회색 팁(Tip) 상자 다크모드 처리 */
+body.dark-mode .bot-message span {
+    background-color: #333 !important;
+    color: #ccc !important;
+}
+
+body.dark-mode .user-message {
+    background-color: #3a5591 !important; /* 다크모드에 맞게 살짝 톤다운된 파란색 */
+    color: #ffffff !important;
+}
+
+body.dark-mode .chatbot-input-area {
+    background-color: #1e1e1e !important;
+    border-top: 1px solid #333 !important;
+}
+
+body.dark-mode #chatbot-input {
+    background-color: #2a2a2a !important;
+    color: #f1f2f6 !important;
+    border: 1px solid #555 !important;
+}
