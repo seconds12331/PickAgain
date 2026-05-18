@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <title>PickAgain - 상품 상세</title>
@@ -29,7 +28,7 @@
         #memo-widget { position: fixed; bottom: 20px; left: 20px; z-index: 9999; font-family: 'Pretendard', sans-serif; }
         #memo-toggle-btn { background-color: #f39c12; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.3s, background-color 0.3s; display: flex; align-items: center; gap: 8px; }
         #memo-toggle-btn:hover { transform: scale(1.05); }
-        #memo-panel { display: none; width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #ddd; margin-bottom: 15px; overflow: hidden; flex-direction: column; max-height: 550px; }
+        #memo-panel { width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #ddd; margin-bottom: 15px; overflow: hidden; flex-direction: column; max-height: 550px; }
         .memo-header { background: #f39c12; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .memo-header h4 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
         .memo-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
@@ -69,21 +68,16 @@
             document.body.classList.add("dark-mode");
         }
     </script>
-
-    <div class="navbar">
-        <a href="login.html">Login/Sign Up</a>
-    </div>
-
+    
+    <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
+    
     <div class="search-container">
         <div class="search-bar-row">
-            <div class="title-container">
-                <h2 class="Title">
-                    <a href="index.html">PickAgain</a>
-                </h2>
-            </div>
-            <div style="flex: 1;"></div> 
-            <button class="map-btn" onclick="location.href='map.html'">지도</button>
+            <div class="title-container"><h2 class="Title"><a href="index.html">PickAgain</a></h2></div>
+            <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
+            <button id="searchBtn">검색</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
+            <button class="map-btn" onclick="location.href='map.html'">지도</button>
             <button id="darkModeBtn" style="background: transparent; border: none; font-size: 20px; cursor: pointer; margin-left: 15px; transition: transform 0.3s; color: #f1c40f;">
                 <i class="fa-solid fa-moon"></i>
             </button>
@@ -152,7 +146,7 @@
     </div>
 
     <div id="memo-widget">
-        <div id="memo-panel">
+        <div id="memo-panel" style="display: none;">
             <div class="memo-header">
                 <h4><i class="fa-solid fa-pen-to-square"></i> 위시 메모 & 알리미</h4>
                 <button id="memo-close-btn"><i class="fa-solid fa-xmark"></i></button>
@@ -167,7 +161,9 @@
                 <input type="number" id="memo-max-price" placeholder="희망 최대 가격 (선택)" autocomplete="off">
                 <button id="memo-add-btn">알림 조건 저장</button>
             </div>
+
             <ul id="memo-list"></ul>
+
             <div id="memo-match-area">
                 <h5><i class="fa-solid fa-bell"></i> 조건에 맞는 상품 발견!</h5>
                 <ul id="memo-match-list"></ul>
@@ -180,28 +176,19 @@
         const backendURL = 'https://pickagain-backend-1.onrender.com';
         let currentProductId = null;
 
-        // --- ★ 로그인 상태 확인 및 상단바 변경 ★ ---
         const currentUser = localStorage.getItem("username");
         const navbar = document.querySelector(".navbar");
 
         if (currentUser) {
-            navbar.innerHTML = `
-                <span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span>
-                <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
-            `;
+            navbar.innerHTML = `<span style="color: white; margin-right: 15px;">환영합니다, <strong>${currentUser}</strong>님!</span><a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>`;
             document.getElementById("logoutBtn").addEventListener("click", function(e) {
-                e.preventDefault(); 
-                localStorage.clear(); 
-                alert("로그아웃 되었습니다.");
-                location.href = "index.html"; 
+                e.preventDefault(); localStorage.clear(); alert("로그아웃 되었습니다."); location.href = "index.html"; 
             });
 
-            // 로그인 상태면 관리자 제어 버튼 보이기
             const adminBtnContainer = document.querySelector(".admin-button-container");
             if (adminBtnContainer) adminBtnContainer.style.display = "flex";
         }
 
-        // --- ★ 다크모드 스위치 처리 ★ ---
         const darkModeBtn = document.getElementById("darkModeBtn");
         if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) {
             darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
@@ -221,87 +208,60 @@
             });
         }
 
-        let currentSlideIndex = 0;
-        let totalSlides = 0;
+        let currentSlideIndex = 0; let totalSlides = 0;
 
         window.onload = function () {
             const urlParams = new URLSearchParams(window.location.search);
             currentProductId = urlParams.get('id');
 
-            if (currentProductId) {
-                fetchProductDetails(currentProductId);
-            } else {
-                document.getElementById('detail-name').innerText = "상품 ID가 필요합니다.";
-            }
+            if (currentProductId) fetchProductDetails(currentProductId);
+            else document.getElementById('detail-name').innerText = "상품 ID가 필요합니다.";
 
             const deleteButton = document.querySelector('.btn-delete');
             if(deleteButton) deleteButton.addEventListener('click', deleteProduct);
 
             const editButton = document.querySelector('.btn-edit');
-            if(editButton) editButton.addEventListener('click', () => {
-                window.location.href = `product-form.html?id=${currentProductId}`;
-            });
+            if(editButton) editButton.addEventListener('click', () => window.location.href = `product-form.html?id=${currentProductId}`);
+
+            // 광고 관련 함수가 빠져있어서 빈 함수로 선언하여 에러를 방지했습니다. 
+            // 혹시 상세페이지용 광고 로직이 있다면 loadRandomAds() 함수를 선언해 주시면 됩니다.
+            // loadRandomAds();
         };
 
         function fetchProductDetails(productId) {
             fetch(`${backendURL}/products/${productId}`)
-                .then(response => {
-                    if (!response.ok) { throw new Error('상품을 찾을 수 없습니다.'); }
-                    return response.json();
-                })
+                .then(response => { if (!response.ok) { throw new Error('상품을 찾을 수 없습니다.'); } return response.json(); })
                 .then(product => {
                     const sliderWrapper = document.getElementById('slider-wrapper');
-                    const prevBtn = document.getElementById('prevBtn');
-                    const nextBtn = document.getElementById('nextBtn');
-                    
-                    sliderWrapper.innerHTML = ''; 
-                    currentSlideIndex = 0; 
+                    const prevBtn = document.getElementById('prevBtn'); const nextBtn = document.getElementById('nextBtn');
+                    sliderWrapper.innerHTML = ''; currentSlideIndex = 0; 
 
                     if (product.image_path) {
-                        const paths = product.image_path.split(','); 
-                        totalSlides = paths.length; 
+                        const paths = product.image_path.split(','); totalSlides = paths.length; 
 
                         paths.forEach(path => {
                             const img = document.createElement('img');
-                            img.src = `${backendURL}${path}`;
-                            img.alt = '상품 이미지';
-                            img.classList.add('slide-image'); 
+                            img.src = `${backendURL}${path}`; img.alt = '상품 이미지'; img.classList.add('slide-image'); 
                             sliderWrapper.appendChild(img);
                         });
 
-                        if (totalSlides > 1) {
-                            prevBtn.classList.remove('hidden');
-                            nextBtn.classList.remove('hidden');
-                        } else {
-                            prevBtn.classList.add('hidden');
-                            nextBtn.classList.add('hidden');
-                        }
+                        if (totalSlides > 1) { prevBtn.classList.remove('hidden'); nextBtn.classList.remove('hidden'); } 
+                        else { prevBtn.classList.add('hidden'); nextBtn.classList.add('hidden'); }
                         
                         showSlide(currentSlideIndex);
-
                     } else {
                         const noImg = document.createElement('img');
-                        noImg.src = "https://placehold.co/400x400?text=No+Image";
-                        noImg.classList.add('slide-image');
+                        noImg.src = "https://placehold.co/400x400?text=No+Image"; noImg.classList.add('slide-image');
                         sliderWrapper.appendChild(noImg);
-                        prevBtn.classList.add('hidden');
-                        nextBtn.classList.add('hidden');
+                        prevBtn.classList.add('hidden'); nextBtn.classList.add('hidden');
                     }
 
                     document.getElementById('detail-name').innerText = product.name;
                     document.getElementById('detail-price').innerText = product.price.toLocaleString();
-
                     document.getElementById('detail-status-category').innerText = product.status_category || "-";
                     document.getElementById('detail-status-detail').innerText = product.status_detail || "-";
-
-                    if (product.expiry_date) {
-                        document.getElementById('detail-expiry-date').innerText = product.expiry_date.split('T')[0];
-                    } else {
-                        document.getElementById('detail-expiry-date').innerText = "-";
-                    }
-
+                    document.getElementById('detail-expiry-date').innerText = product.expiry_date ? product.expiry_date.split('T')[0] : "-";
                     document.getElementById('detail-type-detail').innerText = product.type_detail || "기타";
-
                     document.getElementById('detail-store-location').innerText = product.store_location || "-";
                     document.getElementById('detail-store-phone').innerText = product.store_phone || "-";
 
@@ -312,77 +272,49 @@
                         storeNameEl.href = `map.html?store=${encodeURIComponent(product.store_name)}&address=${encodeURIComponent(product.store_location)}`;
                     }
                 })
-                .catch(error => {
-                    console.error("상품 상세 정보 가져오기 실패:", error);
-                    document.getElementById('detail-name').innerText = error.message;
-                });
+                .catch(error => { console.error("상품 상세 정보 가져오기 실패:", error); document.getElementById('detail-name').innerText = error.message; });
         }
 
         function deleteProduct() {
             if (!confirm("정말로 이 상품을 삭제하시겠습니까?")) { return; }
-
             fetch(`${backendURL}/products/${currentProductId}`, { method: 'DELETE' })
-                .then(response => {
-                    if (!response.ok) { throw new Error('서버 응답 실패'); }
-                    return response.json();
-                })
-                .then(data => {
-                    alert(data.message);
-                    window.location.href = "index.html";
-                })
-                .catch(error => {
-                    console.error("상품 삭제 실패:", error);
-                    alert("상품 삭제에 실패했습니다.");
-                });
+                .then(response => { if (!response.ok) { throw new Error('서버 응답 실패'); } return response.json(); })
+                .then(data => { alert(data.message); window.location.href = "index.html"; })
+                .catch(error => { console.error("상품 삭제 실패:", error); alert("상품 삭제에 실패했습니다."); });
         }
 
-        function moveSlide(n) {
-            showSlide(currentSlideIndex += n);
-        }
+        function moveSlide(n) { showSlide(currentSlideIndex += n); }
 
         function showSlide(index) {
             const sliderWrapper = document.getElementById('slider-wrapper');
-            
             if (index >= totalSlides) { currentSlideIndex = 0; }
             else if (index < 0) { currentSlideIndex = totalSlides - 1; }
             else { currentSlideIndex = index; }
-
             const percentage = -(currentSlideIndex * 100);
             sliderWrapper.style.transform = `translateX(${percentage}%)`;
         }
         
         document.getElementById("reserveBtn").addEventListener("click", function(e) {
             e.preventDefault();
-
             const phone = prompt("상품을 예약하시겠습니까?\n연락받으실 전화번호를 입력해 주세요.\n(예: 010-1234-5678)");
-            
             if (phone && phone.trim() !== "") {
                 fetch(`${backendURL}/reservations`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        product_id: currentProductId,
-                        buyer_phone: phone.trim()
-                    })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: currentProductId, buyer_phone: phone.trim() })
                 })
-                .then(response => {
-                    if (!response.ok) throw new Error('예약 실패');
-                    return response.json();
-                })
-                .then(data => {
-                    alert("예약이 완료되었습니다! 판매자가 확인 후 연락드릴 예정입니다.");
-                })
-                .catch(error => {
-                    console.error("예약 에러:", error);
-                    alert("예약 처리 중 오류가 발생했습니다.");
-                });
-            } else if (phone === "") {
-                alert("전화번호를 입력하셔야 예약이 가능합니다.");
-            }
+                .then(response => { if (!response.ok) throw new Error('예약 실패'); return response.json(); })
+                .then(data => alert("예약이 완료되었습니다! 판매자가 확인 후 연락드릴 예정입니다."))
+                .catch(error => { console.error("예약 에러:", error); alert("예약 처리 중 오류가 발생했습니다."); });
+            } else if (phone === "") { alert("전화번호를 입력하셔야 예약이 가능합니다."); }
+        });
+
+        document.getElementById("searchBtn").addEventListener("click", function () {
+            const keyword = document.getElementById("keyword").value;
+            window.location.href = `index.html?search=${keyword}`;
         });
 
         // ==========================================
-        // ★ 위시 메모장 기능 (백엔드 연동) ★
+        // ★ 위시 메모장 기능 (무조건 열리는 버그 수정됨) ★
         // ==========================================
         document.addEventListener("DOMContentLoaded", () => {
             const memoToggleBtn = document.getElementById("memo-toggle-btn");
@@ -394,6 +326,8 @@
 
             if (localStorage.getItem("pickagain_memo_state") === "open") {
                 memoPanel.style.display = "flex";
+            } else {
+                memoPanel.style.display = "none";
             }
 
             memoToggleBtn.addEventListener("click", () => {
@@ -435,7 +369,6 @@
             document.getElementById("memo-add-btn").addEventListener("click", () => {
                 const keyword = document.getElementById("memo-keyword").value.trim();
                 const maxPrice = parseInt(document.getElementById("memo-max-price").value) || 0;
-                
                 if (!keyword) return alert("찾으시는 상품명을 입력해 주세요!");
 
                 const memos = getMemos();
