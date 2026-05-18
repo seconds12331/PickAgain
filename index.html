@@ -46,9 +46,8 @@
             border: 1px solid #ddd;
             margin-bottom: 15px;
             overflow: hidden;
-            display: flex;
             flex-direction: column;
-            max-height: 550px;
+            max-height: 500px;
         }
 
         .memo-header {
@@ -116,8 +115,8 @@
             <button id="detailToggleBtn" class="detail-toggle-btn">상세 검색 ▼</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
             <button class="map-btn" onclick="location.href='map.html'">지도</button>
-            <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px;">
-                AI 상담
+            <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px; display: flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-robot"></i> AI 상담
             </button>
             <button id="darkModeBtn" style="background: transparent; border: none; font-size: 20px; cursor: pointer; margin-left: 15px; transition: transform 0.3s; color: #f1c40f;">
                 <i class="fa-solid fa-moon"></i>
@@ -223,16 +222,12 @@
         
     <div id="chatbot-window" class="chatbot-window" style="display: none;">
         <div class="chatbot-header">
-            <h3 style="margin: 0; font-size: 16px;">PickAgain AI 매니저</h3>
+            <h3 style="margin: 0; font-size: 16px;"><i class="fa-solid fa-robot"></i> PickAgain AI 매니저</h3>
             <button id="chatbot-close" class="chatbot-close"><i class="fa-solid fa-xmark"></i></button>
         </div>
         
         <div id="chatbot-messages" class="chatbot-messages">
-            <div class="message bot-message">
-                안녕하세요. 무엇이든 물어보세요.<br>
-                <span style="font-size: 12px; color: #666;">(예: "10만원대 가성비 냉장고 찾아줘")</span>
             </div>
-        </div>
         
         <div class="chatbot-input-area">
             <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." autocomplete="off">
@@ -241,7 +236,7 @@
     </div>
 
     <div id="memo-widget">
-        <div id="memo-panel">
+        <div id="memo-panel" style="display: none;">
             <div class="memo-header">
                 <h4><i class="fa-solid fa-pen-to-square"></i> 위시 메모 & 알리미</h4>
                 <button id="memo-close-btn"><i class="fa-solid fa-xmark"></i></button>
@@ -517,7 +512,9 @@
             fetchProducts();
         }
 
-        // ★ AI 챗봇 프론트엔드 로직 ★
+        // ==========================================
+        // ★ AI 챗봇 (상태 유지 및 채팅 내역 저장 추가) ★
+        // ==========================================
         const chatbotFab = document.getElementById('chatbot-fab');
         const chatbotWindow = document.getElementById('chatbot-window');
         const chatbotClose = document.getElementById('chatbot-close');
@@ -525,28 +522,54 @@
         const chatbotSend = document.getElementById('chatbot-send');
         const chatbotMessages = document.getElementById('chatbot-messages');
 
+        // 채팅 내역 로드 및 렌더링
+        let chatHistory = JSON.parse(localStorage.getItem("pickagain_chat_history")) || [];
+
+        function renderChatHistory() {
+            chatbotMessages.innerHTML = ""; 
+            if (chatHistory.length === 0) {
+                // 초기 안내 메시지
+                appendMessage(`안녕하세요. 무엇이든 물어보세요.<br><span style="font-size: 12px; color: #666;">(예: "10만원대 가성비 냉장고 찾아줘")</span>`, "bot", false);
+            } else {
+                chatHistory.forEach(msg => appendMessage(msg.text, msg.sender, false));
+            }
+        }
+
+        // 창 열림/닫힘 상태 로드
+        if (localStorage.getItem("pickagain_chat_state") === "open") {
+            chatbotWindow.style.display = "flex";
+        }
+
         chatbotFab.addEventListener('click', () => {
-            chatbotWindow.style.display = chatbotWindow.style.display === 'none' ? 'flex' : 'none';
+            const isHidden = chatbotWindow.style.display === 'none' || chatbotWindow.style.display === '';
+            chatbotWindow.style.display = isHidden ? 'flex' : 'none';
+            localStorage.setItem("pickagain_chat_state", isHidden ? "open" : "closed");
         });
 
         chatbotClose.addEventListener('click', () => {
             chatbotWindow.style.display = 'none';
+            localStorage.setItem("pickagain_chat_state", "closed");
         });
 
-        function appendMessage(text, sender) {
+        function appendMessage(text, sender, save = true) {
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message');
             msgDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
             msgDiv.innerHTML = text;
             chatbotMessages.appendChild(msgDiv);
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            if (save) {
+                chatHistory.push({ text, sender });
+                localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
+            }
         }
 
         async function sendMessageToBot() {
             const text = chatbotInput.value.trim();
             if (!text) return;
 
-            appendMessage(text, 'user');
+            appendMessage(text, 'user', true);
             chatbotInput.value = '';
 
             const loadingId = "loading-" + Date.now();
@@ -565,12 +588,18 @@
                 });
                 
                 const data = await response.json();
+                const finalReply = data.reply.replace(/\n/g, '<br>');
                 
-                document.getElementById(loadingId).innerHTML = data.reply.replace(/\n/g, '<br>');
+                document.getElementById(loadingId).innerHTML = finalReply;
+                
+                // 봇의 답변 내역 저장
+                chatHistory.push({ text: finalReply, sender: 'bot' });
+                localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
+
                 chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
             } catch (error) {
-                document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다. 백엔드가 켜져 있는지 확인해 주세요.";
+                document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다.";
             }
         }
 
@@ -579,16 +608,12 @@
             if (e.key === 'Enter') sendMessageToBot();
         });
 
+        // 렌더링 호출
+        renderChatHistory();
+
         // ★ 랜덤 광고 삽입 로직
         function loadRandomAds() {
-            const adImages = [
-                "광고 (1).jpg", 
-                "광고 (2).jpg", 
-                "광고 (3).jpg", 
-                "광고 (4).jpg", 
-                "광고 (5).jpg"
-            ];
-
+            const adImages = ["광고 (1).jpg", "광고 (2).jpg", "광고 (3).jpg", "광고 (4).jpg", "광고 (5).jpg"];
             const leftAdSlot = document.querySelector('.ad-slot-left');
             const rightAdSlot = document.querySelector('.ad-slot-right');
 
@@ -603,22 +628,22 @@
             if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
         }
 
-        // ★ 다크 모드 기억 & 토글 로직
+        // ★ 다크 모드 토글 로직
         const darkModeBtn = document.getElementById("darkModeBtn");
         
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            if(darkModeBtn) darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
+        if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) {
+            darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
         }
 
         if (darkModeBtn) {
             darkModeBtn.addEventListener("click", () => {
                 document.body.classList.toggle("dark-mode");
+                const isDark = document.body.classList.contains("dark-mode");
+                localStorage.setItem("pickagain_dark_mode", isDark ? "true" : "false"); 
                 
-                if (document.body.classList.contains("dark-mode")) {
-                    localStorage.setItem("pickagain_dark_mode", "true"); 
+                if (isDark) {
                     darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
                 } else {
-                    localStorage.setItem("pickagain_dark_mode", "false"); 
                     darkModeBtn.innerHTML = '<i class="fa-solid fa-moon" style="color: #f1c40f;"></i>';
                 }
             });
@@ -635,8 +660,11 @@
             const memoList = document.getElementById("memo-list");
             const matchList = document.getElementById("memo-match-list");
 
+            // ★ 메모장: 무조건 열리는 버그 수정 (명시적 검사 적용)
             if (localStorage.getItem("pickagain_memo_state") === "open") {
                 memoPanel.style.display = "flex";
+            } else {
+                memoPanel.style.display = "none";
             }
 
             memoToggleBtn.addEventListener("click", () => {
@@ -679,7 +707,7 @@
                 const keyword = document.getElementById("memo-keyword").value.trim();
                 const maxPrice = parseInt(document.getElementById("memo-max-price").value) || 0;
                 
-                if (!keyword) return alert("찾으시는 상품명을 입력해 주세요!");
+                if (!keyword) return;
 
                 const memos = getMemos();
                 memos.push({ keyword, maxPrice });
