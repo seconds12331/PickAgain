@@ -70,11 +70,11 @@
            ★ 업그레이드된 위시 메모장 위젯
            ========================================== */
         #memo-widget { position: fixed; bottom: 20px; left: 20px; z-index: 9999; font-family: 'Pretendard', sans-serif; }
-        #memo-toggle-btn { background-color: #f39c12; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.3s, background-color 0.3s; }
+        #memo-toggle-btn { background-color: #f39c12; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.3s, background-color 0.3s; display: flex; align-items: center; gap: 8px; }
         #memo-toggle-btn:hover { transform: scale(1.05); }
-        #memo-panel { display: none; width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #ddd; margin-bottom: 15px; overflow: hidden; display: flex; flex-direction: column; max-height: 550px; }
+        #memo-panel { width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #ddd; margin-bottom: 15px; overflow: hidden; flex-direction: column; max-height: 550px; }
         .memo-header { background: #f39c12; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .memo-header h4 { margin: 0; font-size: 16px; }
+        .memo-header h4 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
         .memo-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
         .simple-memo-area { padding: 15px; border-bottom: 1px solid #ddd; background: #fff; }
         .simple-memo-area textarea { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 6px; resize: none; font-size: 13px; font-family: inherit; }
@@ -85,7 +85,7 @@
         #memo-list li { padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 13px; align-items: center;}
         .memo-del-btn { color: #e74c3c; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 16px; }
         #memo-match-area { background: #eef2ff; padding: 15px; flex: 1; overflow-y: auto; }
-        #memo-match-area h5 { margin: 0 0 10px 0; color: #4b6cb7; font-size: 14px; }
+        #memo-match-area h5 { margin: 0 0 10px 0; color: #4b6cb7; font-size: 14px; display: flex; align-items: center; gap: 6px; }
         #memo-match-list { list-style: none; margin: 0; padding: 0; }
         #memo-match-list li { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         #memo-match-list li a { color: #2c3e50; font-weight: bold; text-decoration: none; }
@@ -168,10 +168,10 @@
     </header>
 
     <div id="memo-widget">
-        <div id="memo-panel">
+        <div id="memo-panel" style="display: none;">
             <div class="memo-header">
-                <h4>위시 메모 & 알리미</h4>
-                <button id="memo-close-btn">&times;</button>
+                <h4><i class="fa-solid fa-pen-to-square"></i> 위시 메모 & 알리미</h4>
+                <button id="memo-close-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <div class="simple-memo-area">
@@ -187,27 +187,20 @@
             <ul id="memo-list"></ul>
 
             <div id="memo-match-area">
-                <h5>조건에 맞는 상품 발견!</h5>
+                <h5><i class="fa-solid fa-bell"></i> 조건에 맞는 상품 발견!</h5>
                 <ul id="memo-match-list"></ul>
             </div>
         </div>
-        <button id="memo-toggle-btn">위시 메모</button>
+        <button id="memo-toggle-btn"><i class="fa-solid fa-pen-to-square"></i> 위시 메모</button>
     </div>
 
     <div id="chatbot-window" class="chatbot-window" style="display: none;">
         <div class="chatbot-header">
-            <h3 style="margin: 0; font-size: 16px;">PickAgain AI 매니저</h3>
-            <button id="chatbot-close" class="chatbot-close">&times;</button>
+            <h3 style="margin: 0; font-size: 16px;"><i class="fa-solid fa-robot"></i> PickAgain AI 매니저</h3>
+            <button id="chatbot-close" class="chatbot-close"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="chatbot-messages" class="chatbot-messages">
-            <div class="message bot-message">
-                안녕하세요! PickAgain AI 매니저입니다. 상품 추천이나 가성비 분석이 필요하시면 언제든 말씀해주세요.<br><br>
-                <span style="font-size: 12px; color: #555; background-color: #f1f3f5; padding: 8px; border-radius: 5px; display: inline-block; line-height: 1.5;">
-                    예: "10만원대 가성비 냉장고 찾아줘"<br>
-                    <b>Tip:</b> 인터넷 최저가 비교를 원하신다면 정확한 상품명을 입력해 주세요!
-                </span>
             </div>
-        </div>
         <div class="chatbot-input-area">
             <input type="text" id="chatbot-input" placeholder="질문을 입력하세요..." autocomplete="off">
             <button id="chatbot-send">전송</button>
@@ -217,6 +210,7 @@
     <script>
         const backendURL = 'https://pickagain-backend-1.onrender.com';
 
+        // 1. 초기 셋팅
         window.onload = function() {
             const geoConsent = localStorage.getItem("pickagain_geo_consent");
             if (!geoConsent) {
@@ -244,6 +238,7 @@
             }
         };
 
+        // 2. 위치 동의
         function closeGeoModal(isAgreed) {
             document.getElementById("geoModal").style.display = "none";
             if (isAgreed) {
@@ -259,38 +254,68 @@
             }
         }
 
-        function openChatbot() {
-            document.getElementById("chatbot-window").style.display = "flex";
-            document.getElementById("chatbot-input").focus();
-        }
-        document.getElementById('chatbot-close').addEventListener('click', () => {
-            document.getElementById('chatbot-window').style.display = 'none';
-        });
-
+        // ==========================================
+        // ★ AI 챗봇 로직 (상태 유지 + 내역 저장) ★
+        // ==========================================
+        const chatbotWindow = document.getElementById('chatbot-window');
+        const chatbotClose = document.getElementById('chatbot-close');
         const chatbotInput = document.getElementById('chatbot-input');
         const chatbotSend = document.getElementById('chatbot-send');
         const chatbotMessages = document.getElementById('chatbot-messages');
 
-        function appendMessage(text, sender) {
+        let chatHistory = JSON.parse(localStorage.getItem("pickagain_chat_history")) || [];
+
+        function renderChatHistory() {
+            chatbotMessages.innerHTML = "";
+            if (chatHistory.length === 0) {
+                appendMessage(`안녕하세요! PickAgain AI 매니저입니다. 상품 추천이나 가성비 분석이 필요하시면 언제든 말씀해주세요.<br><br><span style="font-size: 12px; color: #555; background-color: #f1f3f5; padding: 8px; border-radius: 5px; display: inline-block; line-height: 1.5;"><i class="fa-solid fa-lightbulb"></i> 예: "10만원대 가성비 냉장고 찾아줘"<br><b>Tip:</b> 인터넷 최저가 비교를 원하신다면 정확한 상품명을 입력해 주세요!</span>`, 'bot', false);
+            } else {
+                chatHistory.forEach(msg => appendMessage(msg.text, msg.sender, false));
+            }
+        }
+
+        if (localStorage.getItem("pickagain_chat_state") === "open") {
+            chatbotWindow.style.display = "flex";
+        } else {
+            chatbotWindow.style.display = "none";
+        }
+
+        function openChatbot() {
+            chatbotWindow.style.display = "flex";
+            document.getElementById("chatbot-input").focus();
+            localStorage.setItem("pickagain_chat_state", "open");
+        }
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotWindow.style.display = 'none';
+            localStorage.setItem("pickagain_chat_state", "closed");
+        });
+
+        function appendMessage(text, sender, save = true) {
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
             msgDiv.innerHTML = text;
             chatbotMessages.appendChild(msgDiv);
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            if (save) {
+                chatHistory.push({ text, sender });
+                localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
+            }
         }
 
         async function sendMessageToBot() {
             const text = chatbotInput.value.trim();
             if (!text) return;
 
-            appendMessage(text, 'user');
+            appendMessage(text, 'user', true);
             chatbotInput.value = '';
 
             const loadingId = "loading-" + Date.now();
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message bot-message';
             msgDiv.id = loadingId;
-            msgDiv.innerHTML = "생각 중...";
+            msgDiv.innerHTML = "조회 중...";
             chatbotMessages.appendChild(msgDiv);
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
@@ -301,7 +326,13 @@
                     body: JSON.stringify({ message: text })
                 });
                 const data = await response.json();
-                document.getElementById(loadingId).innerHTML = data.reply.replace(/\n/g, '<br>');
+                const finalReply = data.reply.replace(/\n/g, '<br>');
+                
+                document.getElementById(loadingId).innerHTML = finalReply;
+                
+                chatHistory.push({ text: finalReply, sender: 'bot' });
+                localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
+
                 chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
             } catch (error) {
                 document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다.";
@@ -312,6 +343,9 @@
         chatbotInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessageToBot(); });
         window.triggerChatSearch = function(searchTerm) { location.href = `index.html?keyword=${encodeURIComponent(searchTerm)}`; };
 
+        renderChatHistory();
+
+        // 다크모드 토글
         const darkModeBtn = document.getElementById("darkModeBtn");
         if (darkModeBtn) {
             darkModeBtn.addEventListener("click", () => {
@@ -327,6 +361,9 @@
             });
         }
 
+        // ==========================================
+        // ★ 위시 메모장 기능 (버그 수정 완료) ★
+        // ==========================================
         document.addEventListener("DOMContentLoaded", () => {
             const memoToggleBtn = document.getElementById("memo-toggle-btn");
             const memoPanel = document.getElementById("memo-panel");
@@ -337,6 +374,8 @@
 
             if (localStorage.getItem("pickagain_memo_state") === "open") {
                 memoPanel.style.display = "flex";
+            } else {
+                memoPanel.style.display = "none";
             }
 
             memoToggleBtn.addEventListener("click", () => {
@@ -379,7 +418,7 @@
                 const keyword = document.getElementById("memo-keyword").value.trim();
                 const maxPrice = parseInt(document.getElementById("memo-max-price").value) || 0;
                 
-                if (!keyword) return alert("찾으시는 상품명을 입력해 주세요!");
+                if (!keyword) return;
 
                 const memos = getMemos();
                 memos.push({ keyword, maxPrice });
@@ -395,7 +434,7 @@
             async function fetchAndMatchMemos(memos) {
                 if (memos.length === 0) {
                     matchList.innerHTML = "<li>메모를 등록하시면 알림을 드려요!</li>";
-                    memoToggleBtn.innerText = '위시 메모';
+                    memoToggleBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> 위시 메모';
                     memoToggleBtn.style.backgroundColor = "#f39c12"; 
                     return;
                 }
@@ -413,17 +452,17 @@
                             .forEach(item => {
                                 matchCount++;
                                 const li = document.createElement("li");
-                                li.innerHTML = `<a href="product-detail.html?id=${item.product_id}">${item.name} (${item.price.toLocaleString()}원)</a><div style="color:#7f8c8d; font-size:11px; margin-top:3px;">[${item.store_name}]</div>`;
+                                li.innerHTML = `<a href="product-detail.html?id=${item.product_id}"><i class="fa-solid fa-box"></i> ${item.name} (${item.price.toLocaleString()}원)</a><div style="color:#7f8c8d; font-size:11px; margin-top:3px;">[${item.store_name}]</div>`;
                                 matchList.appendChild(li);
                             });
                     });
 
                     if (matchCount === 0) {
                         matchList.innerHTML = "<li>조건에 맞는 상품이 없습니다.</li>";
-                        memoToggleBtn.innerText = '위시 메모';
+                        memoToggleBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> 위시 메모';
                         memoToggleBtn.style.backgroundColor = "#f39c12";
                     } else {
-                        memoToggleBtn.innerText = `위시 메모 (${matchCount}건 발견!)`;
+                        memoToggleBtn.innerHTML = `<i class="fa-solid fa-bell"></i> 위시 메모 (${matchCount}건 발견!)`;
                         memoToggleBtn.style.backgroundColor = "#e74c3c"; 
                     }
                 } catch (error) {
