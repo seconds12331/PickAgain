@@ -91,7 +91,7 @@
         }
 
         #memo-panel {
-            display: none; 
+            /* JS 충돌 방지를 위해 기본 display: none 은 인라인 스타일로 관리합니다. */
             width: 320px;
             background: white;
             border-radius: 12px;
@@ -99,7 +99,6 @@
             border: 1px solid #ddd;
             margin-bottom: 15px;
             overflow: hidden;
-            display: flex;
             flex-direction: column;
             max-height: 550px;
         }
@@ -165,6 +164,9 @@
             <div style="flex: 1;"></div> 
             <button class="map-btn" onclick="location.href='map.html'">지도</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
+            <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px; display: flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-robot"></i> AI 상담
+            </button>
             <button id="darkModeBtn" style="background: transparent; border: none; font-size: 20px; cursor: pointer; margin-left: 15px; transition: transform 0.3s; color: #f1c40f;">
                 <i class="fa-solid fa-moon"></i>
             </button>
@@ -199,8 +201,23 @@
         </div>
     </div>
 
+    <div id="chatbot-window" class="chatbot-window" style="display: none;">
+        <div class="chatbot-header">
+            <h3 style="margin: 0; font-size: 16px;"><i class="fa-solid fa-robot"></i> PickAgain AI 매니저</h3>
+            <button id="chatbot-close" class="chatbot-close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div id="chatbot-messages" class="chatbot-messages">
+            </div>
+        
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+            <button id="chatbot-send">전송</button>
+        </div>
+    </div>
+
     <div id="memo-widget">
-        <div id="memo-panel">
+        <div id="memo-panel" style="display: none;">
             <div class="memo-header">
                 <h4><i class="fa-solid fa-pen-to-square"></i> 위시 메모 & 알리미</h4>
                 <button id="memo-close-btn"><i class="fa-solid fa-xmark"></i></button>
@@ -382,32 +399,8 @@
                 searchNearbyRefurbished();
             }
         });
-        
-        // 3. 광고 설정
-        function loadRandomAds() {
-            const adImages = [
-                "광고 (1).jpg", 
-                "광고 (2).jpg", 
-                "광고 (3).jpg", 
-                "광고 (4).jpg", 
-                "광고 (5).jpg"
-            ];
 
-            const leftAdSlot = document.querySelector('.ad-slot-left');
-            const rightAdSlot = document.querySelector('.ad-slot-right');
-
-            const randomLeft = adImages[Math.floor(Math.random() * adImages.length)];
-            let randomRight = adImages[Math.floor(Math.random() * adImages.length)];
-            
-            while(randomLeft === randomRight) {
-                randomRight = adImages[Math.floor(Math.random() * adImages.length)];
-            }
-
-            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
-            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
-        }
-
-        // 4. 다크모드 스위치 처리
+        // 3. 다크모드 스위치 처리
         const darkModeBtn = document.getElementById("darkModeBtn");
         if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) {
             darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
@@ -428,7 +421,108 @@
         }
 
         // ==========================================
-        // ★ 위시 메모장 기능 (백엔드 연동) ★
+        // ★ AI 챗봇 (상태 유지 및 채팅 내역 저장 추가) ★
+        // ==========================================
+        const chatbotFab = document.getElementById('chatbot-fab');
+        const chatbotWindow = document.getElementById('chatbot-window');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSend = document.getElementById('chatbot-send');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+
+        // 채팅 내역 로드 및 렌더링
+        let chatHistory = JSON.parse(localStorage.getItem("pickagain_chat_history")) || [];
+
+        function renderChatHistory() {
+            chatbotMessages.innerHTML = ""; 
+            if (chatHistory.length === 0) {
+                // 초기 안내 메시지
+                appendMessage(`안녕하세요! PickAgain AI 매니저입니다. 상품 추천이나 가성비 분석이 필요하시면 언제든 말씀해주세요.<br><br><span style="font-size: 12px; color: #555; background-color: #f1f3f5; padding: 8px; border-radius: 5px; display: inline-block; line-height: 1.5;"><i class="fa-solid fa-lightbulb"></i> 예: "10만원대 가성비 냉장고 찾아줘"<br><b>Tip:</b> 인터넷 최저가 비교를 원하신다면 정확한 상품명을 입력해 주세요!</span>`, "bot", false);
+            } else {
+                chatHistory.forEach(msg => appendMessage(msg.text, msg.sender, false));
+            }
+        }
+
+        // 창 열림/닫힘 상태를 명시적으로 처리
+        if (localStorage.getItem("pickagain_chat_state") === "open") {
+            chatbotWindow.style.display = "flex";
+        } else {
+            chatbotWindow.style.display = "none";
+        }
+
+        chatbotFab.addEventListener('click', () => {
+            const isHidden = chatbotWindow.style.display === 'none' || chatbotWindow.style.display === '';
+            chatbotWindow.style.display = isHidden ? 'flex' : 'none';
+            localStorage.setItem("pickagain_chat_state", isHidden ? "open" : "closed");
+        });
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotWindow.style.display = 'none';
+            localStorage.setItem("pickagain_chat_state", "closed");
+        });
+
+        function appendMessage(text, sender, save = true) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            msgDiv.innerHTML = text;
+            chatbotMessages.appendChild(msgDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            if (save) {
+                chatHistory.push({ text, sender });
+                localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
+            }
+        }
+
+        async function sendMessageToBot() {
+            const text = chatbotInput.value.trim();
+            if (!text) return;
+
+            appendMessage(text, 'user', true);
+            chatbotInput.value = '';
+
+            const loadingId = "loading-" + Date.now();
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', 'bot-message');
+            msgDiv.id = loadingId;
+            msgDiv.innerHTML = "조회 중...";
+            chatbotMessages.appendChild(msgDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            try {
+                const response = await fetch(`${backendURL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                
+                const data = await response.json();
+                const finalReply = data.reply.replace(/\n/g, '<br>');
+                
+                document.getElementById(loadingId).innerHTML = finalReply;
+                
+                // 봇의 답변 내역 저장
+                chatHistory.push({ text: finalReply, sender: 'bot' });
+                localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
+
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            } catch (error) {
+                document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다.";
+            }
+        }
+
+        chatbotSend.addEventListener('click', sendMessageToBot);
+        chatbotInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessageToBot();
+        });
+
+        // 렌더링 호출
+        renderChatHistory();
+
+        // ==========================================
+        // ★ 위시 메모장 기능 (무조건 열리는 버그 수정됨) ★
         // ==========================================
         document.addEventListener("DOMContentLoaded", () => {
             const memoToggleBtn = document.getElementById("memo-toggle-btn");
@@ -438,8 +532,11 @@
             const memoList = document.getElementById("memo-list");
             const matchList = document.getElementById("memo-match-list");
 
+            // ★ 중요: 인라인 스타일 설정 및 명시적 검사 적용으로 페이지 렌더링 시 무조건 열림 방지
             if (localStorage.getItem("pickagain_memo_state") === "open") {
                 memoPanel.style.display = "flex";
+            } else {
+                memoPanel.style.display = "none";
             }
 
             memoToggleBtn.addEventListener("click", () => {
@@ -539,7 +636,30 @@
             fetchAndMatchMemos(initialMemos);
         });
 
+        // 6. 광고 로드
         window.onload = () => {
+            function loadRandomAds() {
+                const adImages = [
+                    "광고 (1).jpg", 
+                    "광고 (2).jpg", 
+                    "광고 (3).jpg", 
+                    "광고 (4).jpg", 
+                    "광고 (5).jpg"
+                ];
+
+                const leftAdSlot = document.querySelector('.ad-slot-left');
+                const rightAdSlot = document.querySelector('.ad-slot-right');
+
+                const randomLeft = adImages[Math.floor(Math.random() * adImages.length)];
+                let randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+                
+                while(randomLeft === randomRight) {
+                    randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+                }
+
+                if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+                if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+            }
             loadRandomAds();
         };
     </script>
