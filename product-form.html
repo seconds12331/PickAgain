@@ -1,45 +1,23 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <title>PickAgain - 상품 관리</title>
     <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* ==========================================
-           ★ 상품 폼 전용 다크모드
-           ========================================== */
-        body.dark-mode .content {
-            background-color: #1e1e1e !important;
-            border: 1px solid #333 !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
-        }
+        body.dark-mode .content { background-color: #1e1e1e !important; border: 1px solid #333 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important; }
         body.dark-mode h2, body.dark-mode h3 { color: #f1f2f6 !important; }
         body.dark-mode p, body.dark-mode label { color: #a4b0be !important; }
-        body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
-            background-color: #2a2a2a !important;
-            color: #f1f2f6 !important;
-            border: 1px solid #555 !important;
-        }
-        /* 읽기 전용 입력창(자동 입력된 매장 정보) 어둡게 */
-        body.dark-mode input[readonly] {
-            background-color: #1a1a1a !important;
-            color: #777 !important;
-        }
-        /* 엑셀 업로드 박스 다크모드 */
-        body.dark-mode .content[style*="background-color: #f8faff"] {
-            background-color: #1a1a1a !important;
-            border-color: #4b6cb7 !important;
-        }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background-color: #2a2a2a !important; color: #f1f2f6 !important; border: 1px solid #555 !important; }
+        body.dark-mode input[readonly] { background-color: #1a1a1a !important; color: #777 !important; }
+        body.dark-mode .content[style*="background-color: #f8faff"] { background-color: #1a1a1a !important; border-color: #4b6cb7 !important; }
         body.dark-mode #excel-file { background-color: #2a2a2a !important; color: #f1f2f6 !important; }
     </style>
 </head>
-
 <body>
     <script>
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            document.body.classList.add("dark-mode");
-        }
+        if (localStorage.getItem("pickagain_dark_mode") === "true") document.body.classList.add("dark-mode");
     </script>
     
     <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
@@ -52,11 +30,13 @@
             <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
             <button id="searchBtn">검색</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
-            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; margin-left: 10px; transition: transform 0.3s;">🌙</button>
+            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 20px; cursor: pointer; margin-left: 15px; transition: transform 0.3s; color: #f1c40f;">
+                <i class="fa-solid fa-moon"></i>
+            </button>
         </div>
     </div>
 
-    <div class="content">
+    <div class="content" style="max-width: 800px; margin: 20px auto;">
         <h2>새 상품 등록</h2>
         <p>등록할 상품의 정보를 입력해 주세요.</p>
 
@@ -138,8 +118,8 @@
         </form>
     </div>
 
-    <div class="content" style="margin-top: 30px; border: 2px dashed #4b6cb7; background-color: #f8faff;">
-        <h3 style="color: #4b6cb7; margin-top: 0;">엑셀로 한 번에 등록하기</h3>
+    <div class="content" style="max-width: 800px; margin: 30px auto; border: 2px dashed #4b6cb7; background-color: #f8faff;">
+        <h3 style="color: #4b6cb7; margin-top: 0;"><i class="fa-solid fa-file-excel"></i> 엑셀로 한 번에 등록하기</h3>
         <p style="font-size: 14px; margin-bottom: 15px;">상단의 빈칸을 채울 필요 없이, 양식에 맞춘 엑셀 파일만 업로드해 주세요.</p>
 
         <form id="bulk-upload-form">
@@ -154,7 +134,6 @@
         const backendURL = 'https://pickagain-backend-1.onrender.com';
         const form = document.getElementById("new-product-form");
 
-        // 1. 로그인 상태 확인 (비로그인 차단)
         const currentUser = localStorage.getItem("username");
         const navbar = document.querySelector(".navbar");
 
@@ -164,17 +143,24 @@
                 <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
             `;
             document.getElementById("logoutBtn").addEventListener("click", function(e) {
-                e.preventDefault();
-                localStorage.clear(); 
-                alert("로그아웃 되었습니다.");
-                location.reload(); 
+                e.preventDefault(); localStorage.clear(); alert("로그아웃 되었습니다."); location.reload(); 
             });
         } else {
-            alert("로그인이 필요한 페이지입니다.");
-            location.href = "login.html";
+            alert("로그인이 필요한 페이지입니다."); location.href = "login.html";
         }
 
-        // 2. 카테고리 데이터 및 업데이트
+        const darkModeBtn = document.getElementById("darkModeBtn");
+        if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
+        
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener("click", () => {
+                document.body.classList.toggle("dark-mode");
+                const isDark = document.body.classList.contains("dark-mode");
+                localStorage.setItem("pickagain_dark_mode", isDark ? "true" : "false"); 
+                darkModeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun" style="color: white;"></i>' : '<i class="fa-solid fa-moon" style="color: #f1c40f;"></i>';
+            });
+        }
+
         const categoryData = {
             "식품": ["가공식품", "신선식품 (과일/채소)", "축산/수산물", "음료/생수", "건강기능식품", "과자/간식"],
             "가전": ["주방가전 (냉장고/밥솥)", "생활가전 (세탁기/청소기)", "계절가전 (에어컨/선풍기)", "영상가전 (TV/모니터)", "음향가전 (스피커/이어폰)", "모바일/태블릿", "컴퓨터/노트북"],
@@ -192,15 +178,13 @@
             if (mainType && categoryData[mainType]) {
                 categoryData[mainType].forEach(sub => {
                     const option = document.createElement("option");
-                    option.value = sub;
-                    option.text = sub;
+                    option.value = sub; option.text = sub;
                     if (selectedSub && selectedSub === sub) option.selected = true;
                     subSelect.appendChild(option);
                 });
             }
         }
 
-        // 3. 페이지 초기화 (새글 등록 vs 상품 수정)
         window.onload = function () {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id');
@@ -209,29 +193,16 @@
             const sLoc = localStorage.getItem("store_location");
             const sPhone = localStorage.getItem("store_phone");
 
-            if (sName) {
-                const nameInput = document.getElementById('store-name');
-                nameInput.value = sName; nameInput.readOnly = true; nameInput.style.backgroundColor = '#f1f2f6'; 
-            }
-            if (sLoc) {
-                const locInput = document.getElementById('store-location');
-                locInput.value = sLoc; locInput.readOnly = true; locInput.style.backgroundColor = '#f1f2f6';
-            }
-            if (sPhone) {
-                const phoneInput = document.getElementById('store-phone');
-                phoneInput.value = sPhone; phoneInput.readOnly = true; phoneInput.style.backgroundColor = '#f1f2f6';
-            }
+            if (sName) { const nameInput = document.getElementById('store-name'); nameInput.value = sName; nameInput.readOnly = true; nameInput.style.backgroundColor = '#f1f2f6'; }
+            if (sLoc) { const locInput = document.getElementById('store-location'); locInput.value = sLoc; locInput.readOnly = true; locInput.style.backgroundColor = '#f1f2f6'; }
+            if (sPhone) { const phoneInput = document.getElementById('store-phone'); phoneInput.value = sPhone; phoneInput.readOnly = true; phoneInput.style.backgroundColor = '#f1f2f6'; }
 
-            if (productId) {
-                initializeEditMode(productId);
-            } else {
-                form.dataset.mode = 'create';
-            }
+            if (productId) initializeEditMode(productId);
+            else form.dataset.mode = 'create';
         };
 
         function initializeEditMode(productId) {
-            form.dataset.mode = 'edit';
-            form.dataset.id = productId;
+            form.dataset.mode = 'edit'; form.dataset.id = productId;
             document.querySelector('.content h2').innerText = "상품 수정";
             document.querySelector('.creat_btn').innerText = "수정 완료";
             document.getElementById('product-image-files').required = false;
@@ -243,14 +214,9 @@
                     document.getElementById('product-status-category').value = product.status_category;
                     document.getElementById('product-status-detail').value = product.status_detail;
                     document.getElementById('product-price').value = product.price;
-
-                    if (product.expiry_date) {
-                        document.getElementById('expiry-date').value = product.expiry_date.split('T')[0];
-                    }
-
+                    if (product.expiry_date) document.getElementById('expiry-date').value = product.expiry_date.split('T')[0];
                     document.getElementById('product-type').value = product.type;
                     updateSubCategory(product.type_detail);
-
                     document.getElementById('store-name').value = product.store_name;
                     document.getElementById('store-location').value = product.store_location;
                     document.getElementById('store-phone').value = product.store_phone;
@@ -258,88 +224,39 @@
                 .catch(err => alert("기존 상품 정보를 불러오는 데 실패했습니다."));
         }
 
-        // 4. 폼 전송 이벤트 (등록 & 수정)
         form.addEventListener("submit", function (e) {
             e.preventDefault();
             const formData = new FormData(form);
             const mode = form.dataset.mode;
-
-            const expiryInput = document.getElementById("expiry-date");
-            if (!expiryInput.value) {
-                formData.delete("expiry-date");
-            }
+            if (!document.getElementById("expiry-date").value) formData.delete("expiry-date");
 
             let url = mode === 'edit' ? `${backendURL}/products/${form.dataset.id}` : `${backendURL}/products`;
             let method = mode === 'edit' ? 'PUT' : 'POST';
 
             fetch(url, { method: method, body: formData })
-                .then(response => {
-                    if (!response.ok) throw new Error('서버 응답 실패'); 
-                    return response.json();
-                })
-                .then(data => {
-                    alert(data.message);
-                    window.location.href = "index.html";
-                })
-                .catch(error => {
-                    console.error("작업 실패:", error);
-                    alert("작업에 실패했습니다. (소비기한 형식을 확인해주세요)");
-                });
+                .then(response => { if (!response.ok) throw new Error('서버 응답 실패'); return response.json(); })
+                .then(data => { alert(data.message); window.location.href = "index.html"; })
+                .catch(error => { console.error("작업 실패:", error); alert("작업에 실패했습니다."); });
         });
 
-        // 5. 검색창 엔터키
         document.getElementById("searchBtn").addEventListener("click", function () {
             const keyword = document.getElementById("keyword").value;
             window.location.href = `index.html?search=${keyword}`;
         });
 
-        // 6. 엑셀 업로드 스크립트
         document.getElementById("bulk-upload-form").addEventListener("submit", function (e) {
             e.preventDefault();
             const formData = new FormData();
             const fileInput = document.getElementById("excel-file");
 
-            if (fileInput.files.length === 0) {
-                alert("파일을 선택해 주세요.");
-                return;
-            }
-
+            if (fileInput.files.length === 0) { alert("파일을 선택해 주세요."); return; }
             formData.append("excel-file", fileInput.files[0]);
 
-            fetch(`${backendURL}/products/bulk`, {
-                method: 'POST',
-                body: formData
-            })
+            fetch(`${backendURL}/products/bulk`, { method: 'POST', body: formData })
             .then(res => res.json())
-            .then(data => {
-                alert(data.message);
-                window.location.href = "index.html";
-            })
+            .then(data => { alert(data.message); window.location.href = "index.html"; })
             .catch(err => alert("업로드 중 오류가 발생했습니다."));
         });
-
-        // 7. 다크모드 스위치 로직
-        const darkModeBtn = document.getElementById("darkModeBtn");
-        
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            if(darkModeBtn) darkModeBtn.innerText = "☀️";
-        }
-
-        if (darkModeBtn) {
-            darkModeBtn.addEventListener("click", () => {
-                document.body.classList.toggle("dark-mode");
-                
-                if (document.body.classList.contains("dark-mode")) {
-                    localStorage.setItem("pickagain_dark_mode", "true"); 
-                    darkModeBtn.innerText = "☀️";
-                    darkModeBtn.style.transform = "rotate(180deg)"; 
-                } else {
-                    localStorage.setItem("pickagain_dark_mode", "false"); 
-                    darkModeBtn.innerText = "🌙";
-                    darkModeBtn.style.transform = "rotate(0deg)";
-                }
-            });
-        }
     </script>
 </body>
 </html>
