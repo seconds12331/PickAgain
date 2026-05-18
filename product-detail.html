@@ -78,6 +78,9 @@
             <button id="searchBtn">검색</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
             <button class="map-btn" onclick="location.href='map.html'">지도</button>
+            <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px; display: flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-robot"></i> AI 상담
+            </button>
             <button id="darkModeBtn" style="background: transparent; border: none; font-size: 20px; cursor: pointer; margin-left: 15px; transition: transform 0.3s; color: #f1c40f;">
                 <i class="fa-solid fa-moon"></i>
             </button>
@@ -90,6 +93,12 @@
         </div>
 
         <main class="main-content">
+            <div class="list-control-bar">
+                <button id="backToShopBtn" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i> 이전 목록으로 돌아가기
+                </button>
+            </div>
+
             <div class="content">
                 <div class="product-detail-container">
                     <div class="product-image-slider">
@@ -145,6 +154,19 @@
         </div>
     </div>
 
+    <div id="chatbot-window" class="chatbot-window" style="display: none;">
+        <div class="chatbot-header">
+            <h3 style="margin: 0; font-size: 16px;"><i class="fa-solid fa-robot"></i> PickAgain AI 매니저</h3>
+            <button id="chatbot-close" class="chatbot-close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages">
+            </div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="질문을 입력하세요..." autocomplete="off">
+            <button id="chatbot-send">전송</button>
+        </div>
+    </div>
+
     <div id="memo-widget">
         <div id="memo-panel" style="display: none;">
             <div class="memo-header">
@@ -175,6 +197,7 @@
     <script>
         const backendURL = 'https://pickagain-backend-1.onrender.com';
         let currentProductId = null;
+        let currentStoreName = ""; // ★ 현재 조회 중인 상품의 매장명을 담을 변수
 
         const currentUser = localStorage.getItem("username");
         const navbar = document.querySelector(".navbar");
@@ -223,9 +246,7 @@
             const editButton = document.querySelector('.btn-edit');
             if(editButton) editButton.addEventListener('click', () => window.location.href = `product-form.html?id=${currentProductId}`);
 
-            // 광고 관련 함수가 빠져있어서 빈 함수로 선언하여 에러를 방지했습니다. 
-            // 혹시 상세페이지용 광고 로직이 있다면 loadRandomAds() 함수를 선언해 주시면 됩니다.
-            // loadRandomAds();
+            loadRandomAds();
         };
 
         function fetchProductDetails(productId) {
@@ -267,6 +288,9 @@
 
                     const storeNameEl = document.getElementById('detail-store-name');
                     storeNameEl.innerText = product.store_name || "-";
+                    
+                    // ★ 현재 상품의 매장명을 저장 (뒤로 가기 폴백용)
+                    currentStoreName = product.store_name;
 
                     if (product.store_name && product.store_location) {
                         storeNameEl.href = `map.html?store=${encodeURIComponent(product.store_name)}&address=${encodeURIComponent(product.store_location)}`;
@@ -274,6 +298,22 @@
                 })
                 .catch(error => { console.error("상품 상세 정보 가져오기 실패:", error); document.getElementById('detail-name').innerText = error.message; });
         }
+
+        // ==========================================
+        // ★ 똑똑한 뒤로 가기 버튼 로직 ★
+        // ==========================================
+        document.getElementById('backToShopBtn').addEventListener('click', () => {
+            if (document.referrer && (document.referrer.includes('index.html') || document.referrer.includes('shop.html'))) {
+                // 이전에 보던 검색결과나 매장리스트가 캐시에 남아있다면 그대로 복귀
+                history.back();
+            } else if (currentStoreName) {
+                // 직접 링크를 타고 왔을 경우, 현재 상품의 소속 매장 리스트로 이동
+                location.href = `index.html?store=${encodeURIComponent(currentStoreName)}`;
+            } else {
+                // 최후의 수단
+                location.href = 'index.html';
+            }
+        });
 
         function deleteProduct() {
             if (!confirm("정말로 이 상품을 삭제하시겠습니까?")) { return; }
@@ -313,8 +353,114 @@
             window.location.href = `index.html?search=${keyword}`;
         });
 
+        function loadRandomAds() {
+            const adImages = ["광고 (1).jpg", "광고 (2).jpg", "광고 (3).jpg", "광고 (4).jpg", "광고 (5).jpg"];
+            const leftAdSlot = document.querySelector('.ad-slot-left'); const rightAdSlot = document.querySelector('.ad-slot-right');
+            const randomLeft = adImages[Math.floor(Math.random() * adImages.length)];
+            let randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+            while(randomLeft === randomRight) randomRight = adImages[Math.floor(Math.random() * adImages.length)];
+            if(leftAdSlot) leftAdSlot.innerHTML = `<img src="${randomLeft}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+            if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+        }
+
         // ==========================================
-        // ★ 위시 메모장 기능 (무조건 열리는 버그 수정됨) ★
+        // ★ AI 챗봇 (상태 유지 및 채팅 내역 저장 추가) ★
+        // ==========================================
+        const chatbotFab = document.getElementById('chatbot-fab');
+        const chatbotWindow = document.getElementById('chatbot-window');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSend = document.getElementById('chatbot-send');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+
+        let chatHistory = JSON.parse(localStorage.getItem("pickagain_chat_history")) || [];
+
+        function renderChatHistory() {
+            chatbotMessages.innerHTML = ""; 
+            if (chatHistory.length === 0) {
+                appendMessage(`안녕하세요! PickAgain AI 매니저입니다. 상품 추천이나 가성비 분석이 필요하시면 언제든 말씀해주세요.<br><br><span style="font-size: 12px; color: #555; background-color: #f1f3f5; padding: 8px; border-radius: 5px; display: inline-block; line-height: 1.5;"><i class="fa-solid fa-lightbulb"></i> 예: "10만원대 가성비 냉장고 찾아줘"<br><b>Tip:</b> 인터넷 최저가 비교를 원하신다면 정확한 상품명을 입력해 주세요!</span>`, "bot", false);
+            } else {
+                chatHistory.forEach(msg => appendMessage(msg.text, msg.sender, false));
+            }
+        }
+
+        if (localStorage.getItem("pickagain_chat_state") === "open") {
+            chatbotWindow.style.display = "flex";
+        } else {
+            chatbotWindow.style.display = "none";
+        }
+
+        chatbotFab.addEventListener('click', () => {
+            const isHidden = chatbotWindow.style.display === 'none' || chatbotWindow.style.display === '';
+            chatbotWindow.style.display = isHidden ? 'flex' : 'none';
+            localStorage.setItem("pickagain_chat_state", isHidden ? "open" : "closed");
+        });
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotWindow.style.display = 'none';
+            localStorage.setItem("pickagain_chat_state", "closed");
+        });
+
+        function appendMessage(text, sender, save = true) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            msgDiv.innerHTML = text;
+            chatbotMessages.appendChild(msgDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            if (save) {
+                chatHistory.push({ text, sender });
+                localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
+            }
+        }
+
+        async function sendMessageToBot() {
+            const text = chatbotInput.value.trim();
+            if (!text) return;
+
+            appendMessage(text, 'user', true);
+            chatbotInput.value = '';
+
+            const loadingId = "loading-" + Date.now();
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', 'bot-message');
+            msgDiv.id = loadingId;
+            msgDiv.innerHTML = "조회 중...";
+            chatbotMessages.appendChild(msgDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            try {
+                const response = await fetch(`${backendURL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                
+                const data = await response.json();
+                const finalReply = data.reply.replace(/\n/g, '<br>');
+                
+                document.getElementById(loadingId).innerHTML = finalReply;
+                
+                chatHistory.push({ text: finalReply, sender: 'bot' });
+                localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
+
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            } catch (error) {
+                document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다.";
+            }
+        }
+
+        chatbotSend.addEventListener('click', sendMessageToBot);
+        chatbotInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessageToBot();
+        });
+
+        renderChatHistory();
+
+        // ==========================================
+        // ★ 위시 메모장 기능 (버그 수정 완료) ★
         // ==========================================
         document.addEventListener("DOMContentLoaded", () => {
             const memoToggleBtn = document.getElementById("memo-toggle-btn");
@@ -369,6 +515,7 @@
             document.getElementById("memo-add-btn").addEventListener("click", () => {
                 const keyword = document.getElementById("memo-keyword").value.trim();
                 const maxPrice = parseInt(document.getElementById("memo-max-price").value) || 0;
+                
                 if (!keyword) return alert("찾으시는 상품명을 입력해 주세요!");
 
                 const memos = getMemos();
