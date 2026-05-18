@@ -37,7 +37,7 @@
         #memo-widget { position: fixed; bottom: 20px; left: 20px; z-index: 9999; font-family: 'Pretendard', sans-serif; }
         #memo-toggle-btn { background-color: #f39c12; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.3s, background-color 0.3s; display: flex; align-items: center; gap: 8px; }
         #memo-toggle-btn:hover { transform: scale(1.05); }
-        #memo-panel { display: none; width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #ddd; margin-bottom: 15px; overflow: hidden; flex-direction: column; max-height: 550px; }
+        #memo-panel { width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid #ddd; margin-bottom: 15px; overflow: hidden; flex-direction: column; max-height: 550px; }
         .memo-header { background: #f39c12; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .memo-header h4 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
         .memo-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
@@ -69,7 +69,9 @@
 </head>
 <body>
     <script>
-        if (localStorage.getItem("pickagain_dark_mode") === "true") document.body.classList.add("dark-mode");
+        if (localStorage.getItem("pickagain_dark_mode") === "true") {
+            document.body.classList.add("dark-mode");
+        }
     </script>
     
     <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
@@ -77,14 +79,14 @@
     <div class="search-container" style="margin-bottom: 20px;">
         <div class="search-bar-row">
             <div class="title-container">
-                <h2 class="Title"><a href="main.html">PickAgain</a></h2>
+                <h2 class="Title"><a href="index.html">PickAgain</a></h2>
             </div>
             <div style="flex: 1; text-align: center; color: #7f8c8d; font-size: 16px;">
                 내 주변에서 가장 가까운 리퍼브 매장을 찾아보세요
             </div>
             <button class="map-btn" onclick="location.href='map.html'">지도</button>
-            <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px;">
-                AI 상담
+            <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px; display: flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-robot"></i> AI 상담
             </button>
             <button id="darkModeBtn" style="background: transparent; border: none; font-size: 20px; cursor: pointer; margin-left: 10px; transition: transform 0.3s; color: #f1c40f;">
                 <i class="fa-solid fa-moon"></i>
@@ -114,15 +116,11 @@
 
     <div id="chatbot-window" class="chatbot-window" style="display: none;">
         <div class="chatbot-header">
-            <h3 style="margin: 0; font-size: 16px;">PickAgain AI 매니저</h3>
+            <h3 style="margin: 0; font-size: 16px;"><i class="fa-solid fa-robot"></i> PickAgain AI 매니저</h3>
             <button id="chatbot-close" class="chatbot-close"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="chatbot-messages" class="chatbot-messages">
-            <div class="message bot-message">
-                안녕하세요. 무엇이든 물어보세요.<br>
-                <span style="font-size: 12px; color: #666;">(예: "10만원대 가성비 냉장고 찾아줘")</span>
             </div>
-        </div>
         <div class="chatbot-input-area">
             <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." autocomplete="off">
             <button id="chatbot-send">전송</button>
@@ -130,7 +128,7 @@
     </div>
 
     <div id="memo-widget">
-        <div id="memo-panel">
+        <div id="memo-panel" style="display: none;">
             <div class="memo-header">
                 <h4><i class="fa-solid fa-pen-to-square"></i> 위시 메모 & 알리미</h4>
                 <button id="memo-close-btn"><i class="fa-solid fa-xmark"></i></button>
@@ -237,43 +235,101 @@
             });
         }
 
-        // AI 챗봇
+        // ==========================================
+        // ★ AI 챗봇 (상태 유지 및 채팅 내역 저장 추가) ★
+        // ==========================================
         const chatbotFab = document.getElementById('chatbot-fab');
         const chatbotWindow = document.getElementById('chatbot-window');
-        chatbotFab.addEventListener('click', () => chatbotWindow.style.display = chatbotWindow.style.display === 'none' ? 'flex' : 'none');
-        document.getElementById('chatbot-close').addEventListener('click', () => chatbotWindow.style.display = 'none');
+        const chatbotClose = document.getElementById('chatbot-close');
         const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSend = document.getElementById('chatbot-send');
         const chatbotMessages = document.getElementById('chatbot-messages');
 
-        function appendMessage(text, sender) {
+        let chatHistory = JSON.parse(localStorage.getItem("pickagain_chat_history")) || [];
+
+        function renderChatHistory() {
+            chatbotMessages.innerHTML = ""; 
+            if (chatHistory.length === 0) {
+                appendMessage(`안녕하세요! PickAgain AI 매니저입니다. 상품 추천이나 가성비 분석이 필요하시면 언제든 말씀해주세요.<br><br><span style="font-size: 12px; color: #555; background-color: #f1f3f5; padding: 8px; border-radius: 5px; display: inline-block; line-height: 1.5;"><i class="fa-solid fa-lightbulb"></i> 예: "10만원대 가성비 냉장고 찾아줘"<br><b>Tip:</b> 인터넷 최저가 비교를 원하신다면 정확한 상품명을 입력해 주세요!</span>`, "bot", false);
+            } else {
+                chatHistory.forEach(msg => appendMessage(msg.text, msg.sender, false));
+            }
+        }
+
+        if (localStorage.getItem("pickagain_chat_state") === "open") {
+            chatbotWindow.style.display = "flex";
+        } else {
+            chatbotWindow.style.display = "none";
+        }
+
+        chatbotFab.addEventListener('click', () => {
+            const isHidden = chatbotWindow.style.display === 'none' || chatbotWindow.style.display === '';
+            chatbotWindow.style.display = isHidden ? 'flex' : 'none';
+            localStorage.setItem("pickagain_chat_state", isHidden ? "open" : "closed");
+        });
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotWindow.style.display = 'none';
+            localStorage.setItem("pickagain_chat_state", "closed");
+        });
+
+        function appendMessage(text, sender, save = true) {
             const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
+            msgDiv.classList.add('message');
+            msgDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
             msgDiv.innerHTML = text;
             chatbotMessages.appendChild(msgDiv);
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            if (save) {
+                chatHistory.push({ text, sender });
+                localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
+            }
         }
 
         async function sendMessageToBot() {
             const text = chatbotInput.value.trim();
             if (!text) return;
-            appendMessage(text, 'user');
+
+            appendMessage(text, 'user', true);
             chatbotInput.value = '';
 
             const loadingId = "loading-" + Date.now();
             const msgDiv = document.createElement('div');
-            msgDiv.className = 'message bot-message'; msgDiv.id = loadingId; msgDiv.innerHTML = "생각 중...";
-            chatbotMessages.appendChild(msgDiv); chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            msgDiv.classList.add('message', 'bot-message');
+            msgDiv.id = loadingId;
+            msgDiv.innerHTML = "조회 중...";
+            chatbotMessages.appendChild(msgDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
             try {
-                const response = await fetch(`${backendURL}/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) });
+                const response = await fetch(`${backendURL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                
                 const data = await response.json();
-                document.getElementById(loadingId).innerHTML = data.reply.replace(/\n/g, '<br>');
-            } catch (error) { document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다."; }
-            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                const finalReply = data.reply.replace(/\n/g, '<br>');
+                
+                document.getElementById(loadingId).innerHTML = finalReply;
+                
+                chatHistory.push({ text: finalReply, sender: 'bot' });
+                localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
+
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            } catch (error) {
+                document.getElementById(loadingId).innerHTML = "서버와 연결이 끊어졌습니다.";
+            }
         }
 
-        document.getElementById('chatbot-send').addEventListener('click', sendMessageToBot);
-        chatbotInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessageToBot(); });
+        chatbotSend.addEventListener('click', sendMessageToBot);
+        chatbotInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessageToBot();
+        });
+
+        renderChatHistory();
         window.triggerChatSearch = function(searchTerm) { location.href = `index.html?keyword=${encodeURIComponent(searchTerm)}`; };
 
         // 랜덤 광고
@@ -309,7 +365,9 @@
             });
         }
 
-        // 위시 메모장 로직
+        // ==========================================
+        // ★ 위시 메모장 기능 (버그 수정 완료) ★
+        // ==========================================
         document.addEventListener("DOMContentLoaded", () => {
             const memoToggleBtn = document.getElementById("memo-toggle-btn");
             const memoPanel = document.getElementById("memo-panel");
@@ -320,6 +378,8 @@
 
             if (localStorage.getItem("pickagain_memo_state") === "open") {
                 memoPanel.style.display = "flex";
+            } else {
+                memoPanel.style.display = "none";
             }
 
             memoToggleBtn.addEventListener("click", () => {
@@ -362,7 +422,7 @@
                 const keyword = document.getElementById("memo-keyword").value.trim();
                 const maxPrice = parseInt(document.getElementById("memo-max-price").value) || 0;
                 
-                if (!keyword) return;
+                if (!keyword) return alert("찾으시는 상품명을 입력해 주세요!");
 
                 const memos = getMemos();
                 memos.push({ keyword, maxPrice });
