@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PickAgain - 매장 지도</title>
     <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         #map-wrapper {
             position: relative; 
@@ -80,6 +81,9 @@
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             transition: transform 0.3s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         #memo-toggle-btn:hover {
@@ -109,7 +113,7 @@
             align-items: center;
         }
 
-        .memo-header h4 { margin: 0; font-size: 16px; }
+        .memo-header h4 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
         .memo-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
 
         .simple-memo-area { padding: 15px; border-bottom: 1px solid #ddd; background: #fff; }
@@ -124,7 +128,7 @@
         .memo-del-btn { color: #e74c3c; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 16px; }
 
         #memo-match-area { background: #eef2ff; padding: 15px; flex: 1; overflow-y: auto; }
-        #memo-match-area h5 { margin: 0 0 10px 0; color: #4b6cb7; font-size: 14px; }
+        #memo-match-area h5 { margin: 0 0 10px 0; color: #4b6cb7; font-size: 14px; display: flex; align-items: center; gap: 6px; }
         #memo-match-list { list-style: none; margin: 0; padding: 0; }
         #memo-match-list li { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         #memo-match-list li a { color: #2c3e50; font-weight: bold; text-decoration: none; }
@@ -156,13 +160,13 @@
     <div class="search-container">
         <div class="search-bar-row">
             <div class="title-container">
-                <h2 class="Title"><a href="shop.html">PickAgain</a></h2>
+                <h2 class="Title"><a href="index.html">PickAgain</a></h2>
             </div>
             <div style="flex: 1;"></div> 
             <button class="map-btn" onclick="location.href='map.html'">지도</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
-            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; margin-left: 10px; transition: transform 0.3s;">
-                🌙
+            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 20px; cursor: pointer; margin-left: 15px; transition: transform 0.3s; color: #f1c40f;">
+                <i class="fa-solid fa-moon"></i>
             </button>
         </div>
     </div>
@@ -180,7 +184,7 @@
                 <p>지도를 통해 가까운 매장의 위치를 확인하고, 매장 이름을 클릭해 상품을 조회해 보세요.</p>
                 
                 <div id="map-wrapper">
-                    <button id="search-here-btn">↻ 현 지도에서 검색</button>
+                    <button id="search-here-btn"><i class="fa-solid fa-rotate-right"></i> 현 지도에서 검색</button>
                     <div id="map-container">
                         카카오맵 API 연결 대기 중...
                     </div>
@@ -198,8 +202,8 @@
     <div id="memo-widget">
         <div id="memo-panel">
             <div class="memo-header">
-                <h4>📝 위시 메모 & 알리미</h4>
-                <button id="memo-close-btn">&times;</button>
+                <h4><i class="fa-solid fa-pen-to-square"></i> 위시 메모 & 알리미</h4>
+                <button id="memo-close-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <div class="simple-memo-area">
@@ -215,11 +219,11 @@
             <ul id="memo-list"></ul>
 
             <div id="memo-match-area">
-                <h5>✨ 조건에 맞는 상품 발견!</h5>
+                <h5><i class="fa-solid fa-bell"></i> 조건에 맞는 상품 발견!</h5>
                 <ul id="memo-match-list"></ul>
             </div>
         </div>
-        <button id="memo-toggle-btn">📝 위시 메모</button>
+        <button id="memo-toggle-btn"><i class="fa-solid fa-pen-to-square"></i> 위시 메모</button>
     </div>
 
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3120d52a4a94a6575cb08b7ec6363881&libraries=services&autoload=false"></script>
@@ -275,9 +279,13 @@
                 kakao.maps.event.addListener(marker, 'click', function() {
                     var content = `
                         <div style="padding:15px; font-size:14px; width:260px; border-radius:8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-                            <a href="index.html?store=${encodeURIComponent(place.place_name)}" style="color:#2c3e50; font-size:16px; font-weight:bold; text-decoration:underline; display:inline-block; margin-bottom:5px;">🔗 ${place.place_name} 상품 보기</a><br>
+                            <a href="index.html?store=${encodeURIComponent(place.place_name)}" style="color:#2c3e50; font-size:16px; font-weight:bold; text-decoration:underline; display:inline-block; margin-bottom:5px;">
+                                <i class="fa-solid fa-link"></i> ${place.place_name} 상품 보기
+                            </a><br>
                             <span style="color:#7f8fa6; font-size:12px;">${place.road_address_name || place.address_name}</span><br>
-                            <span style="color:#27ae60; font-size:13px; font-weight:bold; margin-top:5px; display:block;">📞 ${place.phone || '전화번호 없음'}</span>
+                            <span style="color:#27ae60; font-size:13px; font-weight:bold; margin-top:5px; display:block;">
+                                <i class="fa-solid fa-phone"></i> ${place.phone || '전화번호 없음'}
+                            </span>
                         </div>
                     `;
                     infowindow.setContent(content);
@@ -348,7 +356,9 @@
                         
                         var content = `
                             <div style="padding:15px; min-width:200px; border-radius:8px;">
-                                <a href="index.html?store=${encodeURIComponent(targetStore)}" style="color:#4b6cb7; font-size:16px; font-weight:bold; text-decoration:underline; display:block; margin-bottom:5px;">🔗 ${targetStore} 상품 보기</a>
+                                <a href="index.html?store=${encodeURIComponent(targetStore)}" style="color:#4b6cb7; font-size:16px; font-weight:bold; text-decoration:underline; display:block; margin-bottom:5px;">
+                                    <i class="fa-solid fa-link"></i> ${targetStore} 상품 보기
+                                </a>
                                 <span style="color:#666; font-size:12px;">${targetAddress}</span>
                             </div>`;
                         infowindow.setContent(content);
@@ -397,31 +407,28 @@
             if(rightAdSlot) rightAdSlot.innerHTML = `<img src="${randomRight}" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
         }
 
-        // 4. 다크모드 스위치
+        // 4. 다크모드 스위치 처리
         const darkModeBtn = document.getElementById("darkModeBtn");
-        
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            if(darkModeBtn) darkModeBtn.innerText = "☀️";
+        if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) {
+            darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
         }
 
         if (darkModeBtn) {
             darkModeBtn.addEventListener("click", () => {
                 document.body.classList.toggle("dark-mode");
+                const isDark = document.body.classList.contains("dark-mode");
+                localStorage.setItem("pickagain_dark_mode", isDark ? "true" : "false"); 
                 
-                if (document.body.classList.contains("dark-mode")) {
-                    localStorage.setItem("pickagain_dark_mode", "true"); 
-                    darkModeBtn.innerText = "☀️";
-                    darkModeBtn.style.transform = "rotate(180deg)"; 
+                if (isDark) {
+                    darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
                 } else {
-                    localStorage.setItem("pickagain_dark_mode", "false"); 
-                    darkModeBtn.innerText = "🌙";
-                    darkModeBtn.style.transform = "rotate(0deg)";
+                    darkModeBtn.innerHTML = '<i class="fa-solid fa-moon" style="color: #f1c40f;"></i>';
                 }
             });
         }
 
         // ==========================================
-        // ★ 5. 업그레이드된 위시 메모장 기능
+        // ★ 위시 메모장 기능 (백엔드 연동) ★
         // ==========================================
         document.addEventListener("DOMContentLoaded", () => {
             const memoToggleBtn = document.getElementById("memo-toggle-btn");
@@ -431,7 +438,9 @@
             const memoList = document.getElementById("memo-list");
             const matchList = document.getElementById("memo-match-list");
 
-            if (localStorage.getItem("pickagain_memo_state") === "open") memoPanel.style.display = "flex";
+            if (localStorage.getItem("pickagain_memo_state") === "open") {
+                memoPanel.style.display = "flex";
+            }
 
             memoToggleBtn.addEventListener("click", () => {
                 const isHidden = memoPanel.style.display === "none" || memoPanel.style.display === "";
@@ -445,7 +454,9 @@
             });
 
             simpleMemoText.value = localStorage.getItem("pickagain_simple_memo") || "";
-            simpleMemoText.addEventListener("input", (e) => localStorage.setItem("pickagain_simple_memo", e.target.value));
+            simpleMemoText.addEventListener("input", (e) => {
+                localStorage.setItem("pickagain_simple_memo", e.target.value);
+            });
 
             function getMemos() { return JSON.parse(localStorage.getItem("pickagain_memos") || "[]"); }
             
@@ -454,70 +465,78 @@
                 memos.forEach((memo, index) => {
                     const priceText = memo.maxPrice > 0 ? `${memo.maxPrice.toLocaleString()}원 이하` : "가격 무관";
                     const li = document.createElement("li");
-                    li.innerHTML = `<span><strong>${memo.keyword}</strong> (${priceText})</span><button class="memo-del-btn" onclick="deleteMemo(${index})">&times;</button>`;
+                    li.innerHTML = `<span><strong>${memo.keyword}</strong> (${priceText})</span><button class="memo-del-btn" onclick="deleteMemo(${index})"><i class="fa-solid fa-xmark"></i></button>`;
                     memoList.appendChild(li);
                 });
             }
 
             window.deleteMemo = function(index) {
-                const memos = getMemos(); memos.splice(index, 1);
+                const memos = getMemos();
+                memos.splice(index, 1);
                 localStorage.setItem("pickagain_memos", JSON.stringify(memos));
-                renderMemosOnly(memos); fetchAndMatchMemos(memos);
+                renderMemosOnly(memos);
+                fetchAndMatchMemos(memos);
             };
 
             document.getElementById("memo-add-btn").addEventListener("click", () => {
-                const kwInput = document.getElementById("memo-keyword");
-                const pxInput = document.getElementById("memo-max-price");
-                if (!kwInput.value.trim()) return alert("상품명을 입력해 주세요!");
+                const keyword = document.getElementById("memo-keyword").value.trim();
+                const maxPrice = parseInt(document.getElementById("memo-max-price").value) || 0;
+                
+                if (!keyword) return alert("찾으시는 상품명을 입력해 주세요!");
 
                 const memos = getMemos();
-                memos.push({ keyword: kwInput.value.trim(), maxPrice: parseInt(pxInput.value) || 0 });
+                memos.push({ keyword, maxPrice });
                 localStorage.setItem("pickagain_memos", JSON.stringify(memos));
 
-                kwInput.value = ""; pxInput.value = "";
-                renderMemosOnly(memos); fetchAndMatchMemos(memos);
+                document.getElementById("memo-keyword").value = ""; 
+                document.getElementById("memo-max-price").value = "";
+                
+                renderMemosOnly(memos);
+                fetchAndMatchMemos(memos);
             });
 
             async function fetchAndMatchMemos(memos) {
                 if (memos.length === 0) {
                     matchList.innerHTML = "<li>메모를 등록하시면 알림을 드려요!</li>";
-                    memoToggleBtn.innerText = `📝 위시 메모`; 
+                    memoToggleBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> 위시 메모';
                     memoToggleBtn.style.backgroundColor = "#f39c12"; 
                     return;
                 }
 
-                matchList.innerHTML = "<li>상품 탐색 중... 🔍</li>";
+                matchList.innerHTML = "<li>상품 탐색 중...</li>";
 
                 try {
                     const res = await fetch(`${backendURL}/products`);
-                    const pdData = await res.json();
-                    let matchCount = 0; matchList.innerHTML = "";
+                    const allProducts = await res.json();
+                    let matchCount = 0;
+                    matchList.innerHTML = "";
 
                     memos.forEach(memo => {
-                        pdData.filter(p => p.name && p.name.toLowerCase().includes(memo.keyword.toLowerCase()) && (memo.maxPrice === 0 || p.price <= memo.maxPrice))
+                        allProducts.filter(p => p.name && p.name.toLowerCase().includes(memo.keyword.toLowerCase()) && (memo.maxPrice === 0 || p.price <= memo.maxPrice))
                             .forEach(item => {
                                 matchCount++;
                                 const li = document.createElement("li");
-                                li.innerHTML = `<a href="product-detail.html?id=${item.product_id}">🎁 ${item.name} (${item.price.toLocaleString()}원)</a><div style="color:#7f8c8d; font-size:11px; margin-top:3px;">🏪 ${item.store_name}</div>`;
+                                li.innerHTML = `<a href="product-detail.html?id=${item.product_id}"><i class="fa-solid fa-box"></i> ${item.name} (${item.price.toLocaleString()}원)</a><div style="color:#7f8c8d; font-size:11px; margin-top:3px;">[${item.store_name}]</div>`;
                                 matchList.appendChild(li);
                             });
                     });
 
                     if (matchCount === 0) {
                         matchList.innerHTML = "<li>조건에 맞는 상품이 없습니다.</li>";
-                        memoToggleBtn.innerText = `📝 위시 메모`; 
+                        memoToggleBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> 위시 메모';
                         memoToggleBtn.style.backgroundColor = "#f39c12";
                     } else {
-                        memoToggleBtn.innerText = `📝 위시 메모 (✨${matchCount}건 발견!)`; 
+                        memoToggleBtn.innerHTML = `<i class="fa-solid fa-bell"></i> 위시 메모 (${matchCount}건 발견!)`;
                         memoToggleBtn.style.backgroundColor = "#e74c3c"; 
                     }
-                } catch (error) { 
-                    matchList.innerHTML = "<li>오류가 발생했습니다.</li>"; 
+                } catch (error) {
+                    matchList.innerHTML = "<li>오류가 발생했습니다.</li>";
                 }
             }
 
             const initialMemos = getMemos();
-            renderMemosOnly(initialMemos); fetchAndMatchMemos(initialMemos);
+            renderMemosOnly(initialMemos);
+            fetchAndMatchMemos(initialMemos);
         });
 
         window.onload = () => {
