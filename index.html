@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>PickAgain - 검색</title>
     <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* ==========================================
            ★ 위시 메모장 위젯 전용 CSS (좌측 하단)
@@ -27,6 +28,9 @@
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             transition: transform 0.3s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         #memo-toggle-btn:hover {
@@ -44,7 +48,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            max-height: 500px;
+            max-height: 550px;
         }
 
         .memo-header {
@@ -56,25 +60,30 @@
             align-items: center;
         }
 
-        .memo-header h4 { margin: 0; font-size: 16px; }
+        .memo-header h4 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
         .memo-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
 
-        .memo-input-area { padding: 15px; background: #f9f9f9; border-bottom: 1px solid #ddd; }
-        .memo-input-area input { width: 100%; box-sizing: border-box; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px; }
-        .memo-input-area button { width: 100%; padding: 8px; background: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .simple-memo-area { padding: 15px; border-bottom: 1px solid #ddd; background: #fff; }
+        .simple-memo-area textarea { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 6px; resize: none; font-size: 13px; font-family: inherit; }
 
-        #memo-list { list-style: none; margin: 0; padding: 0; max-height: 120px; overflow-y: auto; }
+        .memo-input-area { padding: 15px; background: #f9f9f9; border-bottom: 1px solid #ddd; }
+        .memo-input-area input { width: 100%; box-sizing: border-box; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
+        .memo-input-area button { width: 100%; padding: 8px; background: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
+
+        #memo-list { list-style: none; margin: 0; padding: 0; max-height: 100px; overflow-y: auto; }
         #memo-list li { padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 13px; align-items: center;}
         .memo-del-btn { color: #e74c3c; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 16px; }
 
         #memo-match-area { background: #eef2ff; padding: 15px; flex: 1; overflow-y: auto; }
-        #memo-match-area h5 { margin: 0 0 10px 0; color: #4b6cb7; }
+        #memo-match-area h5 { margin: 0 0 10px 0; color: #4b6cb7; font-size: 14px; display: flex; align-items: center; gap: 6px; }
         #memo-match-list { list-style: none; margin: 0; padding: 0; }
         #memo-match-list li { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         #memo-match-list li a { color: #2c3e50; font-weight: bold; text-decoration: none; }
 
         /* 다크모드 대응 */
         body.dark-mode #memo-panel { background: #1e1e1e; border-color: #333; }
+        body.dark-mode .simple-memo-area { background: #1e1e1e; border-color: #333; }
+        body.dark-mode .simple-memo-area textarea { background: #2a2a2a; color: #f1f2f6; border-color: #555; }
         body.dark-mode .memo-input-area { background: #2a2a2a; border-color: #444; }
         body.dark-mode .memo-input-area input { background: #1e1e1e; color: white; border-color: #555; }
         body.dark-mode #memo-list li { border-color: #444; color: #a4b0be; }
@@ -110,8 +119,8 @@
             <button id="chatbot-fab" style="background-color: #2c3e50; color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; margin-left: 10px; height: 38px;">
                 AI 상담
             </button>
-            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; margin-left: 10px; transition: transform 0.3s;">
-                🌙
+            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 20px; cursor: pointer; margin-left: 15px; transition: transform 0.3s; color: #f1c40f;">
+                <i class="fa-solid fa-moon"></i>
             </button>
         </div>
 
@@ -215,7 +224,7 @@
     <div id="chatbot-window" class="chatbot-window" style="display: none;">
         <div class="chatbot-header">
             <h3 style="margin: 0; font-size: 16px;">PickAgain AI 매니저</h3>
-            <button id="chatbot-close" class="chatbot-close">&times;</button>
+            <button id="chatbot-close" class="chatbot-close"><i class="fa-solid fa-xmark"></i></button>
         </div>
         
         <div id="chatbot-messages" class="chatbot-messages">
@@ -234,24 +243,28 @@
     <div id="memo-widget">
         <div id="memo-panel">
             <div class="memo-header">
-                <h4>📝 위시 메모 & 알리미</h4>
-                <button id="memo-close-btn">&times;</button>
+                <h4><i class="fa-solid fa-pen-to-square"></i> 위시 메모 & 알리미</h4>
+                <button id="memo-close-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
+            <div class="simple-memo-area">
+                <textarea id="simple-memo-text" placeholder="자유롭게 메모를 남겨보세요..." rows="3"></textarea>
+            </div>
+
             <div class="memo-input-area">
-                <input type="text" id="memo-keyword" placeholder="상품명 (예: 냉장고)" autocomplete="off">
-                <input type="number" id="memo-max-price" placeholder="희망 최대 가격 (선택사항)" autocomplete="off">
-                <button id="memo-add-btn">메모 저장하기</button>
+                <input type="text" id="memo-keyword" placeholder="찾는 상품명 (예: 냉장고)" autocomplete="off">
+                <input type="number" id="memo-max-price" placeholder="희망 최대 가격 (선택)" autocomplete="off">
+                <button id="memo-add-btn">알림 조건 저장</button>
             </div>
 
             <ul id="memo-list"></ul>
 
             <div id="memo-match-area">
-                <h5>✨ 조건에 맞는 상품 발견!</h5>
+                <h5><i class="fa-solid fa-bell"></i> 조건에 맞는 상품 발견!</h5>
                 <ul id="memo-match-list"></ul>
             </div>
         </div>
-        <button id="memo-toggle-btn">📝 위시 메모</button>
+        <button id="memo-toggle-btn"><i class="fa-solid fa-pen-to-square"></i> 위시 메모</button>
     </div>
     
     <script>
@@ -343,7 +356,7 @@
                 
                         if (keywordInput) {
                             keywordInput.value = ""; 
-                            keywordInput.placeholder = `🔍 [${storeFilter}] 내 상품 검색...`;
+                            keywordInput.placeholder = `[${storeFilter}] 내 상품 검색...`;
                         }
                 
                         const filtered = allProducts.filter(p => p.store_name === storeFilter);
@@ -381,9 +394,9 @@
                             <h4>${p.name}</h4>
                             <span class="status-badge">${p.status_category || '기타'}</span>
                         </div>
-                        <p class="status-reason">⚠️ ${shortDetail}</p>
+                        <p class="status-reason">${shortDetail}</p>
                         <p class="product-price">${p.price.toLocaleString()}원</p>
-                        <p class="store-info">🏪 ${p.store_name || '매장 정보 없음'}</p>
+                        <p class="store-info">[${p.store_name || '매장 정보 없음'}]</p>
                     </div>
                 `;
             return item;
@@ -483,7 +496,7 @@
                 contentContainer.style.display = "block";
         
                 if (filtered.length === 0) {
-                    contentContainer.innerHTML = "<div style='text-align:center; padding: 50px;'><h3 style='color:#777;'>조건에 맞는 상품이 없습니다. 😢</h3></div>";
+                    contentContainer.innerHTML = "<div style='text-align:center; padding: 50px;'><h3 style='color:#777;'>조건에 맞는 상품이 없습니다.</h3></div>";
                 } else {
                     displayAllProducts(filtered);
                 }
@@ -540,7 +553,7 @@
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message', 'bot-message');
             msgDiv.id = loadingId;
-            msgDiv.innerHTML = "생각 중... 💭";
+            msgDiv.innerHTML = "조회 중...";
             chatbotMessages.appendChild(msgDiv);
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
@@ -594,7 +607,7 @@
         const darkModeBtn = document.getElementById("darkModeBtn");
         
         if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            if(darkModeBtn) darkModeBtn.innerText = "☀️";
+            if(darkModeBtn) darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
         }
 
         if (darkModeBtn) {
@@ -603,12 +616,10 @@
                 
                 if (document.body.classList.contains("dark-mode")) {
                     localStorage.setItem("pickagain_dark_mode", "true"); 
-                    darkModeBtn.innerText = "☀️";
-                    darkModeBtn.style.transform = "rotate(180deg)"; 
+                    darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
                 } else {
                     localStorage.setItem("pickagain_dark_mode", "false"); 
-                    darkModeBtn.innerText = "🌙";
-                    darkModeBtn.style.transform = "rotate(0deg)";
+                    darkModeBtn.innerHTML = '<i class="fa-solid fa-moon" style="color: #f1c40f;"></i>';
                 }
             });
         }
@@ -619,75 +630,110 @@
         document.addEventListener("DOMContentLoaded", () => {
             const memoToggleBtn = document.getElementById("memo-toggle-btn");
             const memoPanel = document.getElementById("memo-panel");
+            const memoCloseBtn = document.getElementById("memo-close-btn");
+            const simpleMemoText = document.getElementById("simple-memo-text");
             const memoList = document.getElementById("memo-list");
             const matchList = document.getElementById("memo-match-list");
 
-            memoToggleBtn.addEventListener("click", () => memoPanel.style.display = memoPanel.style.display === "none" ? "flex" : "none");
-            document.getElementById("memo-close-btn").addEventListener("click", () => memoPanel.style.display = "none");
+            if (localStorage.getItem("pickagain_memo_state") === "open") {
+                memoPanel.style.display = "flex";
+            }
+
+            memoToggleBtn.addEventListener("click", () => {
+                const isHidden = memoPanel.style.display === "none" || memoPanel.style.display === "";
+                memoPanel.style.display = isHidden ? "flex" : "none";
+                localStorage.setItem("pickagain_memo_state", isHidden ? "open" : "closed");
+            });
+
+            memoCloseBtn.addEventListener("click", () => {
+                memoPanel.style.display = "none";
+                localStorage.setItem("pickagain_memo_state", "closed");
+            });
+
+            simpleMemoText.value = localStorage.getItem("pickagain_simple_memo") || "";
+            simpleMemoText.addEventListener("input", (e) => {
+                localStorage.setItem("pickagain_simple_memo", e.target.value);
+            });
 
             function getMemos() { return JSON.parse(localStorage.getItem("pickagain_memos") || "[]"); }
+            
             function renderMemosOnly(memos) {
                 memoList.innerHTML = "";
                 memos.forEach((memo, index) => {
                     const priceText = memo.maxPrice > 0 ? `${memo.maxPrice.toLocaleString()}원 이하` : "가격 무관";
                     const li = document.createElement("li");
-                    li.innerHTML = `<span><strong>${memo.keyword}</strong> (${priceText})</span><button class="memo-del-btn" onclick="deleteMemo(${index})">&times;</button>`;
+                    li.innerHTML = `<span><strong>${memo.keyword}</strong> (${priceText})</span><button class="memo-del-btn" onclick="deleteMemo(${index})"><i class="fa-solid fa-xmark"></i></button>`;
                     memoList.appendChild(li);
                 });
             }
 
             window.deleteMemo = function(index) {
-                const memos = getMemos(); memos.splice(index, 1);
+                const memos = getMemos();
+                memos.splice(index, 1);
                 localStorage.setItem("pickagain_memos", JSON.stringify(memos));
-                renderMemosOnly(memos); fetchAndMatchMemos(memos);
+                renderMemosOnly(memos);
+                fetchAndMatchMemos(memos);
             };
 
             document.getElementById("memo-add-btn").addEventListener("click", () => {
-                const kwInput = document.getElementById("memo-keyword");
-                const pxInput = document.getElementById("memo-max-price");
-                if (!kwInput.value.trim()) return alert("상품명을 입력해 주세요!");
+                const keyword = document.getElementById("memo-keyword").value.trim();
+                const maxPrice = parseInt(document.getElementById("memo-max-price").value) || 0;
+                
+                if (!keyword) return alert("찾으시는 상품명을 입력해 주세요!");
 
                 const memos = getMemos();
-                memos.push({ keyword: kwInput.value.trim(), maxPrice: parseInt(pxInput.value) || 0 });
+                memos.push({ keyword, maxPrice });
                 localStorage.setItem("pickagain_memos", JSON.stringify(memos));
 
-                kwInput.value = ""; pxInput.value = "";
-                renderMemosOnly(memos); fetchAndMatchMemos(memos);
+                document.getElementById("memo-keyword").value = ""; 
+                document.getElementById("memo-max-price").value = "";
+                
+                renderMemosOnly(memos);
+                fetchAndMatchMemos(memos);
             });
 
             async function fetchAndMatchMemos(memos) {
                 if (memos.length === 0) {
                     matchList.innerHTML = "<li>메모를 등록하시면 알림을 드려요!</li>";
-                    memoToggleBtn.innerText = `📝 위시 메모`; memoToggleBtn.style.backgroundColor = "#f39c12"; 
+                    memoToggleBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> 위시 메모';
+                    memoToggleBtn.style.backgroundColor = "#f39c12"; 
                     return;
                 }
-                matchList.innerHTML = "<li>상품 탐색 중... 🔍</li>";
+
+                matchList.innerHTML = "<li>상품 탐색 중...</li>";
+
                 try {
                     const res = await fetch(`${backendURL}/products`);
-                    const pdData = await res.json();
-                    let matchCount = 0; matchList.innerHTML = "";
+                    const allProducts = await res.json();
+                    let matchCount = 0;
+                    matchList.innerHTML = "";
 
                     memos.forEach(memo => {
-                        pdData.filter(p => p.name && p.name.toLowerCase().includes(memo.keyword.toLowerCase()) && (memo.maxPrice === 0 || p.price <= memo.maxPrice))
+                        allProducts.filter(p => p.name && p.name.toLowerCase().includes(memo.keyword.toLowerCase()) && (memo.maxPrice === 0 || p.price <= memo.maxPrice))
                             .forEach(item => {
                                 matchCount++;
                                 const li = document.createElement("li");
-                                li.innerHTML = `<a href="product-detail.html?id=${item.product_id}">🎁 ${item.name} (${item.price.toLocaleString()}원)</a><div style="color:#7f8c8d; font-size:11px; margin-top:3px;">🏪 ${item.store_name}</div>`;
+                                li.innerHTML = `<a href="product-detail.html?id=${item.product_id}"><i class="fa-solid fa-box"></i> ${item.name} (${item.price.toLocaleString()}원)</a><div style="color:#7f8c8d; font-size:11px; margin-top:3px;">[${item.store_name}]</div>`;
                                 matchList.appendChild(li);
                             });
                     });
 
                     if (matchCount === 0) {
                         matchList.innerHTML = "<li>조건에 맞는 상품이 없습니다.</li>";
-                        memoToggleBtn.innerText = `📝 위시 메모`; memoToggleBtn.style.backgroundColor = "#f39c12";
+                        memoToggleBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> 위시 메모';
+                        memoToggleBtn.style.backgroundColor = "#f39c12";
                     } else {
-                        memoToggleBtn.innerText = `📝 위시 메모 (✨${matchCount}건 발견!)`; memoToggleBtn.style.backgroundColor = "#e74c3c"; 
+                        memoToggleBtn.innerHTML = `<i class="fa-solid fa-bell"></i> 위시 메모 (${matchCount}건 발견!)`;
+                        memoToggleBtn.style.backgroundColor = "#e74c3c"; 
                     }
-                } catch (error) { matchList.innerHTML = "<li>오류가 발생했습니다.</li>"; }
+                } catch (error) {
+                    matchList.innerHTML = "<li>오류가 발생했습니다.</li>";
+                }
             }
 
             const initialMemos = getMemos();
-            renderMemosOnly(initialMemos); fetchAndMatchMemos(initialMemos);
+            renderMemosOnly(initialMemos);
+            fetchAndMatchMemos(initialMemos);
         });
 
         // ★ 초기 실행
