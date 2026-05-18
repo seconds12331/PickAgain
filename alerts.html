@@ -4,22 +4,12 @@
     <meta charset="UTF-8">
     <title>PickAgain - 예약 알림</title>
     <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* 레이아웃 가운데 정렬 */
-        .page-wrapper {
-            display: flex; justify-content: center; padding: 20px;
-        }
-        .main-content {
-            max-width: 800px; width: 100%;
-        }
+        .page-wrapper { display: flex; justify-content: center; padding: 20px; }
+        .main-content { max-width: 800px; width: 100%; }
+        .status-control-box { margin-top: 15px; text-align: left; background: #f9f9f9; padding: 10px; border-radius: 6px; border: 1px solid #eaeaea; }
 
-        /* 상태 관리 박스 스타일 */
-        .status-control-box {
-            margin-top: 15px; text-align: left; background: #f9f9f9; 
-            padding: 10px; border-radius: 6px; border: 1px solid #eaeaea;
-        }
-
-        /* 알림창 전용 다크모드 적용 */
         body.dark-mode .content,
         body.dark-mode .alert-item { background-color: #1e1e1e !important; border: 1px solid #333 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important; }
         body.dark-mode .alert-product-info h4 a { color: #55efc4 !important; }
@@ -34,9 +24,7 @@
 </head>
 <body>
     <script>
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            document.body.classList.add("dark-mode");
-        }
+        if (localStorage.getItem("pickagain_dark_mode") === "true") document.body.classList.add("dark-mode");
     </script>
 
     <div class="navbar"><a href="login.html">Login/Sign Up</a></div>
@@ -49,14 +37,16 @@
             <input type="text" id="keyword" placeholder="상품명을 입력하세요" autocomplete="off">
             <button id="searchBtn">검색</button>
             <button class="alert-btn" onclick="location.href='alerts.html'">알림</button>
-            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; margin-left: 10px; transition: transform 0.3s;">🌙</button>
+            <button id="darkModeBtn" style="background: transparent; border: none; font-size: 20px; cursor: pointer; margin-left: 15px; transition: transform 0.3s; color: #f1c40f;">
+                <i class="fa-solid fa-moon"></i>
+            </button>
         </div>
     </div>
 
     <div class="page-wrapper">
         <main class="main-content">
             <div class="content">
-                <h2 style="color: #4b6cb7; margin-top:0;">📋 구매 예약 알림</h2>
+                <h2 style="color: #4b6cb7; margin-top:0;"><i class="fa-solid fa-bell"></i> 구매 예약 알림</h2>
                 <p>고객이 예약을 희망하는 상품과 연락처 목록입니다.</p>
                 
                 <div id="alerts-container" class="alerts-list">
@@ -69,7 +59,6 @@
     <script>
         const backendURL = 'https://pickagain-backend-1.onrender.com';
 
-        // 1. 판매자/관리자 로그인 확인
         const currentUser = localStorage.getItem("username");
         const navbar = document.querySelector(".navbar");
 
@@ -79,17 +68,24 @@
                 <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
             `;
             document.getElementById("logoutBtn").addEventListener("click", function(e) {
-                e.preventDefault();
-                localStorage.clear();
-                alert("로그아웃 되었습니다.");
-                location.href = "index.html"; 
+                e.preventDefault(); localStorage.clear(); alert("로그아웃 되었습니다."); location.href = "index.html"; 
             });
         } else {
-            alert("로그인이 필요한 페이지입니다.");
-            location.href = "login.html";
+            alert("로그인이 필요한 페이지입니다."); location.href = "login.html";
         }
 
-        // 2. 예약 알림 데이터 가져오기
+        const darkModeBtn = document.getElementById("darkModeBtn");
+        if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
+        
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener("click", () => {
+                document.body.classList.toggle("dark-mode");
+                const isDark = document.body.classList.contains("dark-mode");
+                localStorage.setItem("pickagain_dark_mode", isDark ? "true" : "false"); 
+                darkModeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun" style="color: white;"></i>' : '<i class="fa-solid fa-moon" style="color: #f1c40f;"></i>';
+            });
+        }
+
         function fetchAlerts() {
             fetch(`${backendURL}/reservations`)
                 .then(response => response.json())
@@ -118,16 +114,16 @@
                             </div>
                             <div class="alert-contact">
                                 <span>구매 희망자 연락처</span>
-                                <strong style="color: #f1f2f6;">📞 ${alert.buyer_phone}</strong>
+                                <strong style="color: #f1f2f6;"><i class="fa-solid fa-phone"></i> ${alert.buyer_phone}</strong>
                                 
                                 <div class="status-control-box">
                                     <span style="font-size: 11px; margin-bottom: 5px; display: block; font-weight: bold;">진행 상태 관리</span>
                                     <select onchange="updateReservationStatus(${alert.reservation_id}, this.value)" style="width: 100%; padding: 6px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer;">
-                                        <option value="대기중" ${alert.status === '대기중' ? 'selected' : ''}>⏳ 대기중 (연락 전)</option>
-                                        <option value="판매 가능 (연락 완료)" ${alert.status === '판매 가능 (연락 완료)' ? 'selected' : ''}>✅ 판매 가능 (연락 완료)</option>
-                                        <option value="판매 불가 (연락 필요)" ${alert.status === '판매 불가 (연락 필요)' ? 'selected' : ''}>⚠️ 판매 불가 (연락 필요)</option>
-                                        <option value="판매 불가 (연락 완료)" ${alert.status === '판매 불가 (연락 완료)' ? 'selected' : ''}>❌ 판매 불가 (연락 완료)</option>
-                                        <option value="판매 완료" ${alert.status === '판매 완료' ? 'selected' : ''}>🎉 판매 완료 (거래 종료)</option>
+                                        <option value="대기중" ${alert.status === '대기중' ? 'selected' : ''}>[대기중] 연락 전</option>
+                                        <option value="판매 가능 (연락 완료)" ${alert.status === '판매 가능 (연락 완료)' ? 'selected' : ''}>[판매 가능] 연락 완료</option>
+                                        <option value="판매 불가 (연락 필요)" ${alert.status === '판매 불가 (연락 필요)' ? 'selected' : ''}>[판매 불가] 연락 필요</option>
+                                        <option value="판매 불가 (연락 완료)" ${alert.status === '판매 불가 (연락 완료)' ? 'selected' : ''}>[판매 불가] 연락 완료</option>
+                                        <option value="판매 완료" ${alert.status === '판매 완료' ? 'selected' : ''}>[판매 완료] 거래 종료</option>
                                     </select>
                                 </div>
                             </div>
@@ -143,54 +139,20 @@
 
         window.onload = fetchAlerts;
 
-        // 3. 검색 기능
         document.getElementById("searchBtn").addEventListener("click", function() {
             const keyword = document.getElementById("keyword").value;
             window.location.href = `index.html?search=${keyword}`;
         });
 
-        // 4. 진행 상태 관리 업데이트
         function updateReservationStatus(reservationId, newStatus) {
             fetch(`${backendURL}/reservations/${reservationId}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
             })
-            .then(response => {
-                if (!response.ok) throw new Error('상태 변경 실패');
-                return response.json();
-            })
-            .then(data => {
-                console.log(data.message); 
-            })
-            .catch(error => {
-                console.error("상태 변경 에러:", error);
-                alert("상태 변경에 실패했습니다. 다시 시도해 주세요.");
-                location.reload(); 
-            });
-        }
-
-        // 5. 다크 모드 토글 로직
-        const darkModeBtn = document.getElementById("darkModeBtn");
-        
-        if (localStorage.getItem("pickagain_dark_mode") === "true") {
-            if(darkModeBtn) darkModeBtn.innerText = "☀️";
-        }
-
-        if (darkModeBtn) {
-            darkModeBtn.addEventListener("click", () => {
-                document.body.classList.toggle("dark-mode");
-                
-                if (document.body.classList.contains("dark-mode")) {
-                    localStorage.setItem("pickagain_dark_mode", "true"); 
-                    darkModeBtn.innerText = "☀️";
-                    darkModeBtn.style.transform = "rotate(180deg)"; 
-                } else {
-                    localStorage.setItem("pickagain_dark_mode", "false"); 
-                    darkModeBtn.innerText = "🌙";
-                    darkModeBtn.style.transform = "rotate(0deg)";
-                }
-            });
+            .then(response => { if (!response.ok) throw new Error('상태 변경 실패'); return response.json(); })
+            .then(data => { console.log(data.message); })
+            .catch(error => { console.error("상태 변경 에러:", error); alert("상태 변경에 실패했습니다. 다시 시도해 주세요."); location.reload(); });
         }
     </script>
 </body>
