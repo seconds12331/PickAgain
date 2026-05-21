@@ -262,7 +262,7 @@
 
                         paths.forEach(path => {
                             const img = document.createElement('img');
-                            img.src = `${backendURL}${path}`; img.alt = '상품 이미지'; img.classList.add('slide-image'); 
+                            img.src = path.startsWith('http') ? path : "https://placehold.co/400x400?text=Old+Data"; img.alt = '상품 이미지'; img.classList.add('slide-image'); 
                             sliderWrapper.appendChild(img);
                         });
 
