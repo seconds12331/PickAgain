@@ -227,7 +227,7 @@
                 const card = document.createElement("div");
                 card.className = "store-card";
                 card.onclick = () => location.href = `index.html?store=${encodeURIComponent(s.name)}`;
-                const distText = s.distance ? `${s.distance.toFixed(1)}km` : "거리 계산 불가";
+                const distText = s.distance ? `${s.distance.toFixed(1)}km` : "1km 이내";
                 card.innerHTML = `
                     <div class="store-info"><h3><i class="fa-solid fa-store" style="color:#4b6cb7; margin-right:8px;"></i>${s.name}</h3><p>현재 영업 중 | PickAgain 공식 등록 매장</p></div>
                     <div class="distance-tag">${distText}</div>`;
