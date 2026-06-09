@@ -46,8 +46,8 @@
     <div class="page-wrapper" style="max-width: 1000px; margin: 0 auto;">
         <main class="main-content" style="max-width: 100%;">
             <div class="content">
-                <h2 style="color: #2c3e50; margin-top:0;"><i class="fa-solid fa-list-check"></i> 가입 승인 대기 목록</h2>
-                <p>PickAgain 플랫폼에 입점을 신청한 매장 목록입니다. 신규 가입자는 <strong>승인</strong>을 받아야 로그인할 수 있습니다.</p>
+                <h2 style="color: #2c3e50; margin-top:0;">가입 승인 대기 목록</h2>
+                <p>PickAgain 플랫폼에 입점을 신청한 매장 목록입니다. 신규 가입자는 승인을 받아야 로그인할 수 있습니다.</p>
                 
                 <table class="admin-table">
                     <thead>
@@ -80,11 +80,14 @@
         }
 
         document.querySelector(".navbar").innerHTML = `
-            <span style="color: white; margin-right: 15px;"><i class="fa-solid fa-crown"></i> 관리자 <strong>${currentUser}</strong>님 접속 중</span>
+            <span style="color: white; margin-right: 15px;">관리자 <strong>${currentUser}</strong>님 접속 중</span>
             <a href="#" id="logoutBtn" style="color: #ffd700; font-weight: bold;">로그아웃</a>
         `;
+        
         document.getElementById("logoutBtn").addEventListener("click", (e) => {
-            e.preventDefault(); localStorage.clear(); location.href = "index.html"; 
+            e.preventDefault(); 
+            localStorage.clear(); 
+            location.href = "index.html"; 
         });
 
         const darkModeBtn = document.getElementById("darkModeBtn");
@@ -112,7 +115,9 @@
                     }
 
                     users.forEach(u => {
-                        let statusBadge = ""; let actionButtons = "";
+                        let statusBadge = ""; 
+                        let actionButtons = "";
+                        
                         if (u.status === 'pending') {
                             statusBadge = `<span class="badge pending">대기중</span>`;
                             actionButtons = `
@@ -152,7 +157,10 @@
                 body: JSON.stringify({ status: newStatus })
             })
             .then(res => res.json())
-            .then(data => { alert(data.message); fetchAdminUsers(); })
+            .then(data => { 
+                alert(data.message); 
+                fetchAdminUsers(); 
+            })
             .catch(err => alert("처리 중 오류가 발생했습니다."));
         }
 
