@@ -1,8 +1,6 @@
 @charset "UTF-8";
 
-/* =================================
-   1. 전역 설정 (Global Reset)
-   ================================= */
+/* 1. 전역 설정  */
 body {
     font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
     margin: 0;
@@ -28,11 +26,9 @@ button {
     font-family: inherit;
 }
 
-/* =================================
-   2. 헤더 & 네비게이션 (Header)
-   ================================= */
+/* 2. 헤더 & 네비게이션 */
 
-/* 최상단 로그인/회원가입 바 */
+/* 로그인/회원가입 바 */
 .navbar {
     display: flex;
     align-items: center;
@@ -58,7 +54,7 @@ button {
     margin-left: auto;
 }
 
-/* 검색창 및 로고 영역 */
+/* 검색창 및 로고 */
 .search-container {
     background-color: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(5px);
@@ -89,7 +85,7 @@ button {
     box-sizing: border-box; 
 }
 
-/* 타이틀(로고) 디자인 */
+/* 타이틀 디자인 */
 .title-container {
     margin-right: 20px;
     flex-shrink: 0;
@@ -137,7 +133,7 @@ button {
     box-shadow: 0 0 0 2px rgba(75, 108, 183, 0.1);
 }
 
-/* 모든 검색 관련 버튼들 크기 고정 */
+/* 버튼 크기 고정 */
 .search-container button,
 .detail-toggle-btn {
     flex-shrink: 0;
@@ -168,9 +164,7 @@ button {
     margin-top: 10px;
 }
 
-/* =================================
-   3. 레이아웃 (Page Wrapper & Ad)
-   ================================= */
+/* 3. 레이아웃 */
 .page-wrapper {
     display: flex;
     justify-content: center;
@@ -189,13 +183,13 @@ button {
 
 .ad-column-left,
 .ad-column-right {
-    width: 200px !important; /* 확장된 광고 영역 너비 적용 */
+    width: 200px !important;
     flex-shrink: 0;
 }
 
 .ad-slot {
     width: 100%;
-    min-height: 700px !important; /* 확장된 광고 영역 높이 적용 */
+    min-height: 700px !important;
     background-color: #fff;
     border-radius: 8px;
     border: 1px dashed #d1d1d1;
@@ -207,9 +201,7 @@ button {
     color: #999;
 }
 
-/* =================================
-   4. 컨텐츠 박스 (Card Style)
-   ================================= */
+/* 4. 컨텐츠 박스*/
 .content,
 .results {
     background-color: #ffffff;
@@ -232,9 +224,7 @@ p {
     font-size: 15px;
 }
 
-/* =================================
-   5. 상품 목록 디자인
-   ================================= */
+/* 5. 상품 목록 디자인 */
 .product-item-link {
     display: block;
 }
@@ -299,9 +289,7 @@ p {
     margin-bottom: 4px;
 }
 
-/* =================================
-   6. 버튼 디자인 (둥근 사각형)
-   ================================= */
+/* 6. 버튼 디자인 */
 .main-content .button-container,
 .detail-section .button-container,
 .admin-button-container {
@@ -347,9 +335,7 @@ p {
 .btn-edit { background-color: #7f8fa6; }
 .btn-delete { background-color: #e84118; }
 
-/* =================================
-   7. 로그인 & 회원가입 폼
-   ================================= */
+/* 7. 로그인 & 회원가입 폼 */
 .form-page-container {
     display: flex;
     justify-content: center;
@@ -427,9 +413,7 @@ p {
     cursor: pointer;
 }
 
-/* =================================
-   8. 글쓰기 & 상세 페이지
-   ================================= */
+/* 8. 글쓰기 & 상세 페이지 */
 .form-group {
     margin-bottom: 20px;
 }
@@ -499,9 +483,7 @@ p {
     padding-bottom: 5px;
 }
 
-/* =================================
-   9. 반응형 (Mobile)
-   ================================= */
+/* 9. 반응형 */
 @media (max-width: 1024px) {
     .ad-column-left,
     .ad-column-right {
@@ -541,9 +523,7 @@ p {
     }
 }
 
-/* =================================
-   10. 상세 검색 패널 스타일
-   ================================= */
+/* 10. 상세 검색 패널 스타일 */
 .search-container {
     flex-direction: column;
     align-items: center;
@@ -619,9 +599,7 @@ p {
     justify-content: flex-end;
 }
 
-/* =================================
-   버튼 클릭(Active) 및 호버(Hover) 효과
-   ================================= */
+/* 버튼 클릭 및 호버 효과 */
 .search-container button,
 .detail-toggle-btn,
 .creat_btn,
@@ -648,9 +626,7 @@ p {
     transform: scale(0.98);
 }
 
-/* =================================
-   11. 상품 이미지 슬라이더 (Carousel)
-   ================================= */
+/* 11. 상품 이미지 슬라이더*/
 .product-image-slider {
     width: 100%;
     max-width: 350px;
@@ -700,9 +676,7 @@ p {
 .next-btn { right: 15px; }
 .slider-btn.hidden { display: none; }
 
-/* =================================
-   12. 알림 & 지도 버튼
-   ================================= */
+/* 12. 알림 & 지도 버튼*/
 .search-bar-row {
     position: relative; 
 }
@@ -730,9 +704,7 @@ p {
     transform: scale(1.05);
 }
 
-/* =================================
-   13. 알림 페이지 (alerts.html)
-   ================================= */
+/* 13. 알림 페이지 */
 .alerts-list { margin-top: 25px; }
 
 .alert-item {
@@ -816,9 +788,7 @@ p {
     letter-spacing: 0.5px;
 }
 
-/* =================================
-   14. AI 챗봇 (Chatbot)
-   ================================= */
+/* 14. AI 챗봇*/
 .chatbot-fab {
     position: fixed; bottom: 30px; right: 30px;
     background-color: #4b6cb7; color: white; border: none;
@@ -866,9 +836,7 @@ p {
 }
 .chatbot-messages a:hover { background-color: #d1e0f7; text-decoration: underline; }
 
-/* =================================
-   15. 상품 목록 상단 컨트롤 바
-   ================================= */
+/* 15. 상품 목록 상단 컨트롤 바 */
 .list-control-bar {
     display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 20px; width: 100%;
@@ -887,15 +855,12 @@ p {
     font-size: 14px; color: #2c3e50; background-color: white; outline: none; cursor: pointer;
 }
 
-/* ==========================================
-   16. 글로벌 다크 모드 (Dark Mode)
-   ========================================== */
+/* 16. 글로벌 다크 모드 */
 body.dark-mode {
     background-color: #121212 !important;
     color: #e0e0e0 !important;
 }
 
-/* 박스/컨테이너 어둡게 */
 body.dark-mode .product-item,
 body.dark-mode .search-container,
 body.dark-mode .detail-search-panel,
@@ -916,7 +881,6 @@ body.dark-mode .hero-section {
     color: #f1f2f6 !important;
 }
 
-/* 텍스트 색상 전환 */
 body.dark-mode h1, 
 body.dark-mode h2, 
 body.dark-mode h3, 
@@ -937,7 +901,6 @@ body.dark-mode .store-info {
 
 body.dark-mode .status-reason { color: #ffb8b8 !important; }
 
-/* 입력 필드 전환 */
 body.dark-mode input,
 body.dark-mode select,
 body.dark-mode textarea {
@@ -946,7 +909,6 @@ body.dark-mode textarea {
     border: 1px solid #555 !important;
 }
 
-/* 표(Table) 다크모드 */
 body.dark-mode table,
 body.dark-mode th,
 body.dark-mode td {
@@ -961,18 +923,17 @@ body.dark-mode td {
     color: #f1f2f6 !important;
 }
 
-/* 버튼 다크모드 */
 body.dark-mode button:not(#chatbot-fab):not(#darkModeBtn):not(.btn-agree):not(.creat_btn) {
     background-color: #2c2c2c !important;
     color: #f1f2f6 !important;
     border: 1px solid #555 !important;
 }
+
 body.dark-mode button:not(#chatbot-fab):not(#darkModeBtn):hover {
     background-color: #4b6cb7 !important;
     color: white !important;
 }
 
-/* 카카오맵, 빈 광고 슬롯 배경 투명화 및 어둡게 처리 */
 body.dark-mode #map-container {
     background-color: #2a2a2a !important;
     border-color: #444 !important;
@@ -983,9 +944,6 @@ body.dark-mode .ad-slot {
     border-color: #333 !important;
 }
 
-/* ==========================================
-   AI 챗봇 다크모드 전용 코드
-   ========================================== */
 body.dark-mode .chatbot-header {
     background-color: #1a1a1a !important;
     border-bottom: 1px solid #333 !important;
@@ -1001,14 +959,13 @@ body.dark-mode .bot-message {
     border-color: #444 !important;
 }
 
-/* 챗봇 최초 안내 메시지 내 회색 팁(Tip) 상자 다크모드 처리 */
 body.dark-mode .bot-message span {
     background-color: #333 !important;
     color: #ccc !important;
 }
 
 body.dark-mode .user-message {
-    background-color: #3a5591 !important; /* 다크모드에 맞게 살짝 톤다운된 파란색 */
+    background-color: #3a5591 !important;
     color: #ffffff !important;
 }
 
