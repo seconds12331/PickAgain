@@ -48,7 +48,6 @@
             color: #fff;
         }
 
-        /* 광고 여백 및 배경 투명화 */
         .ad-column-left, .ad-column-right {
             padding-top: 20px !important; 
         }
@@ -58,10 +57,7 @@
             padding: 0 !important;
             box-shadow: none !important;
         }
-
-        /* ==========================================
-           ★ 업그레이드된 위시 메모장 위젯 (자유 메모 포함)
-           ========================================== */
+        
         #memo-widget {
             position: fixed;
             bottom: 20px;
@@ -91,7 +87,6 @@
         }
 
         #memo-panel {
-            /* JS 충돌 방지를 위해 기본 display: none 은 인라인 스타일로 관리합니다. */
             width: 320px;
             background: white;
             border-radius: 12px;
@@ -132,7 +127,6 @@
         #memo-match-list li { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         #memo-match-list li a { color: #2c3e50; font-weight: bold; text-decoration: none; }
 
-        /* 다크모드 대응 */
         body.dark-mode #map-container { background-color: #1e1e1e !important; border-color: #333 !important; color: #a4b0be !important; }
         body.dark-mode #search-here-btn { background-color: #2c2c2c !important; color: #f1f2f6 !important; border-color: #555 !important; }
         body.dark-mode #search-here-btn:hover { background-color: #4b6cb7 !important; }
@@ -248,7 +242,6 @@
     <script>
         const backendURL = 'https://pickagain-backend-1.onrender.com';
 
-        // 1. 로그인 상태 확인
         const currentUser = localStorage.getItem("username");
         if (currentUser) {
             document.querySelector(".navbar").innerHTML = `
@@ -262,7 +255,6 @@
             });
         }
 
-        // 2. 카카오맵 초기화 및 마커 로직
         kakao.maps.load(function() {
             var mapContainer = document.getElementById('map-container');
             mapContainer.innerHTML = ''; 
@@ -400,7 +392,6 @@
             }
         });
 
-        // 3. 다크모드 스위치 처리
         const darkModeBtn = document.getElementById("darkModeBtn");
         if (localStorage.getItem("pickagain_dark_mode") === "true" && darkModeBtn) {
             darkModeBtn.innerHTML = '<i class="fa-solid fa-sun" style="color: white;"></i>';
@@ -420,9 +411,6 @@
             });
         }
 
-        // ==========================================
-        // ★ AI 챗봇 (상태 유지 및 채팅 내역 저장 추가) ★
-        // ==========================================
         const chatbotFab = document.getElementById('chatbot-fab');
         const chatbotWindow = document.getElementById('chatbot-window');
         const chatbotClose = document.getElementById('chatbot-close');
@@ -430,20 +418,17 @@
         const chatbotSend = document.getElementById('chatbot-send');
         const chatbotMessages = document.getElementById('chatbot-messages');
 
-        // 채팅 내역 로드 및 렌더링
         let chatHistory = JSON.parse(localStorage.getItem("pickagain_chat_history")) || [];
 
         function renderChatHistory() {
             chatbotMessages.innerHTML = ""; 
             if (chatHistory.length === 0) {
-                // 초기 안내 메시지
                 appendMessage(`안녕하세요! PickAgain AI 매니저입니다. 상품 추천이나 가성비 분석이 필요하시면 언제든 말씀해주세요.<br><br><span style="font-size: 12px; color: #555; background-color: #f1f3f5; padding: 8px; border-radius: 5px; display: inline-block; line-height: 1.5;"><i class="fa-solid fa-lightbulb"></i> 예: "10만원대 가성비 냉장고 찾아줘"<br><b>Tip:</b> 인터넷 최저가 비교를 원하신다면 정확한 상품명을 입력해 주세요!</span>`, "bot", false);
             } else {
                 chatHistory.forEach(msg => appendMessage(msg.text, msg.sender, false));
             }
         }
 
-        // 창 열림/닫힘 상태를 명시적으로 처리
         if (localStorage.getItem("pickagain_chat_state") === "open") {
             chatbotWindow.style.display = "flex";
         } else {
@@ -502,7 +487,6 @@
                 
                 document.getElementById(loadingId).innerHTML = finalReply;
                 
-                // 봇의 답변 내역 저장
                 chatHistory.push({ text: finalReply, sender: 'bot' });
                 localStorage.setItem("pickagain_chat_history", JSON.stringify(chatHistory));
 
@@ -518,12 +502,8 @@
             if (e.key === 'Enter') sendMessageToBot();
         });
 
-        // 렌더링 호출
         renderChatHistory();
 
-        // ==========================================
-        // ★ 위시 메모장 기능 (무조건 열리는 버그 수정됨) ★
-        // ==========================================
         document.addEventListener("DOMContentLoaded", () => {
             const memoToggleBtn = document.getElementById("memo-toggle-btn");
             const memoPanel = document.getElementById("memo-panel");
@@ -532,7 +512,6 @@
             const memoList = document.getElementById("memo-list");
             const matchList = document.getElementById("memo-match-list");
 
-            // ★ 중요: 인라인 스타일 설정 및 명시적 검사 적용으로 페이지 렌더링 시 무조건 열림 방지
             if (localStorage.getItem("pickagain_memo_state") === "open") {
                 memoPanel.style.display = "flex";
             } else {
@@ -636,7 +615,6 @@
             fetchAndMatchMemos(initialMemos);
         });
 
-        // 6. 광고 로드
         window.onload = () => {
             function loadRandomAds() {
                 const adImages = [
